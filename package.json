@@ -1,0 +1,14 @@
+{
+  "name": "gameboard",
+  "version": "0.1.0",
+  "description": "Service des meilleurs scores de jeux.kassir.fr : les serveurs des jeux y envoient les scores avec leur clé, le portail lit les tops",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": { "express": "5.3.0" }
+}
