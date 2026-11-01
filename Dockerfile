@@ -23,7 +23,7 @@ COPY --from=menu-build /menu/dist /menu
 RUN mkdir /data && chown node:node /data
 
 USER node
-ENV NODE_ENV=production PORT=3000 HOST=0.0.0.0 MENU_DIR=/menu PUBLIC_DIR=/app/site CATALOG=/app/games.json DATA_DIR=/data
+ENV NODE_ENV=production PORT=3000 HOST=0.0.0.0 MENU_DIR=/menu PUBLIC_DIR=/app/site GAMES_DIR=/games CATALOG=/app/games.json DATA_DIR=/data
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s CMD node -e "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["node", "src/server.js"]

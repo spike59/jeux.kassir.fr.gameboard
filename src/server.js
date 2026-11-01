@@ -11,14 +11,16 @@ const PUBLIC_HOST = process.env.PUBLIC_HOST || 'jeux.kassir.fr';
 const DATA_DIR = process.env.DATA_DIR || join(ROOT, 'data');
 // menu 3D construit (absent en dev local : on sert alors le site seul)
 const MENU_DIR = process.env.MENU_DIR || '';
-// icône, scores.js, jeux/ (jeux statiques déposés par le déploiement)
+// icône, scores.js
 const PUBLIC_DIR = process.env.PUBLIC_DIR || join(ROOT, 'site');
+// un dossier par jeu (stack : web/jeux.kassir.fr/games) ; /jeux/<id>/ sert games/<id>/public/ (jeux statiques)
+const GAMES_DIR = process.env.GAMES_DIR || join(ROOT, 'games');
 
 // derrière nginx-proxy (réseau Docker) : adresses privées ; pour un essai local : TRUST_PROXY=loopback
 const TRUST_PROXY = process.env.TRUST_PROXY || 'uniquelocal';
 const CATALOG = process.env.CATALOG || join(ROOT, 'games.json');
 
 const keys = parseKeys(process.env.GAMEBOARD_KEYS);
-const portal = createPortal({ publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, catalog: CATALOG, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
+const portal = createPortal({ publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 
 portal.listen(PORT, HOST, () => console.log(`gameboard sur http://${HOST}:${PORT} (https://${PUBLIC_HOST}) — ${keys.size} jeu(x) avec clé`));

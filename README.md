@@ -9,13 +9,14 @@ gameboard/
   src/        serveur Express : portail (portal.js), API des scores (app.js), classements (games.js), stockage (store.js)
   menu/       menu 3D (Vite + Babylon.js) : carrousel, vignettes, tableaux des scores
   site/       fichiers servis tels quels : icon.svg, scores.js
+  (games/)    pas dans ce dépôt : web/jeux.kassir.fr/games de la stack, un dossier par jeu, monté sur /games
   games.json  catalogue des jeux affichés par le menu
   test/       tests de l'API (node --test)
   Dockerfile  construit le menu puis le serveur
 ```
 
 Les jeux ne sont **pas** ici : chacun a son dépôt (`apps/<jeu>`). Le déploiement de la stack les met en ligne :
-- jeu **statique** (Bulles) : son `dist/` est copié dans `web/jeux.kassir.fr/jeux/<id>/`, monté dans le conteneur ;
+- jeu **statique** (Bulles) : son `dist/` est copié dans `web/jeux.kassir.fr/games/<id>/public/`, monté dans le conteneur ;
 - jeu **avec serveur** (Police vs voleurs) : son propre conteneur, derrière le même proxy.
 
 ## Scores
@@ -45,13 +46,13 @@ Lecture publique : `GET /api/v1/boards` (tous les jeux) et `GET /api/v1/boards/:
 
 ```bash
 npm install
-npm test                      # API : 12 tests
+npm test                      # API et portail : 14 tests
 npm run build:menu            # construit menu/dist
 GAMEBOARD_KEYS=jeu:clé… MENU_DIR=menu/dist TRUST_PROXY=loopback npm start   # http://127.0.0.1:3000
 cd menu && npm run dev        # menu seul, relaie /api et /jeux vers le site en ligne
 ```
 
-Variables : `PORT` (3000), `HOST` (127.0.0.1 ; `0.0.0.0` en conteneur), `PUBLIC_HOST` (jeux.kassir.fr), `GAMEBOARD_KEYS`, `DATA_DIR` (un volume en ligne), `MENU_DIR`, `PUBLIC_DIR`, `CATALOG`, `TRUST_PROXY`. Le portail redirige tout vers HTTPS : derrière le proxy Docker l'adresse est privée (`uniquelocal`) ; pour un essai local, `TRUST_PROXY=loopback` et l'en-tête `X-Forwarded-Proto: https`.
+Variables : `PORT` (3000), `HOST` (127.0.0.1 ; `0.0.0.0` en conteneur), `PUBLIC_HOST` (jeux.kassir.fr), `GAMEBOARD_KEYS`, `DATA_DIR` (un volume en ligne), `MENU_DIR`, `PUBLIC_DIR`, `GAMES_DIR`, `CATALOG`, `TRUST_PROXY`. Le portail redirige tout vers HTTPS : derrière le proxy Docker l'adresse est privée (`uniquelocal`) ; pour un essai local, `TRUST_PROXY=loopback` et l'en-tête `X-Forwarded-Proto: https`.
 
 ## Stockage
 
