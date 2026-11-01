@@ -33,7 +33,7 @@ const raceBoards = CIRCUITS.flatMap((c) =>
 );
 
 export const GAMES = {
-  'police-voleurs': {
+  'car_race': {
     title: 'Police vs voleurs',
     boards: [
       { id: 'police', title: 'Meilleurs flics', emoji: '🚓', order: 'desc', unit: 'points', min: 1, max: 500, open: true },

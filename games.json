@@ -1,5 +1,5 @@
 [
-  { "id": "police-voleurs", "title": "Police vs voleurs", "icon": "🚓", "color": "#1f5fd6", "url": "/jeux/car_race/", "ready": true, "scores": true,
+  { "id": "car_race", "title": "Police vs voleurs", "icon": "🚓", "color": "#1f5fd6", "url": "/jeux/car_race/", "ready": true, "scores": true,
     "online": [{ "board": "police", "title": "Meilleurs flics", "icon": "🚓" }, { "board": "thieves", "title": "Meilleurs voleurs", "icon": "💰" },
       { "group": "race", "title": "Records des circuits (meilleur tour)", "icon": "🏁", "records": true }] },
   { "id": "bulles", "title": "Bulles", "icon": "🫧", "color": "#2f9fe6", "url": "/jeux/bulles/", "ready": true, "scores": true,
