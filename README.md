@@ -1,62 +1,62 @@
 # gameboard
 
-Service des **meilleurs scores** de jeux.kassir.fr. Les jeux en dépendent : leur serveur y envoie les scores avec sa clé, le portail y lit les tops.
+Le **portail de jeux.kassir.fr** : on y arrive, on choisit un jeu (menu 3D), et c'est lui qui garde les **meilleurs scores** de tous les jeux. Un seul dépôt, un seul conteneur (`web-app`).
 
-À ne pas confondre avec la **progression d'un joueur** (crédits, garage, carte…), qui reste dans le jeu.
+À ne pas confondre avec la **progression d'un joueur** (crédits, garage, carte…), qui reste dans chaque jeu.
 
-## Principe
-
-- Chaque jeu a une **clé d'API**, gardée côté serveur du jeu (jamais dans le navigateur).
-- Le serveur du jeu envoie le score d'un joueur ; si c'est son meilleur sur ce classement il est gardé (une ligne par joueur), s'il bat le n°1 il devient le **top**.
-- La clé fixe le jeu : un jeu ne peut écrire que dans ses propres classements.
-- Le portail ne fait que **lire** (`GET`, sans clé).
-
-## API
-
-| Requête | Accès | Rôle |
-| --- | --- | --- |
-| `POST /v1/scores` | clé du jeu (`Authorization: Bearer <clé>`) | envoie des scores |
-| `GET /v1/boards` | public | tous les tops (portail) |
-| `GET /v1/boards/:game` | public | les tops d'un jeu |
-| `GET /healthz` | public | santé du conteneur |
-
-Envoi :
-
-```json
-{ "board": "police", "entries": [ { "player": "Ana", "value": 12 }, { "player": "Bob", "value": 7 } ] }
+```
+gameboard/
+  src/        serveur Express : portail (portal.js), API des scores (app.js), classements (games.js), stockage (store.js)
+  menu/       menu 3D (Vite + Babylon.js) : carrousel, vignettes, tableaux des scores
+  site/       fichiers servis tels quels : icon.svg, scores.js
+  games.json  catalogue des jeux affichés par le menu
+  test/       tests de l'API (node --test)
+  Dockerfile  construit le menu puis le serveur
 ```
 
-Réponse `201` : `{ "board": "police", "results": [ { "player": "Ana", "status": "top" }, … ] }` avec `status` = `top` (nouveau n°1), `best` (record personnel), `kept` (pas meilleur que le sien) ou `ignored` (nom ou valeur invalide, ignoré sans bloquer les autres).
+Les jeux ne sont **pas** ici : chacun a son dépôt (`apps/<jeu>`). Le déploiement de la stack les met en ligne :
+- jeu **statique** (Bulles) : son `dist/` est copié dans `web/jeux.kassir.fr/jeux/<id>/`, monté dans le conteneur ;
+- jeu **avec serveur** (Police vs voleurs) : son propre conteneur, derrière le même proxy.
 
-Erreurs : `401` clé invalide, `400` classement inconnu pour ce jeu / aucune entrée valide, `429` trop d'envois (120 par minute et par clé).
+## Scores
 
-## Classements
+- Chaque classement est défini dans [src/games.js](src/games.js) : `order` (`desc` = le plus grand gagne, `asc` = le plus petit, pour les temps en ms), bornes `min`/`max` plausibles, titre.
+- **Une ligne par joueur et par classement : son meilleur résultat.** Un meilleur score que le n°1 devient le **top**.
+- Pas de compte ni de donnée personnelle : seulement le prénom saisi (1 à 16 caractères).
 
-Définis dans [src/games.js](src/games.js) : `order` (`desc` = le plus grand gagne, `asc` = le plus petit, pour les temps en ms), bornes `min`/`max` plausibles, titre. Ajouter un jeu = une entrée dans ce fichier + une clé.
+Deux façons d'envoyer un score :
 
-Jeux déclarés : `police-voleurs` (flics, voleurs, record du meilleur tour par circuit et par version). Vulpine et Space Run restent à ajouter.
+| Qui | Route | Protection |
+| --- | --- | --- |
+| **Serveur d'un jeu** (clé d'API) | `POST /api/v1/scores` `{ board, entries: [{ player, value }] }` | clé secrète par jeu (`Authorization: Bearer`), limite par clé ; la clé fixe le jeu |
+| **Navigateur** (jeu sans serveur, ou score calculé dans le navigateur) | `POST /api/v1/public-scores` `{ game, entries: [{ board, player, value }] }` | seulement depuis le site (`Origin`), seulement les classements `open: true`, limite par IP |
+
+La seconde est moins fiable (le score vient du client) : elle est réservée aux jeux qui n'ont pas de serveur. Réponse `201` : `results: [{ board, player, status }]` avec `status` = `top` (nouveau n°1), `best` (record personnel), `kept` (pas meilleur que le sien) ou `ignored` (nom, valeur ou classement invalide, ignoré sans bloquer les autres).
+
+Lecture publique : `GET /api/v1/boards` (tous les jeux) et `GET /api/v1/boards/:game`.
+
+### Ajouter un jeu
+
+1. Un classement dans `src/games.js` (et `open: true` seulement s'il n'a pas de serveur).
+2. Une entrée dans `games.json` (id, titre, icône, couleur, `url`, `ready`, `online` : les classements à afficher).
+3. Jeu avec serveur : une clé dans `GAMEBOARD_KEYS` (`.env` de la stack), transmise au conteneur du jeu.
 
 ## Lancer
 
 ```bash
 npm install
-cp .env.example .env     # GAMEBOARD_KEYS=jeu:clé,jeu2:clé2
-npm start                # http://127.0.0.1:3000
-npm test
+npm test                      # API : 12 tests
+npm run build:menu            # construit menu/dist
+GAMEBOARD_KEYS=jeu:clé… MENU_DIR=menu/dist TRUST_PROXY=loopback npm start   # http://127.0.0.1:3000
+cd menu && npm run dev        # menu seul, relaie /api et /jeux vers le site en ligne
 ```
 
-Variables : `GAMEBOARD_KEYS`, `PORT` (3000), `HOST` (127.0.0.1 ; `0.0.0.0` en conteneur), `DATA_DIR` (`./data`, un volume en ligne).
-
-## Déploiement (dans la stack WEB_STACK)
-
-- Un conteneur sur le réseau `proxy-tier`, **sans** `VIRTUAL_HOST` pour `POST /v1/scores` : les serveurs des jeux l'appellent par le réseau Docker (`http://gameboard:3000`). Seule la lecture est exposée au portail.
-- Les clés sont dans le `.env` de la stack (secrets), une par jeu, transmises au conteneur du jeu (`GAMEBOARD_KEY`) et à celui de gameboard (`GAMEBOARD_KEYS`).
-- Volume nommé pour `DATA_DIR`.
+Variables : `PORT` (3000), `HOST` (127.0.0.1 ; `0.0.0.0` en conteneur), `PUBLIC_HOST` (jeux.kassir.fr), `GAMEBOARD_KEYS`, `DATA_DIR` (un volume en ligne), `MENU_DIR`, `PUBLIC_DIR`, `CATALOG`, `TRUST_PROXY`. Le portail redirige tout vers HTTPS : derrière le proxy Docker l'adresse est privée (`uniquelocal`) ; pour un essai local, `TRUST_PROXY=loopback` et l'en-tête `X-Forwarded-Proto: https`.
 
 ## Stockage
 
-Un fichier `gameboard.json` (écriture atomique), 100 lignes gardées par classement. Pas de compte ni de donnée personnelle : seulement le prénom saisi (1 à 16 caractères).
+Un fichier `gameboard.json` (écriture atomique), 100 lignes gardées par classement. (Avant la fusion, `scores.json` ; les anciens scores, en test, n'ont pas été repris.)
 
 ## Limites connues
 
-Les bornes `min`/`max` écartent les valeurs impossibles, pas la triche d'un serveur de jeu compromis : la clé prouve quel jeu écrit, pas que le score est honnête.
+Les bornes `min`/`max` écartent les valeurs impossibles, pas la triche : la clé prouve quel jeu écrit, pas que le score est honnête, et un envoi navigateur peut être falsifié dans les bornes. Le proxy voit tous les clients avec la même adresse (voir le TODO du monitor) : la limite par IP des envois navigateur est donc partagée par tous.

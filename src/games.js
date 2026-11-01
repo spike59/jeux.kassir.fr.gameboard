@@ -1,6 +1,8 @@
 // Les jeux connus et leurs classements. Ajouter un jeu ou un classement = une entrée ici + une clé dans GAMEBOARD_KEYS.
 //   order 'desc' : le plus grand gagne (points) ; 'asc' : le plus petit gagne (temps en ms)
 //   min / max    : bornes plausibles (hors bornes = refusé, c'est un garde-fou, pas de l'anti-triche complète)
+//   open         : le navigateur du joueur peut envoyer le score (jeu sans serveur, ou score calculé dans le navigateur) ;
+//                  moins fiable qu'une clé d'API (le score vient du client), donc réservé aux classements qui n'ont pas d'autre option
 const CIRCUITS = [
   { id: 'newyork', name: 'New York Futuriste', emoji: '🌃' },
   { id: 'paris', name: "Paris à l'ancienne", emoji: '🥖' },
@@ -17,8 +19,12 @@ const CIRCUITS = [
 const raceBoards = CIRCUITS.flatMap((c) =>
   (c.versions || [1, 2, 3]).map((version) => ({
     id: `race:${c.id}@${version}`,
-    title: `${c.name} (v${version})`,
+    group: 'race',
+    circuit: c.id,
+    version,
+    title: c.name,
     emoji: c.emoji,
+    open: true,
     order: 'asc',
     unit: 'ms',
     min: 5000,
@@ -30,10 +36,14 @@ export const GAMES = {
   'police-voleurs': {
     title: 'Police vs voleurs',
     boards: [
-      { id: 'police', title: 'Meilleurs flics', emoji: '🚓', order: 'desc', unit: 'points', min: 1, max: 500 },
-      { id: 'thieves', title: 'Meilleurs voleurs', emoji: '💰', order: 'desc', unit: 'points', min: 1, max: 500 },
+      { id: 'police', title: 'Meilleurs flics', emoji: '🚓', order: 'desc', unit: 'points', min: 1, max: 500, open: true },
+      { id: 'thieves', title: 'Meilleurs voleurs', emoji: '💰', order: 'desc', unit: 'points', min: 1, max: 500, open: true },
       ...raceBoards,
     ],
+  },
+  bulles: {
+    title: 'Bulles',
+    boards: [{ id: 'bulles', title: 'Meilleurs éclateurs', emoji: '🫧', order: 'desc', unit: 'points', min: 1, max: 5000, open: true }],
   },
   // vulpine, space-run : à ajouter quand leurs classements (missions, circuits) seront décidés
 };

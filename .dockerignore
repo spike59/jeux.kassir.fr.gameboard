@@ -1,0 +1,8 @@
+node_modules
+menu/node_modules
+menu/dist
+data
+.git
+.env
+test
+*.md

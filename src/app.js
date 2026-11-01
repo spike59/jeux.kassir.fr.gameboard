@@ -1,9 +1,9 @@
-// Gameboard : API des meilleurs scores.
-//   POST /v1/scores        (clé d'un jeu)  { board, entries: [{ player, value }] } -> le meilleur de chaque joueur est gardé
-//   GET  /v1/boards        (public)        tous les tops, pour le portail
-//   GET  /v1/boards/:game  (public)        les tops d'un jeu
-//   GET  /healthz
-// Les clés ne servent qu'aux serveurs des jeux : jamais dans un navigateur. Le POST n'est pas fait pour être publié par le proxy.
+// Gameboard : API des meilleurs scores (montée sur /api par le portail, voir portal.js).
+//   POST /v1/scores          (clé d'un jeu)            { board, entries: [{ player, value }] }  -> serveurs des jeux
+//   POST /v1/public-scores   (navigateur, Origin)      { game, entries: [{ board, player, value }] } -> classements « open » seulement
+//   GET  /v1/boards          (public)                  tous les tops, pour le menu
+//   GET  /v1/boards/:game    (public)                  les tops d'un jeu
+// Dans les deux envois, le meilleur de chaque joueur est gardé. Les clés ne servent qu'aux serveurs des jeux : jamais dans un navigateur.
 import express from 'express';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { GAMES as DEFAULT_GAMES } from './games.js';
@@ -12,7 +12,8 @@ import { createStore } from './store.js';
 const NAME = /^[\p{L}\p{N}][\p{L}\p{N} '_-]{0,15}$/u;
 const MAX_ENTRIES = 16; // joueurs par envoi
 const SHOW = 10; // lignes renvoyées par classement
-const RATE = { max: 120, windowMs: 60 * 1000 }; // envois par clé et par minute
+const KEY_RATE = { max: 120, windowMs: 60 * 1000 }; // envois par clé et par minute
+const IP_RATE = { max: 20, windowMs: 10 * 60 * 1000 }; // envois du navigateur par IP et par 10 minutes
 
 const sha = (s) => createHash('sha256').update(s).digest();
 
@@ -29,10 +30,25 @@ export function parseKeys(raw = '') {
   return keys;
 }
 
-export function createApp({ games = DEFAULT_GAMES, keys, dataDir, now = () => Date.now() }) {
+function limiter({ max, windowMs }, now) {
+  const hits = new Map(); // identifiant -> instants des derniers envois
+  return (id) => {
+    const t = now();
+    const recent = (hits.get(id) || []).filter((x) => t - x < windowMs);
+    recent.push(t);
+    hits.set(id, recent);
+    if (hits.size > 10000) hits.clear(); // pas de fuite mémoire si beaucoup d'IP différentes
+    return recent.length > max;
+  };
+}
+
+// publicOrigin : seule origine admise pour les envois du navigateur (ex. https://jeux.kassir.fr) ; sans elle, ils sont refusés
+export function createApi({ games = DEFAULT_GAMES, keys, dataDir, publicOrigin = null, now = () => Date.now() }) {
   for (const game of keys.values()) if (!Object.hasOwn(games, game)) throw new Error(`GAMEBOARD_KEYS : jeu inconnu « ${game} »`);
   const store = createStore(dataDir);
-  const boardsOf = (game) => new Map(games[game].boards.map((b) => [b.id, b]));
+  const boardOf = (game, id) => games[game].boards.find((b) => b.id === id);
+  const keyLimited = limiter(KEY_RATE, now);
+  const ipLimited = limiter(IP_RATE, now);
 
   function gameOfKey(req) {
     const m = /^Bearer (\S+)$/.exec(req.get('authorization') || '');
@@ -43,68 +59,90 @@ export function createApp({ games = DEFAULT_GAMES, keys, dataDir, now = () => Da
     return null;
   }
 
-  const hits = new Map(); // jeu -> instants des derniers envois
-  function rateLimited(game) {
-    const t = now();
-    const recent = (hits.get(game) || []).filter((x) => t - x < RATE.windowMs);
-    recent.push(t);
-    hits.set(game, recent);
-    return recent.length > RATE.max;
-  }
-
   async function view(game) {
     const out = {};
     for (const b of games[game].boards) {
       const rows = (await store.rows(game, b.id)).slice(0, SHOW);
-      out[b.id] = { title: b.title, emoji: b.emoji, order: b.order, unit: b.unit, top: rows.map(({ player, value, date }) => ({ player, value, date })) };
+      out[b.id] = {
+        title: b.title, emoji: b.emoji, order: b.order, unit: b.unit,
+        ...(b.group ? { group: b.group, circuit: b.circuit, version: b.version } : {}),
+        top: rows.map(({ player, value, date }) => ({ player, value, date })),
+      };
     }
     return out;
   }
 
-  const app = express();
-  app.disable('x-powered-by');
-  app.get('/healthz', (req, res) => res.type('text').send('ok'));
+  // les entrées invalides sont ignorées une à une (un prénom refusé ne fait pas perdre les autres)
+  // boardFor(entrée) -> le classement visé (ou undefined : entrée ignorée)
+  async function record(res, game, boardFor, raw) {
+    if (!Array.isArray(raw) || raw.length < 1 || raw.length > MAX_ENTRIES) return res.status(400).json({ error: "nombre d'entrées invalide" });
+    const results = [];
+    for (const e of raw) {
+      const board = boardFor(e);
+      const player = typeof e?.player === 'string' ? e.player.normalize('NFC').trim().replace(/\s+/g, ' ') : '';
+      const ok = board && NAME.test(player) && Number.isInteger(e.value) && e.value >= board.min && e.value <= board.max;
+      results.push(ok
+        ? { board: board.id, player, status: await store.submit(game, board, player, e.value, now()) }
+        : { board: board?.id ?? null, player: player || null, status: 'ignored' });
+    }
+    if (results.every((r) => r.status === 'ignored')) return res.status(400).json({ error: 'aucune entrée valide', results });
+    return res.status(201).json({ results });
+  }
 
-  app.get('/v1/boards', async (req, res) => {
+  const api = express.Router();
+
+  api.get('/v1/boards', async (req, res) => {
     const out = {};
     for (const game of Object.keys(games)) out[game] = { title: games[game].title, boards: await view(game) };
     res.set('Cache-Control', 'no-cache').json(out);
   });
 
-  app.get('/v1/boards/:game', async (req, res) => {
+  api.get('/v1/boards/:game', async (req, res) => {
     if (!Object.hasOwn(games, req.params.game)) return res.status(404).json({ error: 'jeu inconnu' });
     res.set('Cache-Control', 'no-cache').json({ title: games[req.params.game].title, boards: await view(req.params.game) });
   });
 
-  app.post('/v1/scores', express.json({ limit: '8kb' }), async (req, res) => {
+  api.post('/v1/scores', express.json({ limit: '8kb' }), async (req, res) => {
     const game = gameOfKey(req);
     if (!game) return res.status(401).json({ error: 'clé invalide' });
-    if (rateLimited(game)) return res.status(429).json({ error: "trop d'envois" });
-
-    const boards = boardsOf(game); // la clé fixe le jeu : impossible d'écrire dans le classement d'un autre
-    const board = boards.get(req.body?.board);
+    if (keyLimited(game)) return res.status(429).json({ error: "trop d'envois" });
+    // la clé fixe le jeu : impossible d'écrire dans le classement d'un autre
+    const board = boardOf(game, req.body?.board);
     if (!board) return res.status(400).json({ error: 'classement inconnu pour ce jeu' });
-    const raw = req.body.entries;
-    if (!Array.isArray(raw) || raw.length < 1 || raw.length > MAX_ENTRIES) return res.status(400).json({ error: "nombre d'entrées invalide" });
+    return record(res, game, () => board, req.body.entries);
+  });
 
-    // les entrées invalides sont ignorées une à une (un prénom refusé ne fait pas perdre les autres)
-    const results = [];
-    for (const e of raw) {
-      const player = typeof e?.player === 'string' ? e.player.normalize('NFC').trim().replace(/\s+/g, ' ') : '';
-      const ok = NAME.test(player) && Number.isInteger(e.value) && e.value >= board.min && e.value <= board.max;
-      results.push(ok ? { player, status: await store.submit(game, board, player, e.value, now()) } : { player: player || null, status: 'ignored' });
-    }
-    if (results.every((r) => r.status === 'ignored')) return res.status(400).json({ error: 'aucune entrée valide', results });
-    res.status(201).json({ board: board.id, results });
+  api.post('/v1/public-scores', express.json({ limit: '4kb' }), async (req, res) => {
+    // seules les pages du site peuvent envoyer (un navigateur envoie toujours Origin sur un POST)
+    if (!publicOrigin || req.get('origin') !== publicOrigin) return res.status(403).json({ error: 'origine refusée' });
+    if (ipLimited(req.ip)) return res.status(429).json({ error: 'trop de scores, réessaie plus tard' });
+    const { game } = req.body || {};
+    if (!Object.hasOwn(games, game)) return res.status(400).json({ error: 'jeu inconnu' });
+    // un envoi = une partie : chaque entrée vise son classement (entry.board, sinon body.board), seulement s'il est « open »
+    const boardFor = (e) => {
+      const b = boardOf(game, e?.board ?? req.body.board);
+      return b?.open ? b : undefined;
+    };
+    return record(res, game, boardFor, req.body.entries);
   });
 
   // JSON cassé, corps trop gros… : réponse courte, jamais de trace d'erreur
   // eslint-disable-next-line no-unused-vars
-  app.use((err, req, res, next) => {
+  api.use((err, req, res, next) => {
     const status = err.status || err.statusCode || 500;
     if (status >= 500) console.error('gameboard :', err);
     res.status(status).json({ error: status === 413 ? 'trop gros' : status < 500 ? 'requête invalide' : 'erreur serveur' });
   });
 
+  return api;
+}
+
+// L'API seule (tests, ou service sans portail)
+export function createApp(options) {
+  const app = express();
+  app.disable('x-powered-by');
+  app.set('trust proxy', 'uniquelocal');
+  app.get('/healthz', (req, res) => res.type('text').send('ok'));
+  app.use(createApi(options));
   return app;
 }

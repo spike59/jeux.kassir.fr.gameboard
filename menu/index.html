@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#120c2e">
+  <meta name="robots" content="noindex">
+  <title>Les jeux</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <link rel="stylesheet" href="/src/style.css">
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <!-- le décor 3D : les jeux tournent tout autour de nous (carrousel) ou se rangent en mur (vignettes) -->
+  <canvas id="scene" touch-action="none" aria-hidden="true"></canvas>
+
+  <header class="hero">
+    <h1>Les jeux <span aria-hidden="true">🎮</span></h1>
+  </header>
+
+  <!-- trois façons de voir les jeux : en bas de l'écran sur téléphone, sous le titre sur ordinateur -->
+  <nav class="views" aria-label="Affichage">
+    <a href="#scores" data-view="scores"><span aria-hidden="true">🏆</span> Scores</a>
+    <a href="#carrousel" data-view="carrousel"><span aria-hidden="true">🎠</span> Carrousel</a>
+    <a href="#vignettes" data-view="vignettes"><span aria-hidden="true">🔲</span> Vignettes</a>
+  </nav>
+
+  <main>
+    <section id="view-scores" class="view panel" aria-label="Meilleurs scores" hidden>
+      <div id="boards" class="boards"></div>
+      <p class="note">🚓 Police vs voleurs : classement commun à tous. Les autres jeux : scores gardés sur ce téléphone.</p>
+    </section>
+
+    <section id="view-carrousel" class="view stage" aria-label="Carrousel des jeux" hidden>
+      <button class="turn prev" type="button" aria-label="Jeu précédent">‹</button>
+      <button class="turn next" type="button" aria-label="Jeu suivant">›</button>
+      <p class="hint">Glisse pour tourner, touche le jeu pour jouer</p>
+    </section>
+
+    <section id="view-vignettes" class="view stage" aria-label="Tous les jeux" hidden>
+      <p class="hint">Touche un jeu pour jouer</p>
+    </section>
+
+    <!-- les jeux en liens : pour le clavier et les lecteurs d'écran, et affichés en vignettes si la 3D est impossible -->
+    <ul id="games" class="games" aria-label="Jeux"></ul>
+    <p id="live" class="sr-only" aria-live="polite"></p>
+
+    <noscript><p class="note">Il faut activer JavaScript pour jouer.</p></noscript>
+  </main>
+
+  <footer class="foot">
+    <button id="install" class="install" type="button" hidden>📲 Ajouter à l'écran d'accueil</button>
+  </footer>
+</body>
+</html>

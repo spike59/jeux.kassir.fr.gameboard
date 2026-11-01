@@ -1,0 +1,18 @@
+{
+  "name": "jeux-menu",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Page d'accueil 3D de jeux.kassir.fr : carrousel des jeux tout autour de nous, vignettes et tableau des scores (Babylon.js)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@babylonjs/core": "^9.32.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.5"
+  }
+}

@@ -104,3 +104,62 @@ test('clés trop courtes et jeu inconnu refusés au démarrage', () => {
   assert.throws(() => parseKeys('pvv:court'), /32 caractères/);
   assert.throws(() => createApp({ games: GAMES, keys: parseKeys(`zzz:${KEY}`), dataDir: tmpdir() }), /jeu inconnu/);
 });
+
+// --- envois du navigateur (classements « open ») ---
+const OPEN_GAMES = { ...GAMES, pvv: { ...GAMES.pvv, boards: [{ ...GAMES.pvv.boards[0], open: true }, GAMES.pvv.boards[1]] } };
+const ORIGIN = 'https://jeux.test';
+
+async function startOpen(t, publicOrigin = ORIGIN) {
+  const dir = await mkdtemp(join(tmpdir(), 'gameboard-'));
+  const server = createApp({ games: OPEN_GAMES, keys: parseKeys(`pvv:${KEY}`), dataDir: dir, publicOrigin }).listen(0, '127.0.0.1');
+  await new Promise((r) => server.once('listening', r));
+  t.after(async () => { server.close(); await rm(dir, { recursive: true, force: true }); });
+  const base = `http://127.0.0.1:${server.address().port}`;
+  return {
+    base,
+    post: (body, origin = ORIGIN) => fetch(`${base}/v1/public-scores`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...(origin ? { origin } : {}) },
+      body: JSON.stringify(body),
+    }),
+  };
+}
+const pub = (player, value, board = 'police') => ({ game: 'pvv', board, entries: [{ player, value }] });
+
+test('navigateur : le score d\'un classement ouvert est gardé, comme avec une clé', async (t) => {
+  const s = await startOpen(t);
+  const r = await s.post(pub('Ana', 12));
+  assert.equal(r.status, 201);
+  assert.equal((await r.json()).results[0].status, 'top');
+  const top = await fetch(`${s.base}/v1/boards/pvv`).then((x) => x.json());
+  assert.equal(top.boards.police.top[0].value, 12);
+});
+
+test('navigateur : mauvaise origine, sans origine, ou classement fermé', async (t) => {
+  const s = await startOpen(t);
+  assert.equal((await s.post(pub('Ana', 5), 'https://autre.test')).status, 403);
+  assert.equal((await s.post(pub('Ana', 5), null)).status, 403);
+  assert.equal((await s.post(pub('Ana', 50000, 'race:x@3'))).status, 400); // pas « open » : réservé aux serveurs de jeux
+  assert.equal((await s.post({ game: 'inconnu', board: 'police', entries: [{ player: 'Ana', value: 5 }] })).status, 400);
+  const closed = await startOpen(t, null);
+  assert.equal((await closed.post(pub('Ana', 5))).status, 403);
+});
+
+test('navigateur : limite d\'envois par IP', async (t) => {
+  const s = await startOpen(t);
+  let last;
+  for (let i = 0; i < 21; i++) last = await s.post(pub('Ana', i + 1));
+  assert.equal(last.status, 429);
+});
+
+test('navigateur : une partie envoie plusieurs classements en une requête', async (t) => {
+  const s = await startOpen(t);
+  const r = await s.post({ game: 'pvv', entries: [
+    { board: 'police', player: 'Ana', value: 4 },
+    { board: 'police', player: 'Bob', value: 6 },
+    { board: 'race:x@3', player: 'Ana', value: 70000 }, // fermé au navigateur : ignoré, les autres passent
+    { board: 'inconnu', player: 'Cléo', value: 3 },
+  ] });
+  assert.equal(r.status, 201);
+  assert.deepEqual((await r.json()).results.map((x) => [x.board, x.status]), [['police', 'top'], ['police', 'top'], [null, 'ignored'], [null, 'ignored']]);
+});

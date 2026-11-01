@@ -1,0 +1,12 @@
+[
+  { "id": "police-voleurs", "title": "Police vs voleurs", "icon": "🚓", "color": "#1f5fd6", "url": "/jeux/car_race/", "ready": true, "scores": true,
+    "online": [{ "board": "police", "title": "Meilleurs flics", "icon": "🚓" }, { "board": "thieves", "title": "Meilleurs voleurs", "icon": "💰" },
+      { "group": "race", "title": "Records des circuits (meilleur tour)", "icon": "🏁", "records": true }] },
+  { "id": "bulles", "title": "Bulles", "icon": "🫧", "color": "#2f9fe6", "url": "/jeux/bulles/", "ready": true, "scores": true,
+    "online": [{ "board": "bulles", "title": "Meilleurs éclateurs", "icon": "🫧" }] },
+  { "id": "memory", "title": "Memory", "icon": "🃏", "color": "#e6582f", "ready": false },
+  { "id": "taupe", "title": "Tape-taupe", "icon": "🔨", "color": "#3aa65b", "ready": false },
+  { "id": "labyrinthe", "title": "Labyrinthe", "icon": "🌀", "color": "#8a4fd6", "ready": false },
+  { "id": "coloriage", "title": "Coloriage", "icon": "🖍️", "color": "#e0a21b", "ready": false },
+  { "id": "xylophone", "title": "Xylophone", "icon": "🎵", "color": "#d6337a", "ready": false }
+]
