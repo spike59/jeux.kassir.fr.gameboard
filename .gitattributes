@@ -1,0 +1,14 @@
+# Fins de ligne : toujours LF dans le dépôt et sur le disque (Windows et Linux/Docker, plus d'avertissements CRLF)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.glb binary
+*.woff2 binary
+*.mp3 binary
+*.ogg binary
+*.zip binary
+*.gz binary
