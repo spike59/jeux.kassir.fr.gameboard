@@ -4,11 +4,11 @@ import express from 'express';
 import { join } from 'node:path';
 import { createApi } from './app.js';
 
-const CSP = "default-src 'self'; img-src 'self' data:; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'";
+const csp = (host) => `default-src 'self'; connect-src 'self' wss://${host}; img-src 'self' data:; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'`;
 
-function securityHeaders(req, res, next) {
+const securityHeaders = (host) => (req, res, next) => {
   res.set({
-    'Content-Security-Policy': CSP,
+    'Content-Security-Policy': csp(host),
     'Strict-Transport-Security': 'max-age=31536000',
     'X-Content-Type-Options': 'nosniff',
     'X-Frame-Options': 'DENY',
@@ -16,7 +16,7 @@ function securityHeaders(req, res, next) {
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
   });
   next();
-}
+};
 
 // fichiers statiques des jeux et du site : cache d'une semaine pour les ressources, revalidation pour le reste
 function gameHeaders(res, path) {
@@ -26,7 +26,7 @@ function gameHeaders(res, path) {
 
 // menuDir : menu 3D construit ; publicDir : icône, scores.js ; gamesDir : un dossier par jeu, /jeux/<id>/ sert son sous-dossier public/ (jeux statiques) ;
 // catalog : games.json ; releases : releases.json (notes de version, voir devops/collect-releases.mjs) ; apiOptions : voir createApi
-export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, catalog, releases = '', apiOptions, trustProxy = 'uniquelocal' }) {
+export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, catalog, releases = '', hub = null, apiOptions, trustProxy = 'uniquelocal' }) {
   // Toute requête qui n'est pas arrivée en HTTPS au proxy est renvoyée vers HTTPS.
   // La cible est le nom configuré, jamais le Host reçu (pas de redirection ouverte).
   const httpsOnly = (req, res, next) => (req.path === '/healthz' || req.secure ? next() : res.redirect(301, `https://${publicHost}${req.originalUrl}`));
@@ -36,7 +36,9 @@ export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, ca
   // nginx-proxy est sur le réseau Docker (adresses privées) : on croit son X-Forwarded-Proto, celui des autres non.
   site.set('trust proxy', trustProxy);
   site.get('/healthz', (req, res) => res.type('text').send('ok'));
-  site.use(httpsOnly, securityHeaders);
+  site.use(httpsOnly, securityHeaders(publicHost));
+  // le realm : les serveurs de jeux à plusieurs (le WebSocket est branché par server.js, voir hub/hub.js)
+  if (hub) site.get('/api/v1/realm', (req, res) => res.set('Cache-Control', 'no-cache').json({ servers: [hub.info()] }));
   site.use('/api', createApi({ ...apiOptions, publicOrigin: `https://${publicHost}` }));
 
   // Jeux statiques : seulement games/<id>/public/ (le Dockerfile et le serveur d'un jeu avec conteneur ne sont jamais servis)

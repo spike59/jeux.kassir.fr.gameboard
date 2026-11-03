@@ -43,7 +43,10 @@ export const GAMES = {
   },
   bulles: {
     title: 'Bulles',
-    boards: [{ id: 'bulles', title: 'Meilleurs éclateurs', emoji: '🫧', order: 'desc', unit: 'points', min: 1, max: 5000, open: true }],
+    boards: [
+      { id: 'bulles', title: 'Meilleurs éclateurs', emoji: '🫧', order: 'desc', unit: 'points', min: 1, max: 5000, open: true },
+      { id: 'bulles_multi', title: 'Bulles à plusieurs', emoji: '👥', order: 'desc', unit: 'points', min: 1, max: 5000, open: true },
+    ],
   },
   // space_hairness, space_run : à ajouter quand leurs classements (missions, circuits) seront décidés
 };

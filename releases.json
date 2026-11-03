@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-03T22:16:04.307Z",
+ "generatedAt": "2026-11-03T23:27:01.400Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -38,6 +38,12 @@
      "date": "2026-11-01",
      "title": "Un seul dépôt pour le portail",
      "body": "- **Un seul dépôt pour le portail** : reprend le menu 3D (ancien dépôt `menu`, voir `menu/`), le serveur du portail et l'API des scores (anciens `app/` et `public/` de la stack).\n- API en `/api/v1/…` : `boards` (lecture), `scores` (clé d'un jeu), `public-scores` (navigateur, classements `open`, plusieurs classements par requête).\n- Le menu lit `/api/v1/boards` ; le catalogue (`games.json`) désigne les classements par `board` / `group`.\n- Classement de Bulles (`bulles`, ouvert au navigateur).\n- Dockerfile à la racine (menu construit, puis serveur) ; catalogue et jeux statiques montés par la stack.\n- Variable `TRUST_PROXY` pour les essais locaux."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-04",
+     "title": "Hub des jeux à plusieurs (serveur01)",
+     "body": "- **Hub** (`src/hub/`) : salon commun à tous les jeux à plusieurs, par WebSocket `/api/v1/hub` : prénom, chat général, salles par jeu, lancement par le propriétaire, ping.\n- **Realm** : `GET /api/v1/realm` liste les serveurs (`serveur01`) et leurs jeux.\n- Premier module de jeu : **bulles** (couleurs, +1 / −5, manches de 60 s). Contrat de module décrit dans `hub.js`.\n- Classement `bulles_multi`. La CSP autorise le WebSocket du site. Dépendance `ws`.\n- Détail et suite : `concept/multijoueur/architecture.md` du dépôt kassir_devops."
     }
    ]
   },
@@ -52,6 +58,12 @@
      "date": "2026-11-01",
      "title": "Suivi git, bouton Quitter et classement",
      "body": "- Suivi git du jeu\n- Bouton Quitter\n- Envoi du score au classement de gameboard"
+    },
+    {
+     "version": "1.1.0",
+     "date": "2026-11-04",
+     "title": "Bulles à plusieurs et pause",
+     "body": "- **Bulles à plusieurs** (bouton 👥) : on entre dans un salon avec son prénom, on discute, on crée ou rejoint une salle (2 à 6 joueurs). Chacun a une couleur.\n- Tout le monde voit les mêmes bulles. Éclater une bulle de **sa** couleur : **+1 point** ; éclater celle d'un **autre** : **−5 points**.\n- Le **contour de l'écran** prend la couleur des bulles à éclater (la sienne). Manches de 60 secondes, résultats à la fin, « Rejouer ».\n- Nouveau classement « Bulles à plusieurs ».\n- **Bouton Pause** (⏸) : seul, la partie se fige. Quitter, mettre en pause ou fermer la page enregistre le score s'il bat le record."
     }
    ]
   },

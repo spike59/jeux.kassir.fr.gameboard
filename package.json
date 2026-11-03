@@ -1,15 +1,20 @@
 {
   "name": "gameboard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Portail jeux.kassir.fr : menu 3D des jeux, jeux statiques, et service des meilleurs scores (les jeux y envoient leurs scores, le menu lit les tops)",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "build:menu": "npm ci --prefix menu && npm run build --prefix menu",
     "test": "node --test"
   },
-  "dependencies": { "express": "5.3.0" }
+  "dependencies": {
+    "express": "5.3.0",
+    "ws": "^8.22.1"
+  }
 }
