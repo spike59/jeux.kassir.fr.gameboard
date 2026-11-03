@@ -19,8 +19,10 @@ const GAMES_DIR = process.env.GAMES_DIR || join(ROOT, 'games');
 // derrière nginx-proxy (réseau Docker) : adresses privées ; pour un essai local : TRUST_PROXY=loopback
 const TRUST_PROXY = process.env.TRUST_PROXY || 'uniquelocal';
 const CATALOG = process.env.CATALOG || join(ROOT, 'games.json');
+// notes de version rassemblées par devops/collect-releases.mjs (page /notes/)
+const RELEASES = process.env.RELEASES || join(ROOT, 'releases.json');
 
 const keys = parseKeys(process.env.GAMEBOARD_KEYS);
-const portal = createPortal({ publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
+const portal = createPortal({ publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 
 portal.listen(PORT, HOST, () => console.log(`gameboard sur http://${HOST}:${PORT} (https://${PUBLIC_HOST}) — ${keys.size} jeu(x) avec clé`));

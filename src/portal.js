@@ -25,8 +25,8 @@ function gameHeaders(res, path) {
 }
 
 // menuDir : menu 3D construit ; publicDir : icône, scores.js ; gamesDir : un dossier par jeu, /jeux/<id>/ sert son sous-dossier public/ (jeux statiques) ;
-// catalog : games.json ; apiOptions : voir createApi
-export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, catalog, apiOptions, trustProxy = 'uniquelocal' }) {
+// catalog : games.json ; releases : releases.json (notes de version, voir devops/collect-releases.mjs) ; apiOptions : voir createApi
+export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, catalog, releases = '', apiOptions, trustProxy = 'uniquelocal' }) {
   // Toute requête qui n'est pas arrivée en HTTPS au proxy est renvoyée vers HTTPS.
   // La cible est le nom configuré, jamais le Host reçu (pas de redirection ouverte).
   const httpsOnly = (req, res, next) => (req.path === '/healthz' || req.secure ? next() : res.redirect(301, `https://${publicHost}${req.originalUrl}`));
@@ -46,6 +46,7 @@ export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, ca
   };
   site.use('/jeux/:id', staticGame);
   site.get('/games.json', (req, res) => res.set('Cache-Control', 'no-cache').sendFile(catalog, { dotfiles: 'allow' }));
+  if (releases) site.get('/releases.json', (req, res) => res.set('Cache-Control', 'no-cache').sendFile(releases, { dotfiles: 'allow' }));
   if (menuDir) {
     site.use(express.static(menuDir, {
       dotfiles: 'ignore',

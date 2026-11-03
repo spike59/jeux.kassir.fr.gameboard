@@ -1,0 +1,38 @@
+:root { color-scheme: dark; --bg: #120c2e; --panel: #1d1546; --line: #3a2d7a; --text: #f1edff; --muted: #a79fd0; --accent: #ffb454; --lane: 5.5rem; --col: 14rem; --row: 8.5rem; --head: 2.4rem; }
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { display: flex; flex-direction: column; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; overflow: hidden; }
+.top { padding: 0.6rem 1rem 0.4rem; padding-top: max(0.6rem, env(safe-area-inset-top)); }
+.top h1 { margin: 0.1rem 0; font-size: 1.35rem; }
+.back { color: var(--accent); text-decoration: none; font-size: 0.9rem; }
+.sub { margin: 0; color: var(--muted); font-size: 0.85rem; }
+main { flex: 1; min-height: 0; padding: 0 0 env(safe-area-inset-bottom); }
+
+/* la frise défile dans les deux sens, au doigt comme à la souris */
+.fresco { height: 100%; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; position: relative; outline: none; }
+.loading { padding: 1rem; color: var(--muted); }
+.grid { display: grid; width: max-content; min-width: 100%; grid-auto-rows: var(--row); grid-template-rows: var(--head); position: relative; }
+
+.date, .lane, .corner { position: sticky; background: var(--bg); }
+.date { top: 0; z-index: 3; padding: 0.55rem 0.5rem 0; font-size: 0.8rem; color: var(--muted); border-bottom: 1px solid var(--line); border-left: 1px solid rgba(255, 255, 255, .06); white-space: nowrap; }
+.corner { top: 0; left: 0; z-index: 5; border-bottom: 1px solid var(--line); }
+.lane { left: 0; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem; padding: 0.3rem; text-align: center; font-size: 0.72rem; font-weight: 600; border-right: 1px solid var(--line); border-bottom: 1px solid rgba(255, 255, 255, .06); }
+.lane .ico { font-size: 1.6rem; }
+
+.card { margin: 0.45rem 0.4rem; padding: 0.5rem 0.65rem; border: 1px solid var(--line); border-left: 4px solid var(--c, var(--accent)); border-radius: 0.6rem; background: var(--panel); color: inherit; text-align: left; font: inherit; cursor: pointer; overflow: hidden; display: flex; flex-direction: column; gap: 0.2rem; z-index: 1; }
+.card:hover, .card:focus-visible { border-color: var(--c, var(--accent)); outline: none; }
+.card .v { font-weight: 700; color: var(--c, var(--accent)); }
+.card .t { font-size: 0.85rem; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+.reader { position: fixed; inset: 0; z-index: 10; display: flex; align-items: flex-end; justify-content: center; background: rgba(8, 5, 24, .7); }
+.reader[hidden] { display: none; }
+.sheet { position: relative; width: min(42rem, 100%); max-height: 85vh; overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 1rem 1rem 0 0; padding: 1rem 1.1rem 1.4rem; padding-bottom: max(1.4rem, env(safe-area-inset-bottom)); }
+@media (min-width: 700px) { .reader { align-items: center; } .sheet { border-radius: 1rem; } }
+.sheet h2 { margin: 0 0 0.6rem; font-size: 1.15rem; }
+.meta { margin: 0 2rem 0.2rem 0; color: var(--muted); font-size: 0.8rem; }
+.close { position: absolute; top: 0.5rem; right: 0.5rem; width: 2.5rem; height: 2.5rem; border: 0; border-radius: 50%; background: transparent; color: var(--text); font-size: 1.1rem; cursor: pointer; }
+.body h3, .body h4 { margin: 0.9rem 0 0.3rem; font-size: 0.95rem; color: var(--accent); }
+.body p { margin: 0.4rem 0; }
+.body ul { margin: 0.3rem 0; padding-left: 1.2rem; }
+.body li { margin: 0.2rem 0; }
+.body code { background: rgba(255, 255, 255, .08); padding: 0 0.25em; border-radius: 0.25em; font-size: 0.9em; }

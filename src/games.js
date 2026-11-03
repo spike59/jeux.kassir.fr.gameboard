@@ -45,5 +45,5 @@ export const GAMES = {
     title: 'Bulles',
     boards: [{ id: 'bulles', title: 'Meilleurs éclateurs', emoji: '🫧', order: 'desc', unit: 'points', min: 1, max: 5000, open: true }],
   },
-  // vulpine, space-run : à ajouter quand leurs classements (missions, circuits) seront décidés
+  // space_hairness, space_run : à ajouter quand leurs classements (missions, circuits) seront décidés
 };

@@ -165,6 +165,25 @@ $('install').addEventListener('click', async () => {
   $('install').hidden = true;
 });
 
+// --- plein écran : bouton + premier toucher sur mobile (le navigateur l'exige pour un geste de l'utilisateur) ---
+// Le plein écran s'arrête quand on change de page : chaque jeu le redemande à son premier toucher.
+// Pour garder le plein écran partout, installer le site sur l'écran d'accueil (manifeste « fullscreen »).
+const fsRoot = document.documentElement;
+const fsRequest = fsRoot.requestFullscreen || fsRoot.webkitRequestFullscreen;
+const inFullscreen = () => document.fullscreenElement || document.webkitFullscreenElement;
+const enterFullscreen = () => {
+  if (!fsRequest || inFullscreen()) return;
+  Promise.resolve(fsRequest.call(fsRoot)).then(() => screen.orientation?.lock?.('landscape')).catch(() => {});
+};
+if (fsRequest) {
+  $('fullscreen').hidden = false;
+  $('fullscreen').addEventListener('click', () => {
+    if (inFullscreen()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else enterFullscreen();
+  });
+  if (matchMedia('(pointer: coarse)').matches) window.addEventListener('pointerdown', enterFullscreen, { once: true });
+}
+
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => { /* pas de hors-ligne, pas grave */ });
 }

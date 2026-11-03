@@ -1,0 +1,393 @@
+{
+ "generatedAt": "2026-11-03T22:16:04.307Z",
+ "projects": [
+  {
+   "code": "kassir_devops",
+   "kind": "stack",
+   "title": "Serveur (kassir_devops)",
+   "icon": "🛠️",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-01",
+     "title": "Infra, sites, build et déploiement",
+     "body": "- Reprise de la stack d'hébergement : proxy HTTPS, page d'accueil, portail des jeux, un conteneur par jeu avec serveur\n- Scripts de reconstruction (`devops/setup.sh`, `backup.sh`, `restore.sh`) pilotés par `devops/repos.json`\n- `deploy.js` avec `--remove-orphans`, clés d'API générées seulement pour les jeux qui ont des classements"
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-01",
+     "title": "space_hairness et space_run sur le portail",
+     "body": "- Dockerfiles, services compose et volumes de sauvegarde des deux jeux\n- `repos.json` : volumes `space_hairness_data` et `space_run_saves`\n- TODO.md : sécurité, sauvegardes reportées, jeux à améliorer"
+    }
+   ]
+  },
+  {
+   "code": "gameboard",
+   "kind": "portal",
+   "title": "gameboard",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-01",
+     "title": "Premier jet",
+     "body": "- Premier jet : envoi de scores par les serveurs des jeux avec une clé d'API par jeu, meilleur score par joueur et par classement, top public.\n- Règles de validation reprises de l'ancien `scores.js` du portail (prénom, bornes), classements de `car_race`.\n- Stockage JSON atomique, limite d'envois par clé, 8 tests."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-01",
+     "title": "Un seul dépôt pour le portail",
+     "body": "- **Un seul dépôt pour le portail** : reprend le menu 3D (ancien dépôt `menu`, voir `menu/`), le serveur du portail et l'API des scores (anciens `app/` et `public/` de la stack).\n- API en `/api/v1/…` : `boards` (lecture), `scores` (clé d'un jeu), `public-scores` (navigateur, classements `open`, plusieurs classements par requête).\n- Le menu lit `/api/v1/boards` ; le catalogue (`games.json`) désigne les classements par `board` / `group`.\n- Classement de Bulles (`bulles`, ouvert au navigateur).\n- Dockerfile à la racine (menu construit, puis serveur) ; catalogue et jeux statiques montés par la stack.\n- Variable `TRUST_PROXY` pour les essais locaux."
+    }
+   ]
+  },
+  {
+   "code": "bulles",
+   "kind": "game-static",
+   "title": "Bulles",
+   "icon": "🫧",
+   "releases": [
+    {
+     "version": "1.0.0",
+     "date": "2026-11-01",
+     "title": "Suivi git, bouton Quitter et classement",
+     "body": "- Suivi git du jeu\n- Bouton Quitter\n- Envoi du score au classement de gameboard"
+    }
+   ]
+  },
+  {
+   "code": "car_race",
+   "kind": "game-server",
+   "title": "Police vs voleurs",
+   "icon": "🚓",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-10-24",
+     "title": "première version jouable de Police vs Voleurs",
+     "body": "Première version jouable.\n\n- Écran d'accueil, menu principal, paramètres\n- Mode 1 ou 2 joueurs en écran partagé (côte à côte ou haut / bas)\n- Choix du camp (Police / Voleurs) et du véhicule (karting, moto, camion, bus)\n- 4 circuits : New York futuriste, Paris à l'ancienne, Tokyo high-tech, Sydney\n- Banques à cambrioler avec butin, GPS (mini-carte et flèche 3D)\n- Arrestations par contact, chrono de 3 minutes, tableau des scores\n- Mode championnat sur les 4 circuits\n- Manettes USB : détection, test en direct, remappage des boutons\n- Pilotes ordinateur avec 3 niveaux de difficulté\n- Plaques turbo, turbo manuel, bruitages, vibrations des manettes"
+    },
+    {
+     "version": "0.1.1",
+     "date": "2026-10-24",
+     "title": "le voleur arrêté réapparaît ailleurs sur la carte",
+     "body": "### Corrigé\n- Un voleur arrêté pouvait se faire arrêter en boucle par la police. Il réapparaît maintenant sur une route au hasard, loin des policiers, avec 2,5 s d'invincibilité (il clignote)."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-10-24",
+     "title": "mode course, 4 circuits de campagne, bonus et pièges",
+     "body": "### Nouveautés\n- **Mode Course** : 4 pilotes (joueurs + ordinateurs), 2 à 5 tours, ligne d'arrivée en damier, classement en direct (1er, 2e…), chrono et tableau d'arrivée avec médailles.\n  - En ville, des barrières rouges et blanches ferment les rues pour dessiner le circuit.\n  - À la campagne, des banderoles « COURSE » ferment les routes de traverse.\n- **4 circuits de campagne**, avec des routes plus espacées et sinueuses (virages arrondis) au lieu du quadrillage des villes :\n  - 🚜 Farm City : champs, enclos avec vaches, cochons et moutons, moulins, et une course qui traverse la cour de la ferme.\n  - 🌋 Lava Land : on entre dans le volcan par des tunnels et on roule au bord de la lave.\n  - 🐫 Égypte : pyramides, sphinx, oasis, et zones de sable qui ralentissent.\n  - 🏁 Super Speedway : ovale façon Daytona avec tribunes et lac, plus des routes de traverse pour le mode Police.\n- **Bonus** (icônes qui tournent) : ⭐ invincible (bouclier) et ⚡ super vitesse. Les plaques turbo restent au sol.\n- **Pièges** : herses (pneu crevé), serpents dans le désert, araignées (toile qui ralentit), et en course des flaques d'huile qui font tomber le moteur en panne : il faut attendre la dépanneuse qui vient réparer.\n- Championnats **Ville** et **Campagne** (4 circuits chacun), en mode Police comme en mode Course (points en course : 10, 7, 5, 3).\n- Nouveaux paramètres : nombre de tours, bonus et pièges oui/non.\n\n### Corrigé\n- Un véhicule poussé au fond d'un bâtiment pouvait rester coincé : il revient maintenant sur la route la plus proche."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-10-24",
+     "title": "sons et musique, circuits v2 avec relief, passants, tremplins, catalogue et éditeur",
+     "body": "### Son et musique\n- Nouveaux bruitages façon dessin animé : sifflet de police, « boing » à l'atterrissage, « bonk » contre les murs, pneu qui éclate, serpent qui siffle, toile qui colle, moteur qui tousse, porte de prison, passant renversé…\n- Sirènes en boucle : le « pin-pon » des sirènes françaises pour la police (plus fort quand elle est proche), et une sirène quand la dépanneuse vient réparer.\n- Musique générée en direct avec un thème par circuit (électro à New York, valse musette à Paris, chiptune à Tokyo, plage à Sydney, country à la ferme, sombre au volcan, orientale en Égypte, rock au Speedway), plus une musique de menu et de résultats.\n- Nouveau réglage : volume de la musique.\n\n### Circuits en deux versions\n- Chaque circuit existe maintenant en **version 1** (la classique, plate) et **version 2** (nouvelle, par défaut). On choisit la version après le circuit ; les championnats utilisent la version 2.\n- Villes en version 2 :\n  - rues à sens unique (flèches au sol), à double sens et boulevards à 4 voies ;\n  - trottoirs partout avec des coins arrondis aux carrefours : une marge pour tourner sans taper les immeubles ;\n  - des pentes : la ville n'est plus plate (butte Montmartre à Paris…).\n- Campagne en version 2 : relief selon la carte (un peu à la ferme, moyen en Égypte, beaucoup au volcan qu'on gravit avant d'entrer dans le cratère) et chemins de terre pleins de bosses.\n- Les véhicules suivent le relief, s'inclinent dans les pentes, décollent sur les bosses et retombent.\n\n### Police vs Voleurs\n- Des passants (très simples, en cubes) marchent sur les trottoirs. Si on en renverse un : **4 secondes en prison** !\n- Deux prisons par carte, visibles sur le GPS.\n\n### Course\n- Tremplins sur les lignes droites, et un camion porte-voitures avec l'arrière abaissé qui sert de tremplin.\n\n### Nouveaux menus\n- **Catalogue des modèles** : chaque modèle 3D utilisé dans les cartes (85), sur un plateau tournant, rangés par catégorie.\n- **Éditeur de carte** (ébauche) : on trace une toile de routes en vue de dessus, on règle la largeur, le type et l'altitude des points, on choisit la boucle de course et son départ, on accroche banques et prisons aux routes. Enregistrement dans le navigateur et export/import en JSON. Jouer sur sa carte viendra plus tard.\n\n### Code\n- Tous les modèles 3D sont rangés dans `src/assets/` (un fichier par thème) et décrits dans un registre commun.\n- Les circuits sont découpés : données (`circuits.js`), plan (`layout.js`), sol (`paint.js`), relief (`terrain.js`), construction de la scène (`world.js`) et décors (`decorCity.js`, `decorCountry.js`)."
+    },
+    {
+     "version": "0.3.1",
+     "date": "2026-10-24",
+     "title": "cartes perso jouables, butin multiple, version 3 en réseau de routes",
+     "body": "### Nouveautés\n- **Cartes perso jouables** : les cartes enregistrées dans l'éditeur apparaissent dans le choix des circuits, rangée « Personnalisé ». Elles prennent le décor choisi (immeubles, nature, monument) ; il faut une boucle fermée pour le mode Course. S'il manque des banques ou une prison, le jeu en ajoute au bord des routes.\n- **Option « Butin unique »** (désactivée par défaut). Désactivée : toutes les banques de la carte ont leur butin en même temps, et un butin volé revient au bout de 20 s. Activée : l'ancien fonctionnement, une seule banque à la fois.\n- **Version 3 des circuits** (nouvelle version par défaut) : un nouveau moteur de routes.\n  - Carte agrandie, virages en larges arcs, quelques rues courbes.\n  - Largeurs de route réelles : trottoirs en ville, bas-côtés à la campagne.\n  - On roule dans un couloir arrondi autour des routes : plus de coin qui accroche, même aux carrefours.\n  - Les banderoles de course barrent exactement la largeur des routes fermées.\n  - Les routes montent et descendent dans leur longueur, sans jamais pencher sur le côté.\n- **Éditeur** : routes en arc (boutons ou poignée orange à faire glisser), choix du décor de la carte.\n\n### Corrigé (version 2)\n- Les routes ne sont plus penchées sur le côté dans les pentes : chaque route a une hauteur qui ne varie que dans sa longueur. Les bosses des chemins de terre suivent la route.\n- Les coins des immeubles sont arrondis : on n'accroche plus dans les virages.\n- Les barrières de course sont alignées sur le bord des trottoirs et ne rétrécissent plus la route aux carrefours.\n- Le camion porte-voitures n'a plus de trou entre l'avant et la cabine.\n- En course, les pilotes ordinateur suivent le tracé et ne coupent plus par la cour de la ferme."
+    },
+    {
+     "version": "0.3.2",
+     "date": "2026-10-24",
+     "title": "choix de la manette par dessin et vrais boutons affichés",
+     "body": "### Manettes\n- Nouvel écran **« Mes manettes »** (menu principal et paramètres) : chaque enfant choisit sa manette sur un dessin (8BitDo SN30 Pro, PS3, Xbox, autre), avec sa propre manette. Le choix est enregistré.\n- Tous les boutons affichés dans le jeu correspondent maintenant à la vraie manette : couleur, symbole (B jaune, ✕ bleu…) et position du bouton sur un petit losange. Ça vaut pour les menus, l'écran d'accueil et le bouton turbo du HUD.\n- Préréglage : manette 1 = 8BitDo SN30 Pro, manette 2 = PS3. Les manettes dont le nom est reconnu (8BitDo, PlayStation) sont détectées automatiquement."
+    },
+    {
+     "version": "0.4.0",
+     "date": "2026-10-25",
+     "title": "bibliothèque d'assets séparée, remplacement par GLB, versions",
+     "body": "### Bibliothèque d'assets\n- Les modèles 3D sont séparés du jeu dans une bibliothèque : chaque modèle a un identifiant et une ou plusieurs versions.\n- **Remplacement par des fichiers GLB** : déposer `public/assets/models/<id>@<version>.glb` (par exemple `pyramid@v2.glb`) remplace le modèle dessiné par le jeu, sur toutes les cartes. Réglages facultatifs (taille, rotation, hauteur) dans un `.json` du même nom. Une carrosserie GLB peut aussi remplacer celle d'un véhicule (`vehicle_kart@v2.glb`…).\n- En développement, la liste des modèles est relue à chaque chargement de page ; `npm run build` (ou `npm run assets`) génère `library.json`.\n- **Versions dans le catalogue** : la version la plus récente est utilisée par défaut. Le catalogue affiche toutes les versions d'un modèle, permet de les comparer (bouton turbo) et de revenir à une version précédente (bouton valider, ★ = version utilisée)."
+    },
+    {
+     "version": "0.5.0",
+     "date": "2026-10-25",
+     "title": "dunes de sable v2",
+     "body": "### Dunes de sable v2\n- Nouvelles dunes en croissant (barkhanes) : pente douce face au vent, crête courbe, versant abrupt plus sombre, cornes étirées. Elles sont toutes orientées dans le sens du vent.\n- Texture de sable ridé par le vent, avec du grain, sur les dunes ; ondulations peintes sur le sol de l'Égypte (versions 1 à 3).\n- L'ancienne dune (dôme) reste disponible dans le catalogue (version v1).\n- Version 3 de l'Égypte : les zones de sable en dehors des routes ne deviennent plus un quadrillage de petites routes.\n- Catalogue : touche V pour changer de version au clavier."
+    },
+    {
+     "version": "0.6.0",
+     "date": "2026-10-25",
+     "title": "lave v2 et circuit Volcano",
+     "body": "### Lave v2\n- La lave est animée par un shader : elle coule lentement, une croûte sombre se fissure, des points très chauds brillent dans le halo. Elle s'échauffe pendant une éruption.\n- Ambiance volcan : cendres qui tombent sur toute la carte et braises au-dessus de la lave.\n- Sol de terre brûlée (plaques sombres, fissures rougeoyantes) sur le thème lave.\n- Nouveaux modèles dans le catalogue (rubrique Volcan) : feu, gerbe d'étincelles, geyser de lave, colonne de fumée, mare de lave, arche de grotte.\n\n### Nouveau circuit : Volcano 🔥\n- Un grand volcan en éruption au milieu de la carte, avec un lac de lave dans le cratère et des coulées sur les pentes.\n- La course traverse le volcan par des grottes (cristaux lumineux, toit de roche), en passant à côté de salles pleines de lave avec geysers et étincelles. Des mares de lave bordent les routes.\n- **L'éruption suit la course** : à chaque tour le lac de lave monte, la fumée grossit, des bombes de lave retombent de plus en plus souvent autour du volcan (jamais sur la route). Au dernier tour, une grande fontaine de lave jaillit du cratère. En mode Police vs Voleurs, l'éruption suit le chrono.\n- Nouvelle rangée « Circuits spéciaux » dans le choix des circuits (pas de choix de version : ils sont dessinés directement en version 3).\n\n### Corrigé\n- Les effets à particules pouvaient tous disparaître d'un coup (texture partagée détruite avec le premier effet supprimé)."
+    },
+    {
+     "version": "0.7.0",
+     "date": "2026-10-25",
+     "title": "eau v2",
+     "body": "### Eau v2\n- L'eau est un shader : vaguelettes qui bougent, reflet du ciel selon l'angle, éclats de soleil, eau plus claire et écume au bord. Dans toutes les versions des circuits.\n- Version 3 : le niveau de l'eau est plus bas que les routes. Les rivages descendent en pente douce (sable mouillé), le fond se creuse au large.\n- Version 3 : les bandes de terre entre deux eaux deviennent de l'eau, et la route passe dessus :\n  - **pontons en bois** (planches, pieux, garde-corps) à Sydney ;\n  - **ponts de pierre à arches** avec parapets sur la Seine à Paris.\n- **Sydney, le port** : fini l'eau partout. Une côte au nord-ouest avec le port, l'Opéra au bord de l'eau et une rangée de plages ; la mer seulement de ce côté-là (version 3).\n- Les bateaux flottent sur l'eau plus basse ; la mini-carte montre la vraie forme de l'eau."
+    },
+    {
+     "version": "0.8.0",
+     "date": "2026-10-25",
+     "title": "tube sous-marin et circuit Nautica",
+     "body": "### Nouveau type de route : le tube sous-marin\n- Une route sous une voûte de verre, avec des arceaux lumineux bleus, des bandes lumineuses au bord de la chaussée et une grande entrée en béton là où elle rejoint une route normale.\n- Sous la mer, le fond est creusé autour du tube ; on voit l'eau, les coraux et les poissons à travers le verre. Sous l'eau, le brouillard devient bleu (pour chaque joueur séparément).\n- La caméra reste à l'intérieur du tube pour toujours voir sa voiture. Pareil sous les arches des grottes du Volcano.\n- Disponible dans l'éditeur de carte (type « Tube sous-marin »).\n\n### Nouveau circuit : Nautica 🐠\n- Une plage au milieu (parasols, postes de secours, palmiers), la ville d'un côté, la mer de l'autre.\n- Au large, une île avec un phare dont la lumière tourne. Pour y aller, la route descend sous la mer dans deux tubes de verre, balisés en surface par des bouées.\n- Voiliers au large ; coraux, algues et bancs de poissons autour des tubes.\n- Nouveaux modèles dans le catalogue (rubrique Mer) : phare, bouée, corail, algues, banc de poissons, poste de secours, entrée de tube."
+    },
+    {
+     "version": "0.9.0",
+     "date": "2026-10-25",
+     "title": "Corrigé : les sauts",
+     "body": "### Corrigé : les sauts\n- On ne décolle plus aux carrefours : en côte, la route commençait à monter à l'intérieur du carrefour, ce qui faisait une marche (jusqu'à 2 m) en sortant du carrefour. La route reste maintenant à plat dans le carrefour.\n- On ne décolle plus sur les bosses des chemins ni au sommet des côtes : on ne saute qu'en quittant un tremplin ou le porte-voitures. Les bosses des chemins de terre sont plus douces et disparaissent près des carrefours.\n\n### Éditeur : décor, bonus et pièges\n- Nouvel onglet **« 4 · Décor & bonus »** : on pose les bonus (invincible, super vitesse), les pièges (herse, serpent, araignée, panne), les turbos, les tremplins et le porte-voitures sur les routes, et tous les modèles du catalogue comme décor. Outils pour déplacer, tourner (touche R) et effacer.\n- Dans le jeu (version 3), ils sont exactement là où on les a mis, au lieu d'être placés au hasard. Une carte perso sans rien de placé reste automatique ; le bouton « Décor automatique à modifier » transforme le décor automatique en liste à retoucher.\n- **Les circuits du jeu s'ouvrent dans l'éditeur** (liste « Circuits du jeu ») : on voit leur décor, leurs bonus, turbos et tremplins, et on peut les déplacer, en ajouter, en enlever. Les routes ne changent pas. « Enregistrer » garde ces changements pour la version 3 du circuit (✏️ dans la liste) ; « Revenir au circuit d'origine » les efface."
+    },
+    {
+     "version": "0.10.0",
+     "date": "2026-10-25",
+     "title": "Carte commune à 2 joueurs",
+     "body": "### Carte commune à 2 joueurs\n- À deux, une seule carte en haut au milieu remplace les deux GPS : tout le circuit, le nord en haut.\n- Chaque joueur est une pastille ronde à sa couleur avec son numéro (1 jaune, 2 vert) et une pointe dans le sens de sa voiture. Un trait pointillé de sa couleur montre son objectif (butin, voleur à attraper, prochain point de la course).\n- On y voit aussi les butins, les prisons, les bonus et les autres véhicules.\n- À un joueur, rien ne change : le GPS reste en bas à droite."
+    },
+    {
+     "version": "0.11.0",
+     "date": "2026-10-25",
+     "title": "Nouveaux véhicules",
+     "body": "### Nouveaux véhicules\n- 🛻 **Monster truck** : perché sur des roues géantes, lourd, il pousse les autres. Le plus solide.\n- 🚛 **Semi-remorque** : lent et peu maniable, mais très long et très lourd. En travers d'une route, il bloque tout le passage (on le touche sur toute sa longueur, pas seulement au milieu).\n- 🚙 **Hummer** : gros 4x4 carré, rapide et solide.\n- Nouvelle barre « Solidité » sur l'écran de choix du véhicule (elle servira avec les dégâts).\n- Les ordinateurs peuvent aussi prendre ces véhicules.\n\n### Corrigé\n- Le catalogue plantait sur les véhicules depuis la 0.4.0."
+    },
+    {
+     "version": "0.12.0",
+     "date": "2026-10-25",
+     "title": "Solidité des véhicules",
+     "body": "### Solidité des véhicules\n- Chaque véhicule a des cœurs : 3 pour la moto, 4 pour le karting, 6 pour le camion, le bus et le Hummer, 8 pour le semi-remorque, 10 pour le monster truck.\n- Un gros choc entre deux véhicules enlève un cœur, deux si l'autre est beaucoup plus lourd. Les petits frottements ne comptent pas, et en mode Police les arrestations non plus.\n- Sans cœur, le véhicule est cassé : il s'arrête, fume, et la dépanneuse vient le réparer (il repart avec tous ses cœurs). On a perdu du temps.\n- Les cœurs s'affichent en bas à gauche, au-dessus du turbo.\n\n### Bonus et pièges en réserve\n- Les bonus ⭐ invincible et ⚡ super vitesse ne s'utilisent plus tout de suite : ils vont dans la case de réserve (à côté du turbo). Un seul objet à la fois.\n- Nouveaux objets à ramasser : 🛢️ le bidon d'huile et 📌 les herses. On les pose derrière soi quand on veut : la flaque fait tourner sur lui-même celui qui roule dessus, la herse crève ses pneus. Ils disparaissent au bout de 15 secondes ; celui qui les pose ne se fait pas piéger.\n- Nouveau bouton **« objet »** : le bouton du haut de la manette (Y sur la 8BitDo et la Xbox, △ sur la PS3), E au clavier pour le joueur 1, Maj droite pour le joueur 2. Le turbo reste sur le bouton de gauche.\n- Les ordinateurs utilisent aussi leurs objets (ils posent leurs pièges quand quelqu'un les suit).\n- Les nouveaux objets se placent aussi dans l'éditeur."
+    },
+    {
+     "version": "0.13.0",
+     "date": "2026-10-25",
+     "title": "Mode Police vs Voleurs",
+     "body": "### Mode Police vs Voleurs\n- **Le voleur attrapé va en prison** (3 secondes), puis repart de la sortie de la prison. Il ne réapparaît plus à côté d'une banque.\n- **Banques en même temps** (réglage, remplace « Butin unique ») : 1, 2 (par défaut), 3 ou toutes. Quand un butin est volé, une autre banque reçoit le sien un peu plus tard.\n- **Hélicoptère 🚁** : la police ramasse des jetons d'hélicoptère (compteur en bas à gauche, pour toute l'équipe). Au 5e, l'hélicoptère de police survole la ville pendant 30 secondes et lâche un filet sur un voleur toutes les 5 secondes.\n- **Barrage 🚧** : un bonus que la police garde en réserve. Il installe sur la route, devant le voleur le plus proche, deux 4x4 de police, deux policiers et une herse : la route est fermée pendant 20 secondes (la police, elle, passe).\n- **Filets 🥅** : un policier qui n'a rien en réserve lance un filet droit devant lui avec le bouton « objet » (recharge en 6 secondes). Le voleur pris dans le filet est très ralenti pendant 3 secondes : c'est le moment de l'attraper ! L'invincibilité protège du filet.\n- Les policiers de l'ordinateur lancent aussi des filets et posent des barrages."
+    },
+    {
+     "version": "0.14.0",
+     "date": "2026-10-25",
+     "title": "Course",
+     "body": "### Course\n- **Nombre de pilotes** (réglage) : 4, 6 ou 8. Par défaut 8 : les joueurs et 6 ordinateurs, chacun avec sa couleur.\n- **Vraie grille de départ** : deux files décalées derrière la ligne, une place tous les 5 mètres. En course rapide, les joueurs partent parmi les 4 premiers.\n- **Grand Prix** à 8 pilotes : ville (4 courses), campagne (4 courses) ou **toutes les courses** (les 10 circuits, Volcano et Nautica compris). Les ordinateurs gardent le même véhicule toute la saison ; la grille de chaque course suit l'arrivée de la précédente. Points : 10, 8, 6, 5, 4, 3, 2, 1.\n- En mode Police vs Voleurs, nouveau championnat « tous les circuits »."
+    },
+    {
+     "version": "0.15.0",
+     "date": "2026-10-25",
+     "title": "Mode réseau local : des joueurs sur téléphone",
+     "body": "### Mode réseau local : des joueurs sur téléphone\n- Nouveau choix dans le menu principal : **« 📡 2 joueurs + réseau »**. Le PC crée la partie et affiche l'adresse à ouvrir sur les téléphones (même Wi-Fi), puis la liste des téléphones connectés. On continue ensuite comme d'habitude, avec 1 ou 2 joueurs sur le PC.\n- **« 📱 Client réseau »** (ou l'adresse avec `?mobile`) : le téléphone devient une manette. On choisit son prénom, son équipe (police ou voleurs) et son véhicule, puis on attend que le PC lance la partie.\n- Pendant la partie, le téléphone affiche :\n  - une interface tactile : glisser pour tourner, gros boutons Accélère, Frein, Turbo et Objet (option « Avance toute seule », activée par défaut) ;\n  - une petite carte qui suit sa voiture, avec l'objectif ;\n  - sa place et son tour, ou le score et le chrono ;\n  - ses cœurs, son objet en réserve (ou le filet pour la police) et les messages (prison, dépanneuse). Il vibre quand on est touché.\n- Sur le PC, les joueurs du téléphone ont une vraie voiture avec leur prénom au-dessus. Ils remplacent des ordinateurs (en course comme en mode police) et apparaissent dans les résultats ; à la fin, le téléphone affiche le classement.\n- Le téléphone ne charge pas le jeu en 3D : la page est très légère.\n- Il faut lancer le jeu avec `npm run dev` (ou `npm run preview`) : le serveur relaie les informations entre le PC et les téléphones. Il est maintenant visible depuis le réseau local.\n\n### Corrigé\n- En course à 8, le dernier ordinateur avait la même couleur que le joueur 1."
+    },
+    {
+     "version": "0.16.0",
+     "date": "2026-10-25",
+     "title": "Mode réseau : le jeu en 3D sur le téléphone",
+     "body": "### Mode réseau : le jeu en 3D sur le téléphone\n- Le téléphone affiche maintenant **la même vue que le PC** : le circuit en 3D, derrière sa voiture, avec les autres véhicules, les bonus et pièges, les butins, les passants, l'hélicoptère et les barrages. Les commandes tactiles (volant, Accélère, Frein, Turbo, Objet) sont par-dessus, avec le chrono ou le score, la place et le tour, les cœurs et une petite carte.\n- Le téléphone construit lui-même le circuit (avec les modifications de l'éditeur faites sur le PC) ; le PC lui envoie l'état de la partie environ 20 fois par seconde, et les mouvements sont lissés.\n- Le moteur 3D n'est chargé qu'au lancement de la partie : le salon reste léger.\n- Un téléphone qui décroche quelques secondes (veille, chargement) revient tout seul dans la partie, avec sa voiture.\n\n### Salon réseau\n- Menu principal → **📡 Partie en réseau** ouvre le salon. Tout le monde voit la même chose, sur le PC et sur les téléphones : le mode, le circuit, les options et la liste des joueurs avec leur camp, leur véhicule et ✅ prêt / ⏳ pas encore.\n- Le **joueur 1 du PC** choisit le nombre de joueurs sur le PC, le mode, le circuit et les options (durée, banques, tours, pilotes, bonus).\n- Les joueurs du PC choisissent leur camp et leur véhicule comme avant (chacun valide quand il est prêt). Sur le téléphone, on choisit son camp et son véhicule, puis « Je suis prêt ! ».\n- « Démarrer la partie » n'est possible que quand tout le monde est prêt (sinon on voit qui on attend). Après la partie, on revient au salon.\n- Le salon n'affiche que l'adresse du Wi-Fi (plus celle des machines virtuelles)."
+    },
+    {
+     "version": "0.17.0",
+     "date": "2026-10-25",
+     "title": "Mode réseau : commandes réactives",
+     "body": "### Mode réseau : commandes réactives\n- Le téléphone et le PC restent connectés en permanence (WebSocket) au lieu de s'envoyer des requêtes : **chaque appui part tout de suite vers le PC**, qui l'applique aussitôt. Le PC envoie l'état de la partie aux téléphones 30 fois par seconde (au lieu de 20, et sans attente).\n- Sur le téléphone, les voitures continuent sur leur lancée entre deux états reçus (prédiction), avec un lissage plus serré : sa voiture suit les commandes sans retard visible.\n\n### Manette tactile\n- Les commandes du téléphone sont maintenant celles d'une **manette** :\n  - à gauche, une croix directionnelle (◀ ▶ pour tourner, ▲ accélérer, ▼ freiner) ;\n  - à droite, quatre boutons rangés comme sur la manette du PC : bas = accélérer, droite = freiner, gauche = turbo, haut = objet.\n- Les touches réagissent comme celles d'une manette : enfoncées tant que le doigt est dessus. On peut glisser le doigt d'une flèche à l'autre (diagonales comprises) et appuyer sur plusieurs boutons à la fois. Un appui très court sur turbo ou objet n'est jamais perdu.\n- Le réglage « Avance toute seule » du PC s'applique aussi aux téléphones.\n\n### Technique\n- Nouvelle dépendance de développement : `ws` (le serveur WebSocket du relais). Faire `npm install` après la mise à jour."
+    },
+    {
+     "version": "0.18.0",
+     "date": "2026-10-25",
+     "title": "Mode réseau : salon, parties (rooms) et sessions",
+     "body": "### Mode réseau : salon, parties (rooms) et sessions\n- **Le PC qui lance le jeu est le serveur.** Son adresse donne le salon principal : la liste des parties (rooms) en attente ou en cours.\n- Sur le PC : menu principal → **📡 Mode réseau** → 1 ou 2 joueurs sur ce PC → **chaque joueur écrit son prénom** (écran partagé, clavier virtuel piloté à la manette, ou le clavier) et rejoint la partie. La partie (room) est créée avec un nom de session (« Partie de … », modifiable).\n- Sur un téléphone ou un autre PC : on ouvre l'adresse du serveur, on voit **la liste des parties**, on en choisit une en attente, on écrit son prénom et on la rejoint. Une partie déjà commencée est affichée mais ne peut plus être rejointe.\n- La partie attend ses joueurs (tout le monde voit qui est là, 👑 = le maître). Quand tout le monde est arrivé, **le maître (joueur 1 du PC) démarre la session**.\n- Ensuite, pour chaque course : le maître choisit le mode, le circuit et les options ; **chaque joueur choisit son camp et son véhicule et valide**, comme avant (à chaque nouvelle course, il faut revalider). Le maître lance la course quand tout le monde a validé, et on y revient après chaque course.\n- Les prénoms des joueurs du PC sont gardés pour la fois suivante et apparaissent dans les résultats.\n- Un autre PC peut aussi rejoindre une partie : il se joue au clavier (flèches ou ZQSD, Espace = turbo, E = objet) ou avec une manette.\n\n### Manette tactile\n- À gauche, un **petit joystick** à la place des flèches : le socle se place là où le pouce se pose, le pouce peut rester au centre et de tout petits mouvements à gauche ou à droite suffisent pour tourner (le virage est progressif). Pousser franchement vers le haut accélère, vers le bas freine.\n- À droite, les quatre boutons, comme avant."
+    },
+    {
+     "version": "0.18.1",
+     "date": "2026-10-25",
+     "title": "Corrigé : direction sur le téléphone",
+     "body": "### Corrigé : direction sur le téléphone\n- Retour à la **croix directionnelle numérique** (gauche / droite à fond ou pas du tout, retour à zéro immédiat dès que le doigt revient au centre ou se lève), aussi réactive qu'en 0.17.\n- La croix est beaucoup **plus petite** (130 px au lieu de 190) : il suffit de déplacer le pouce d'une dizaine de pixels pour tourner. Le doigt reste suivi même s'il sort un peu de la croix.\n- Le joystick analogique de la 0.18.0 est retiré."
+    },
+    {
+     "version": "0.19.0",
+     "date": "2026-10-25",
+     "title": "mode réseau local (plusieurs parties, création depuis le téléphone, départ au klaxon)",
+     "body": "### Mode réseau : plusieurs parties sur le serveur, créer une partie depuis un téléphone\n- **Le serveur peut juste héberger** : il relaie, sans forcément avoir de partie lui-même, et il peut accueillir **plusieurs parties en même temps**.\n- **« ➕ Créer une partie » sur le téléphone** (ou sur un autre PC) : on donne son prénom et le nom de la partie. L'appareil qui crée la partie la fait tourner (comme le PC) ; son joueur conduit avec les commandes tactiles, et il est le maître : il démarre la session, choisit le mode, le circuit et les options, et lance chaque course.\n- Le salon du serveur affiche **deux sections : « Parties en attente » et « Parties en cours »**. On peut rejoindre une partie en cours : on regarde la course, et on joue dès la suivante.\n\n### Départ des courses en réseau\n- **Écran de chargement avec une barre par joueur**, mesurée par l'hôte et affichée à tout le monde (sur le PC et sur chaque téléphone).\n- La course attend que tout le monde ait fini de charger, puis **démarre 3 secondes après**.\n- **Klaxon de départ** : « tut, tut, tut… tooomp ! » (3, 2, 1, partez), sur le PC et sur les téléphones. Le klaxon remplace aussi les bips du départ en partie normale.\n\n### Manette tactile\n- Nouvelle **mise en page** : une barre en bas en deux zones qui ne peuvent plus se chevaucher. À gauche, seulement **◀ ▶** (on peut glisser le doigt de l'un à l'autre) ; à droite, les quatre boutons bien alignés (Turbo, Objet / Frein, Accélère). Les tailles s'adaptent à l'écran."
+    },
+    {
+     "version": "0.20.0",
+     "date": "2026-10-28",
+     "title": "Le jeu en ligne : https://jeux.kassir.fr/jeux/car_race/",
+     "body": "### Le jeu en ligne : https://jeux.kassir.fr/jeux/car_race/\n- Le jeu tourne aussi **sur Internet**, dans la stack Docker de jeux.kassir.fr (dossier `web_stack_2026`) : le relais du mode réseau tourne dans le conteneur du jeu, derrière le proxy HTTPS. Les téléphones rejoignent une partie depuis n'importe où, sans être sur le même Wi-Fi.\n- Les adresses du relais sont **relatives à la page** (`pvv-ws`, `pvv-net/info`) : le jeu marche à la racine (`npm run dev`) comme sous un sous-chemin du site. En ligne, l'écran du mode réseau affiche l'adresse du site (et pas une IP du réseau local).\n- Relais prêt pour Internet : au plus 20 parties et 200 joueurs, messages de 1 Mo maximum, noms et champs tronqués. En ligne, seules les pages du site peuvent s'y connecter.\n\n### Classement en ligne\n- À la fin d'une partie, l'appareil qui la fait tourner envoie les scores des joueurs **qui ont un prénom** (mode réseau) au tableau de bord de jeux.kassir.fr :\n  - **Police vs Voleurs** : les prises de chaque policier et les butins de chaque voleur (top 5 des meilleurs flics et des meilleurs voleurs). Les prises et les butins sont maintenant comptés **par joueur**.\n  - **Course** : le **meilleur tour** de chaque pilote (record du circuit, un par circuit et par version ; pas les cartes perso).\n- Hors du site (`npm run dev`), rien n'est envoyé."
+    }
+   ]
+  },
+  {
+   "code": "space_hairness",
+   "kind": "game-server",
+   "title": "Space Racing",
+   "icon": "🚀",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-10-31",
+     "title": "Première version jouable",
+     "body": "- Première version jouable : carte du secteur, 7 missions, 3 circuits, checkpoints, combat, HUD, résultats, progression, audio, mobile.\n- API Node.js, serveur de jeu v3 (squelette) et Compose."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-01",
+     "title": "Garage core",
+     "body": "### Garage v2.0\n\n- 3 châssis jouables : Racer Mk.II, Racer Lourd, Racer Spectre, débloqués par la progression.\n- 15 pièces sur 5 slots (fuselage, réacteur, bouclier, armement, module).\n- Budgets de masse et de puissance, bonus/malus et prix.\n- Achat de pièces avec les crédits de mission.\n- Écran Atelier accessible depuis la carte et la carte vaisseau, avec aperçu vectoriel, slots, télémétrie et comparaison.\n- Application des stats au vol : vitesse, bouclier max, maniabilité, capacité de boost, cadence et vitesse des canons.\n- Sauvegarde v2 avec migration automatique de la progression v1 et archive `progress.v1.backup.json`.\n- Validation serveur des loadouts, des achats et des budgets.\n- Tests `node:test` du garage, données validées par `npm run check`.\n\n### Documentation\n\n- Plan d’exécution v2/v3.\n- Spécifications v2 et v3 mises à jour.\n- Captures de la carte, d’une mission, d’un circuit et du garage."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-01",
+     "title": "Manette configurable",
+     "body": "### Manette\n\n- Détection Gamepad API et lecture des sticks/boutons.\n- Pilotage au stick gauche ou droit, zone morte, sensibilité et inversion X/Y.\n- Tir, boost et pause remappables avec capture du bouton.\n- Vibrations optionnelles sur balises et impacts.\n- Écran de configuration avec test en direct, accessible depuis la barre supérieure et l'aide.\n- Configuration persistée en localStorage et appliquée en jeu sans rechargement."
+    },
+    {
+     "version": "0.4.0",
+     "date": "2026-11-01",
+     "title": "Manette complète et tactile",
+     "body": "### Manette complète et tactile\n\n- Navigation des menus à la manette : carte, briefing, garage, pause, résultats, aide et configuration.\n- Focus visuel, navigation spatiale, panneaux du garage, validation A, retour B.\n- Raccourcis Y = atelier, X = aide, Select = configuration manette.\n- Saisie de bouton protégée contre les doubles activations.\n- Parcours tactile validé du chargement au retour carte.\n- Version de build injectée par Vite et affichée sur l’écran de carte.\n- Cibles tactiles agrandies et panneaux défilables."
+    },
+    {
+     "version": "0.5.0",
+     "date": "2026-11-01",
+     "title": "Hangar 3D et livrées",
+     "body": "### Atelier 3D et livrées\n\n- Scène de hangar 3D en Babylon.js Lite, avec plateforme, éclairage et vaisseau animé.\n- Aperçu vectoriel conservé en fallback si WebGPU échoue.\n- Sept livrées : origine, escadrille, nuit, cuivre, spectre, glace et braise.\n- Sélection de livrée dans l’atelier, appliquée instantanément au modèle 3D.\n- Livrée persistée dans la progression et appliquée au vaisseau en vol.\n- API et validation mises à jour pour `paintId`."
+    },
+    {
+     "version": "0.6.0",
+     "date": "2026-11-01",
+     "title": "Atelier 3D et vol d'essai",
+     "body": "### Vol d'essai\n\n- Bouton **VOL D'ESSAI** dans l'atelier, avec la configuration et la livrée en cours.\n- Session sandbox de 20 secondes : pas de balises, pas d'ennemis, pas de score.\n- HUD dédié avec compte à rebours, bouclier, boost et commandes.\n- Pause, reprise, recommencer et quitter le test.\n- Retour automatique à l'atelier, sans progression ni crédits.\n- Le brouillon d'atelier non appliqué est conservé.\n- Atelier 3D et livrées finalisés."
+    },
+    {
+     "version": "0.7.0",
+     "date": "2026-11-01",
+     "title": "Vaisseau mère mobile",
+     "body": "### Vaisseau mère mobile\n\n- Quatre tiers : navette, transporteur, porte-escadrille, forteresse.\n- Position, carburant et tier persistés et migrés.\n- Marqueur du vaisseau mère sur la carte.\n- Déplacement vers un nœud sécurisé adjacent, avec coût en carburant.\n- Ravitaillement en crédits.\n- Carte de statut dans le rail : tier, nœud, carburant, destinations.\n- API `/api/mothership`, `/move` et `/refuel`.\n- Tests dédiés : 20/20 au total."
+    },
+    {
+     "version": "0.8.0",
+     "date": "2026-11-01",
+     "title": "Atelier mobile",
+     "body": "### Atelier mobile\n\n- L'atelier n'est accessible que si le vaisseau mère est sur le nœud courant.\n- Statut « ATELIER PRÊT / ATELIER À DISTANCE » sur la carte.\n- Message explicite si l'atelier est hors de portée.\n- Le déplacement du vaisseau mère reste la façon de rapprocher les services."
+    },
+    {
+     "version": "0.9.0",
+     "date": "2026-11-01",
+     "title": "Lisibilité UI",
+     "body": "### Lisibilité UI — IDEA-001\n\n- Échelle typographique relevée sur la carte, le garage, l'aide, la manette et le HUD.\n- Descriptions de pièces et notes d'atelier longues masquées.\n- Intro de carte et manifeste supprimés pour alléger.\n- Panneaux et cellules plus aérés.\n- Version de build v0.9.0 visible sur l'écran de start."
+    }
+   ]
+  },
+  {
+   "code": "space_run",
+   "kind": "game-server",
+   "title": "Space Run",
+   "icon": "🚀",
+   "releases": [
+    {
+     "version": "1.0.0",
+     "date": "2026-11-01",
+     "title": "L'Évasion",
+     "body": "## Objectifs\nDévelopper une version jouable de base comprenant l'exploration de la carte, le contrôle du vaisseau en 3D et un premier circuit d'obstacles.\n\n## Fonctionnalités Clés\n- Système de navigation par carte (10 lieux, déverrouillés en chaîne).\n- Contrôle du vaisseau (H/B/G/D + Accélération/Freinage).\n- Système de combat de base (Tir laser contre les drones de chasseurs de prime).\n- Environnement 3D par biome avec anneaux et obstacles.\n- Système de sauvegarde (slot serveur, sauvegarde automatique après chaque course/achat).\n- Garage : 4 améliorations achetables en flouz.\n\n## Statut\n- [x] Configuration de l'environnement (Node.js, Babylon.js, Vite)\n- [x] Architecture des données (Structure `/data`)\n- [x] Développement de l'API de navigation\n- [x] Prototype du moteur de rendu Babylon.js\n- [x] Implémentation du gameplay de course\n- [x] Intégration UI (Menus, Carte, Garage, HUD, Rapport)\n\n## Validation\n- `cd api && npm test` : 12 tests (logique de jeu + routes)\n- `python blender-work/tests/test_api.py` : 5 tests d'intégration Blender\n- Parcours complet validé dans un navigateur headless : menu → carte → course (10/10 anneaux)\n  → rapport → lieu suivant débloqué → achat au garage → stats appliquées en course"
+    },
+    {
+     "version": "1.1.0",
+     "date": "2026-11-01",
+     "title": "Les Villes",
+     "body": "- Vaisseau généré depuis le blueprint (`gen_game_assets.py` : coque en loft du contour, cockpit et propulseur placés selon le plan)\n- Image Blender 5.2 LTS (1.3.0), historique des tâches dans `logs/tasks.json`, sortie Blender en UTF-8\n- Test E2E : une partie complète jouée par pilote automatique (`npm run test:e2e`)\n- Docs : `commands.md`, todo"
+    }
+   ]
+  },
+  {
+   "code": "secure",
+   "kind": "tool",
+   "title": "secure",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-10-27",
+     "title": "Collecte Windows",
+     "body": "Première version.\n\n- Collecte Windows : ports TCP/UDP en écoute, pare-feu, profils réseau, RDP/NLA, SMBv1\n- Collecte Docker : ports publiés, socket Docker, privileged, network host, capabilities, tags\n- Règles d'analyse avec score sur 100 et détection des nouveaux ports depuis l'audit précédent\n- Catalogue de ports (`data/catalog/ports.json`)\n- API REST locale (127.0.0.1:4317), UI web, CLI `npm run audit`, tâche planifiée quotidienne\n- Checklist manuelle Freebox"
+    }
+   ]
+  },
+  {
+   "code": "secure_doc",
+   "kind": "tool",
+   "title": "secure_doc",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-10-27",
+     "title": "Doc de l'hébergement sortie du conteneur `web-app`",
+     "body": "- Doc de l'hébergement sortie du conteneur `web-app` (web_stack_2026) : appli locale sur 127.0.0.1:4318, démarrable depuis Secure\n- Scripts de vérification lancés par un bouton : DNS (A, AAAA, CAA, IP publique), Freebox, IP LAN, profil réseau, veille, pare-feu, ports 80/443, état et logs de la stack, HTTP/HTTPS local et public\n- Identité visuelle propre (sarcelle + livre) et lien vers Secure"
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-01",
+     "title": "Carte du workflow",
+     "body": "- **Carte du workflow** (`/carte`) : carte illustrée, déplaçable et zoomable, avec flux colorés animés, personnages et trois scénarios (nouveau jeu, mise à jour, score). État réel via `GET /api/map`.\n- 12 icônes SVG dans `ui/icons/`."
+    }
+   ]
+  },
+  {
+   "code": "monitor",
+   "kind": "tool",
+   "title": "monitor",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-01",
+     "title": "Première version",
+     "body": "- Agent Windows (mesures machine, `docker stats`, processus dans les conteneurs via `/proc`, présence), serveur Docker (SQLite, agrégats horaires, API), interface (vue d'ensemble, conteneurs, mode et impact)\n- Mode minimal horodaté et comparaison à heures équivalentes pour mesurer l'impact du monitoring\n- Données bornées (48 h brutes, 60 j agrégés, 200 Mo)"
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-01",
+     "title": "Sondes de l'hôte et du serveur de jeux",
+     "body": "- **Sondes de l'hôte** : processus Windows, disque, activité humaine / IA avec bandes sur les courbes, filtre « pendant mon absence »\n- **Serveur de jeux** : connexions TCP, descripteurs, redémarrages, OOM, santé par conteneur ; trafic du proxy ; salons et joueurs du relais ; page Serveur de jeux\n- Agent : un seul à la fois, `scripts/stop-agent.ps1`\n- Base : migration automatique des bases 0.1\n- API : `/api/top`, `/api/games`, `/api/series?scope=traffic`"
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-01",
+     "title": "Tests de performance",
+     "body": "- Test de la machine (calcul, mémoire, disque), test de charge du relais avec joueurs simulés par WebSocket à travers le proxy, test de charge HTTP par paliers ; capacité estimée et rupture expliquée\n- Garde-fous : loopback seulement, plafonds, arrêt si la machine sature ; page Tests\n- Agent : exécution des tests dans un processus enfant isolé\n- API : `/api/tests`, `/api/tests/catalog`, `/api/tests/:id`"
+    }
+   ]
+  },
+  {
+   "code": "doc_generator",
+   "kind": "tool",
+   "title": "doc_generator",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-01",
+     "title": "Moteur extrait de la carte du workflow de secure_doc",
+     "body": "- Moteur extrait de la carte du workflow de secure_doc (`ui/carte.js`) : modules ES, aucune donnée de domaine dans le code ; les scénarios sont des listes d'actions JSON.\n- Catalogue : 21 icônes (12 de secure_doc + 9 réseau : box, switch, ordinateur, téléphone, serveur, imprimante, pare-feu, FAI, DNS), 12 personnages, 10 accessoires, 19 actions.\n- Niveaux de lecture (textes `{ kid, expert }`) avec bouton de bascule.\n- Docs : `secure` (workflow kassir_devops, v2 de la carte, avec état réel via `adapter.js`) et `devops_reseau` (réseau d'une maison : Wi-Fi/DHCP, DNS/NAT/pare-feu, redirection de port).\n- `build.js` : assemblage, vérification des références, génération dans `dist/<id>/`, export vers une appli (`--to`).\n- Interface et API (port 4322) : liste des docs, édition JSON par partie, catalogue, aperçu, génération."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-01",
+     "title": "Calques",
+     "body": "- **Calques** (`layers`) : afficher ou cacher zones, flux, décor, personnages et pastilles à la volée ; pastilles vert ✓ / rouge ✕ barré ; les animations règlent leurs calques et rétablissent ceux du visiteur.\n- **Services** d'une machine (pastilles avec port ou texte), catalogue `services.json` (17 services), verbes `pulse` et `layer`.\n- **Mode de lecture** : icône ronde en haut à droite, bascule en direct (légende d'étape comprise), choix mémorisé.\n- **Difficulté** des animations (facile / intermédiaire / expert), tri et pastilles ; menu déroulant dès 4 animations.\n- **Appli à plusieurs cartes** : `collections/`, `node build.js --app … --to …`, menu, carte et animation adressables (`#/carte/animation`), `destroy()` du moteur, noms de fichiers versionnés.\n- Vue d'accueil qui suit ce qui est visible (`world.fitContent`) ; 9 icônes ajoutées (maison, école, entreprise, centre de données, boîte aux lettres, base de données, GPU, cerveau, câble coupé : 30 en tout).\n- Docs : `reseau_maison` (5 animations, dont coupure d'Internet et tunnel VPN), `reseau_ecole` (adresses IP locales), `reseau_internet` (IP et DNS, mails, hébergement, IA). L'ancienne doc `devops_reseau` devient `reseau_maison`."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-01",
+     "title": "Le village",
+     "body": "- **Le village** : la carte « maison » est remplacée par quatre lieux aux configurations différentes : Paul (maison simple : une box, deux téléphones, un chien), Greg et Aya (famille de 5 : prof, youtubeuse, console, télé avec contrôle parental), Xavier et Julien (colocation d'ingénieurs : objets connectés, serveur perso, VPN), la boulangerie (réseau du magasin et Wi-Fi invité). Dix animations, dont 8 nouvelles.\n- **Résolution DNS réaliste** : la question part de l'appareil vers la box (port 53, résolveur donné par le DHCP), puis la box la relaie à un relais DNS mondial qui répond avec l'adresse IP (cartes Paul et Internet).\n- Catalogue : icônes télévision, console, caméra et objet connecté (34 en tout), 5 services (contrôle parental, streaming, MQTT, Wi-Fi invité, envoi de fichiers), 3 calques types, 9 personnages (dont un chien), accessoire caméra.\n- Vue d'accueil : marge à droite pour la légende des flux."
+    }
+   ]
+  },
+  {
+   "code": "devops_reseau",
+   "kind": "game-static",
+   "title": "Devops : réseaux",
+   "icon": "🌐",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-02",
+     "title": "Le village",
+     "body": "- Doc animée d'un réseau de maison (DNS, box, pare-feu) : 6 lieux, 14 animations, générée par doc_generator\n- Jeu statique sans serveur, publié sur `/jeux/devops_reseau/`"
+    }
+   ]
+  }
+ ]
+}
