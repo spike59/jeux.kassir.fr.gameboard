@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-03T23:31:26.532Z",
+ "generatedAt": "2026-11-03T23:46:10.348Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -384,6 +384,20 @@
      "date": "2026-11-01",
      "title": "Le village",
      "body": "- **Le village** : la carte « maison » est remplacée par quatre lieux aux configurations différentes : Paul (maison simple : une box, deux téléphones, un chien), Greg et Aya (famille de 5 : prof, youtubeuse, console, télé avec contrôle parental), Xavier et Julien (colocation d'ingénieurs : objets connectés, serveur perso, VPN), la boulangerie (réseau du magasin et Wi-Fi invité). Dix animations, dont 8 nouvelles.\n- **Résolution DNS réaliste** : la question part de l'appareil vers la box (port 53, résolveur donné par le DHCP), puis la box la relaie à un relais DNS mondial qui répond avec l'adresse IP (cartes Paul et Internet).\n- Catalogue : icônes télévision, console, caméra et objet connecté (34 en tout), 5 services (contrôle parental, streaming, MQTT, Wi-Fi invité, envoi de fichiers), 3 calques types, 9 personnages (dont un chien), accessoire caméra.\n- Vue d'accueil : marge à droite pour la légende des flux."
+    }
+   ]
+  },
+  {
+   "code": "gemma_run",
+   "kind": "game-static",
+   "title": "Gemma Run",
+   "icon": "🚀",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-04",
+     "title": "Premier vol",
+     "body": "- Un vaisseau dans les étoiles : déplacement au doigt, à la souris ou au clavier.\n- Étoiles ⭐ à attraper (+10), astéroïdes à éviter, 3 vies, vitesse croissante.\n- Pause, classement « Gemma Run » (score envoyé en quittant, en pause, à la défaite ou à la fermeture)."
     }
    ]
   },

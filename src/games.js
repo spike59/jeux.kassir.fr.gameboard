@@ -48,5 +48,9 @@ export const GAMES = {
       { id: 'bulles_multi', title: 'Bulles à plusieurs', emoji: '👥', order: 'desc', unit: 'points', min: 1, max: 5000, open: true },
     ],
   },
+  gemma_run: {
+    title: 'Gemma Run',
+    boards: [{ id: 'gemma_run', title: 'Meilleurs pilotes', emoji: '🚀', order: 'desc', unit: 'points', min: 1, max: 100000, open: true }],
+  },
   // space_hairness, space_run : à ajouter quand leurs classements (missions, circuits) seront décidés
 };
