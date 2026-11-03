@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-03T23:27:01.400Z",
+ "generatedAt": "2026-11-03T23:31:26.532Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -43,7 +43,7 @@
      "version": "0.3.0",
      "date": "2026-11-04",
      "title": "Hub des jeux à plusieurs (serveur01)",
-     "body": "- **Hub** (`src/hub/`) : salon commun à tous les jeux à plusieurs, par WebSocket `/api/v1/hub` : prénom, chat général, salles par jeu, lancement par le propriétaire, ping.\n- **Realm** : `GET /api/v1/realm` liste les serveurs (`serveur01`) et leurs jeux.\n- Premier module de jeu : **bulles** (couleurs, +1 / −5, manches de 60 s). Contrat de module décrit dans `hub.js`.\n- Classement `bulles_multi`. La CSP autorise le WebSocket du site. Dépendance `ws`.\n- Détail et suite : `concept/multijoueur/architecture.md` du dépôt kassir_devops."
+     "body": "- **Hub** (`src/hub/`) : salon commun à tous les jeux à plusieurs, par WebSocket `/api/v1/hub` : prénom, chat général, salles par jeu, lancement par le propriétaire, ping.\n- **Realm** : `GET /api/v1/realm` liste les serveurs (`serveur01`) et leurs jeux.\n- Premier module de jeu : **bulles** (couleurs, +1 / −5, manches de 60 s). Contrat de module décrit dans `hub.js`.\n- Classement `bulles_multi`. La CSP autorise le WebSocket du site. Dépendance `ws`.\n- **Notes de mise à jour** (`/notes/`) : zoom et dézoom en pinçant à deux doigts (ou boutons − / +, Ctrl + molette), glisser au doigt comme à la souris.\n- Détail et suite : `concept/multijoueur/architecture.md` du dépôt kassir_devops."
     }
    ]
   },

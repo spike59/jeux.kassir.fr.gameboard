@@ -113,18 +113,72 @@ try {
   fresco.replaceChildren(h('p', { className: 'loading', textContent: 'Impossible de charger les notes de version.' }));
 }
 
-// --- déplacement : attraper la frise à la souris (ou au stylet) et la faire glisser dans tous les sens, avec un peu d'élan.
-// Au doigt, le défilement natif du navigateur (touch-action: pan-x pan-y) fait déjà la même chose, élan compris.
+// --- déplacement et zoom : on attrape la frise (souris, stylet ou doigt) et on la glisse dans tous les sens, avec un peu d'élan ;
+// à deux doigts, on pince pour zoomer (le point entre les doigts reste en place). Molette + Ctrl (ou pincement du pavé tactile) : zoom aussi.
+const Z_MIN = 0.4;
+const Z_MAX = 2.5;
+let zoom = 1;
+const gridEl = () => fresco.querySelector('.grid');
+
+// Zoom autour d'un point de l'écran (cx, cy, en pixels dans la frise) : le contenu sous ce point ne bouge pas.
+function setZoom(next, cx = fresco.clientWidth / 2, cy = fresco.clientHeight / 2) {
+  const grid = gridEl();
+  if (!grid) return;
+  next = Math.min(Z_MAX, Math.max(Z_MIN, next));
+  const ratio = next / zoom;
+  const x = fresco.scrollLeft + cx;
+  const y = fresco.scrollTop + cy;
+  zoom = next;
+  grid.style.setProperty('--z', zoom);
+  fresco.scrollLeft = x * ratio - cx;
+  fresco.scrollTop = y * ratio - cy;
+}
+document.querySelector('#zin').addEventListener('click', () => setZoom(zoom * 1.25));
+document.querySelector('#zout').addEventListener('click', () => setZoom(zoom / 1.25));
+fresco.addEventListener('wheel', (e) => {
+  const r = fresco.getBoundingClientRect();
+  if (e.ctrlKey) { e.preventDefault(); setZoom(zoom * Math.exp(-e.deltaY * 0.01), e.clientX - r.left, e.clientY - r.top); } // pincement du pavé tactile
+  else if (e.shiftKey && !e.deltaX) { e.preventDefault(); fresco.scrollLeft += e.deltaY; } // Maj + molette : horizontal
+}, { passive: false });
+
 {
-  let drag = null;
-  let glide = 0;
   const THRESHOLD = 4; // en dessous, c'est un clic sur une carte
+  const pointers = new Map(); // id -> { x, y }
+  let drag = null; // un pointeur : { id, x, y, moved, vx, vy, lx, ly, t }
+  let pinch = null; // deux pointeurs : { dist, zoom }
+  let glide = 0;
+  const point = (e) => ({ x: e.clientX, y: e.clientY });
+  const two = () => [...pointers.values()];
+
   fresco.addEventListener('pointerdown', (e) => {
-    if (e.pointerType === 'touch' || e.button !== 0) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     cancelAnimationFrame(glide);
-    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, left: fresco.scrollLeft, top: fresco.scrollTop, moved: false, vx: 0, vy: 0, lx: e.clientX, ly: e.clientY, t: performance.now() };
+    pointers.set(e.pointerId, point(e));
+    if (pointers.size === 1) {
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY, left: fresco.scrollLeft, top: fresco.scrollTop, moved: false, vx: 0, vy: 0, lx: e.clientX, ly: e.clientY, t: performance.now() };
+    } else if (pointers.size === 2) {
+      const [a, b] = two();
+      pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) || 1, zoom, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
+      drag = null;
+      fresco.classList.add('dragging');
+    }
   });
+
   fresco.addEventListener('pointermove', (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, point(e));
+    const r = fresco.getBoundingClientRect();
+    if (pinch && pointers.size >= 2) {
+      const [a, b] = two();
+      const cx = (a.x + b.x) / 2;
+      const cy = (a.y + b.y) / 2;
+      setZoom(pinch.zoom * (Math.hypot(a.x - b.x, a.y - b.y) / pinch.dist), cx - r.left, cy - r.top);
+      fresco.scrollLeft -= cx - pinch.cx; // les deux doigts déplacent aussi la frise
+      fresco.scrollTop -= cy - pinch.cy;
+      pinch.cx = cx;
+      pinch.cy = cy;
+      return;
+    }
     if (!drag || e.pointerId !== drag.id) return;
     const dx = e.clientX - drag.x;
     const dy = e.clientY - drag.y;
@@ -136,7 +190,7 @@ try {
     }
     const now = performance.now();
     const dt = Math.max(1, now - drag.t);
-    drag.vx = (e.clientX - drag.lx) / dt; // pixels par milliseconde, du doigt/souris
+    drag.vx = (e.clientX - drag.lx) / dt; // pixels par milliseconde
     drag.vy = (e.clientY - drag.ly) / dt;
     drag.lx = e.clientX;
     drag.ly = e.clientY;
@@ -144,15 +198,26 @@ try {
     fresco.scrollLeft = drag.left - dx;
     fresco.scrollTop = drag.top - dy;
   });
+
   const end = (e) => {
+    if (!pointers.delete(e.pointerId)) return;
+    if (pinch) {
+      // un doigt reste posé : il reprend la main comme un glissement tout neuf
+      if (pointers.size < 2) {
+        pinch = null;
+        const [rest] = two();
+        drag = rest ? { id: [...pointers.keys()][0], x: rest.x, y: rest.y, left: fresco.scrollLeft, top: fresco.scrollTop, moved: true, vx: 0, vy: 0, lx: rest.x, ly: rest.y, t: performance.now() } : null;
+        if (!rest) fresco.classList.remove('dragging');
+      }
+      return;
+    }
     if (!drag || e.pointerId !== drag.id) return;
     const { moved, vx, vy, t } = drag;
     drag = null;
     fresco.classList.remove('dragging');
-    if (!moved) return;
+    if (!moved || performance.now() - t > 120) return; // arrêté avant de relâcher : pas d'élan
     let sx = vx * 16; // pixels par image, qui ralentissent
     let sy = vy * 16;
-    if (performance.now() - t > 120) return; // la souris s'était arrêtée avant le relâchement : pas d'élan
     const step = () => {
       if (Math.abs(sx) < 0.5 && Math.abs(sy) < 0.5) return;
       fresco.scrollLeft -= sx;
@@ -165,10 +230,6 @@ try {
   };
   fresco.addEventListener('pointerup', end);
   fresco.addEventListener('pointercancel', end);
-  // Molette : défilement vertical normal ; Maj + molette (ou pavé tactile) : horizontal
-  fresco.addEventListener('wheel', (e) => {
-    if (e.shiftKey && !e.deltaX) { fresco.scrollLeft += e.deltaY; e.preventDefault(); }
-  }, { passive: false });
 }
 
 // --- plein écran (absent des iPhone : le bouton reste caché quand le navigateur ne sait pas le faire)
