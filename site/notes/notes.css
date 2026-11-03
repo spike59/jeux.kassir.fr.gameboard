@@ -9,7 +9,7 @@ body { display: flex; flex-direction: column; background: var(--bg); color: var(
 main { flex: 1; min-height: 0; padding: 0 0 env(safe-area-inset-bottom); }
 
 /* la frise défile dans les deux sens, au doigt comme à la souris */
-.fresco { height: 100%; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; position: relative; outline: none; }
+.fresco { cursor: grab; user-select: none; -webkit-user-select: none; height: 100%; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; position: relative; outline: none; }
 .loading { padding: 1rem; color: var(--muted); }
 .grid { display: grid; width: max-content; min-width: 100%; grid-auto-rows: var(--row); grid-template-rows: var(--head); position: relative; }
 
@@ -36,3 +36,9 @@ main { flex: 1; min-height: 0; padding: 0 0 env(safe-area-inset-bottom); }
 .body ul { margin: 0.3rem 0; padding-left: 1.2rem; }
 .body li { margin: 0.2rem 0; }
 .body code { background: rgba(255, 255, 255, .08); padding: 0 0.25em; border-radius: 0.25em; font-size: 0.9em; }
+.fresco.dragging { cursor: grabbing; scroll-behavior: auto; }
+.fresco.dragging .card { pointer-events: none; }
+.top { position: relative; }
+.fs { position: absolute; top: max(0.5rem, env(safe-area-inset-top)); right: 0.75rem; width: 2.75rem; height: 2.75rem; border: 1px solid var(--line); border-radius: 0.7rem; background: var(--panel); color: var(--text); font-size: 1.4rem; line-height: 1; cursor: pointer; }
+.fs:hover, .fs:focus-visible { border-color: var(--accent); outline: none; }
+.top h1 { padding-right: 3.5rem; }

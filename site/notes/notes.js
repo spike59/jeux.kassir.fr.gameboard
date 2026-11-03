@@ -112,3 +112,79 @@ try {
 } catch {
   fresco.replaceChildren(h('p', { className: 'loading', textContent: 'Impossible de charger les notes de version.' }));
 }
+
+// --- déplacement : attraper la frise à la souris (ou au stylet) et la faire glisser dans tous les sens, avec un peu d'élan.
+// Au doigt, le défilement natif du navigateur (touch-action: pan-x pan-y) fait déjà la même chose, élan compris.
+{
+  let drag = null;
+  let glide = 0;
+  const THRESHOLD = 4; // en dessous, c'est un clic sur une carte
+  fresco.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'touch' || e.button !== 0) return;
+    cancelAnimationFrame(glide);
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, left: fresco.scrollLeft, top: fresco.scrollTop, moved: false, vx: 0, vy: 0, lx: e.clientX, ly: e.clientY, t: performance.now() };
+  });
+  fresco.addEventListener('pointermove', (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x;
+    const dy = e.clientY - drag.y;
+    if (!drag.moved) {
+      if (Math.hypot(dx, dy) < THRESHOLD) return;
+      drag.moved = true;
+      fresco.setPointerCapture(e.pointerId);
+      fresco.classList.add('dragging');
+    }
+    const now = performance.now();
+    const dt = Math.max(1, now - drag.t);
+    drag.vx = (e.clientX - drag.lx) / dt; // pixels par milliseconde, du doigt/souris
+    drag.vy = (e.clientY - drag.ly) / dt;
+    drag.lx = e.clientX;
+    drag.ly = e.clientY;
+    drag.t = now;
+    fresco.scrollLeft = drag.left - dx;
+    fresco.scrollTop = drag.top - dy;
+  });
+  const end = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const { moved, vx, vy, t } = drag;
+    drag = null;
+    fresco.classList.remove('dragging');
+    if (!moved) return;
+    let sx = vx * 16; // pixels par image, qui ralentissent
+    let sy = vy * 16;
+    if (performance.now() - t > 120) return; // la souris s'était arrêtée avant le relâchement : pas d'élan
+    const step = () => {
+      if (Math.abs(sx) < 0.5 && Math.abs(sy) < 0.5) return;
+      fresco.scrollLeft -= sx;
+      fresco.scrollTop -= sy;
+      sx *= 0.94;
+      sy *= 0.94;
+      glide = requestAnimationFrame(step);
+    };
+    glide = requestAnimationFrame(step);
+  };
+  fresco.addEventListener('pointerup', end);
+  fresco.addEventListener('pointercancel', end);
+  // Molette : défilement vertical normal ; Maj + molette (ou pavé tactile) : horizontal
+  fresco.addEventListener('wheel', (e) => {
+    if (e.shiftKey && !e.deltaX) { fresco.scrollLeft += e.deltaY; e.preventDefault(); }
+  }, { passive: false });
+}
+
+// --- plein écran (absent des iPhone : le bouton reste caché quand le navigateur ne sait pas le faire)
+{
+  const button = document.querySelector('#fs');
+  const root = document.documentElement;
+  const request = root.requestFullscreen || root.webkitRequestFullscreen;
+  if (request) {
+    button.hidden = false;
+    const current = () => document.fullscreenElement || document.webkitFullscreenElement;
+    button.addEventListener('click', () => {
+      if (current()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      else request.call(root);
+    });
+    const paint = () => { const on = !!current(); button.textContent = on ? '✕' : '⛶'; button.title = on ? 'Quitter le plein écran' : 'Plein écran'; button.setAttribute('aria-label', button.title); };
+    document.addEventListener('fullscreenchange', paint);
+    document.addEventListener('webkitfullscreenchange', paint);
+  }
+}
