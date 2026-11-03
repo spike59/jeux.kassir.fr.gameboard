@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#120c2e">
+  <meta name="robots" content="noindex">
+  <title>Multijoueur</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="multi.css?v=1">
+  <script type="module" src="multi.js?v=1"></script>
+</head>
+<body>
+  <header class="top">
+    <a class="back" href="/">‹ Les jeux</a>
+    <h1>Multijoueur <span aria-hidden="true">👥</span></h1>
+    <p class="sub" id="server">Connexion au serveur…</p>
+  </header>
+
+  <main>
+    <!-- 1. le prénom -->
+    <section id="login" class="card login" hidden>
+      <form id="login-form">
+        <label>Ton prénom
+          <input id="name" maxlength="16" autocomplete="off" autocapitalize="words" placeholder="Prénom">
+        </label>
+        <p class="hint" id="login-hint" hidden></p>
+        <button type="submit" class="primary">Entrer dans le salon</button>
+      </form>
+    </section>
+
+    <!-- 2. le salon : parties, nouvelle partie, discussion -->
+    <div id="lobby" class="lobby" hidden>
+      <section class="card">
+        <h2>Parties en cours</h2>
+        <ul id="rooms" class="rooms"></ul>
+        <p class="hint" id="rooms-empty">Aucune partie pour le moment. Lance la première !</p>
+      </section>
+
+      <section class="card">
+        <h2>Démarrer une partie en réseau</h2>
+        <div id="new-games" class="new-games"></div>
+      </section>
+
+      <section class="card chat-card">
+        <h2>Discussion <small id="me"></small></h2>
+        <div id="chat" class="chat" aria-live="polite"></div>
+        <form id="chat-form" class="chat-form">
+          <input id="chat-text" maxlength="120" autocomplete="off" placeholder="Écrire un message">
+          <button type="submit">Envoyer</button>
+        </form>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

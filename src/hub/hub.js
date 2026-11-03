@@ -40,7 +40,7 @@ export function createHub({
     id: r.id, game: r.game, name: r.name, owner: r.owner, status: r.status, max: games.get(r.game).max, min: games.get(r.game).min,
     players: [...r.players.values()].map((p) => ({ id: p.id, name: p.name, color: p.color, score: p.score ?? 0 })),
   });
-  const roomRow = (r) => ({ id: r.id, name: r.name, status: r.status, players: r.players.size, max: games.get(r.game).max });
+  const roomRow = (r) => ({ id: r.id, name: r.name, status: r.status, players: r.players.size, max: games.get(r.game).max, names: [...r.players.values()].map((p) => p.name) });
   const listFor = (game) => [...rooms.values()].filter((r) => r.game === game).map(roomRow);
 
   const info = () => ({

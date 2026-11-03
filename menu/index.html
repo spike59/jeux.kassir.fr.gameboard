@@ -18,7 +18,12 @@
 
   <header class="hero">
     <h1>Les jeux <span aria-hidden="true">🎮</span></h1>
-    <a class="notes-link" href="/notes/"><span aria-hidden="true">📜</span> Notes de mise à jour</a>
+    <!-- le salon des jeux à plusieurs : nombre de jeux et de joueurs en ligne (api/v1/realm) -->
+    <a id="multi-card" class="multi-card" href="/multi/">
+      <span class="mc-ico" aria-hidden="true">👥</span>
+      <span class="mc-text"><strong>Multijoueur</strong><small id="multi-stats">Jouer avec les autres</small></span>
+      <span class="mc-go" aria-hidden="true">›</span>
+    </a>
   </header>
 
   <!-- trois façons de voir les jeux : en bas de l'écran sur téléphone, sous le titre sur ordinateur -->
@@ -52,6 +57,7 @@
   </main>
 
   <footer class="foot">
+    <a class="notes-link" href="/notes/"><span aria-hidden="true">📜</span> Notes de mise à jour</a>
     <button id="fullscreen" class="install" type="button" hidden>⛶ Plein écran</button>
     <button id="install" class="install" type="button" hidden>📲 Ajouter à l'écran d'accueil</button>
   </footer>

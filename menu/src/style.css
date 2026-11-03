@@ -35,8 +35,21 @@ body[data-view="scores"] #scene { pointer-events: none; }
   text-shadow: 0 2px 14px rgb(0 0 0 / .6);
 }
 .hero h1 { margin: 0; font-size: clamp(1.6rem, 6vw, 2.6rem); }
-.notes-link { pointer-events: auto; display: inline-block; margin-top: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(255, 255, 255, .1); color: inherit; font-size: .85rem; text-decoration: none; }
-.notes-link:hover, .notes-link:focus-visible { background: rgba(255, 255, 255, .2); }
+/* carte Multijoueur : sous le titre */
+.multi-card {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 12px; margin-top: 8px; padding: 8px 16px 8px 12px;
+  border-radius: 18px; background: var(--hero); color: #fff; text-decoration: none; text-align: left; text-shadow: none;
+  box-shadow: 0 6px 20px rgb(0 0 0 / .35); touch-action: manipulation;
+}
+.multi-card:hover, .multi-card:focus-visible { filter: brightness(1.12); outline: none; }
+.mc-ico { font-size: 1.8rem; line-height: 1; }
+.mc-text { display: grid; line-height: 1.15; }
+.mc-text strong { font-size: 1.05rem; }
+.mc-text small { font-size: .8rem; opacity: .85; font-weight: 700; }
+.mc-go { font-size: 1.6rem; opacity: .8; }
+/* notes de mise à jour : en bas */
+.notes-link { pointer-events: auto; display: inline-block; padding: 8px 14px; border-radius: 999px; background: rgba(255, 255, 255, .12); color: inherit; font-size: .85rem; font-weight: 700; text-decoration: none; }
+.notes-link:hover, .notes-link:focus-visible { background: rgba(255, 255, 255, .22); }
 
 main { position: relative; z-index: 1; pointer-events: none; }
 main > * { pointer-events: auto; }
@@ -152,7 +165,7 @@ a.board-head::after { content: "▶"; margin-left: auto; font-size: 1rem; opacit
 
 .foot { position: fixed; z-index: 11; left: 0; right: 0; text-align: center; pointer-events: none; bottom: calc(var(--nav-h) + 40px + env(safe-area-inset-bottom)); }
 .foot > * { pointer-events: auto; }
-.foot { display: flex; gap: 8px; justify-content: center; }
+.foot { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .install { font: inherit; font-size: .85rem; font-weight: 700; padding: 8px 14px; border-radius: 999px; border: 0; background: var(--hero); color: #fff; }
 
 /* --- ordinateur / tablette --- */
@@ -167,9 +180,11 @@ a.board-head::after { content: "▶"; margin-left: auto; font-size: 1rem; opacit
   .views a { flex-direction: row; gap: 8px; padding: 10px 20px; border-radius: 999px; font-size: 1rem; }
   .views a span { font-size: 1.2rem; }
   .views a:not([aria-current]):hover { background: rgb(255 255 255 / .1); color: var(--text); }
-  .panel { padding-top: 90px; padding-bottom: 32px; }
+  .panel { padding-top: 180px; padding-bottom: 80px; }
   .hint { bottom: 18px; }
-  .foot { left: auto; right: 12px; top: 10px; bottom: auto; }
+  /* la carte Multijoueur passe sous la barre des vues ; le pied de page (notes, plein écran, installer) reste en bas à droite */
+  .multi-card { position: fixed; top: 128px; left: 50%; transform: translateX(-50%); margin: 0; }
+  .foot { left: auto; right: 12px; top: auto; bottom: 12px; }
   .boards { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; align-items: start; }
   .board.online { grid-column: 1 / -1; }
   .parts { display: grid; grid-template-columns: 1fr 1fr; }

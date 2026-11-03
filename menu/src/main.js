@@ -188,6 +188,21 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => { /* pas de hors-ligne, pas grave */ });
 }
 
+// --- carte Multijoueur : combien de jeux, combien de joueurs en ligne (se met à jour toute seule) ---
+async function loadMulti() {
+  try {
+    const { servers } = await (await fetch('/api/v1/realm', { cache: 'no-store' })).json();
+    const games = new Set(servers.flatMap((s) => s.games.map((g) => g.id))).size;
+    const players = servers.reduce((n, s) => n + s.players, 0);
+    const rooms = servers.reduce((n, s) => n + s.rooms, 0);
+    $('multi-stats').textContent = `${games} jeu${games > 1 ? 'x' : ''} · ${players} joueur${players > 1 ? 's' : ''}${rooms ? ` · ${rooms} partie${rooms > 1 ? 's' : ''}` : ''}`;
+  } catch {
+    $('multi-stats').textContent = 'Jouer avec les autres';
+  }
+}
+loadMulti();
+setInterval(() => { if (document.visibilityState === 'visible') loadMulti(); }, 15000);
+
 showView();
 loadGames();
 loadOnline();

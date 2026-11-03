@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-03T23:46:10.348Z",
+ "generatedAt": "2026-11-03T23:50:59.631Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -44,6 +44,12 @@
      "date": "2026-11-04",
      "title": "Hub des jeux à plusieurs (serveur01)",
      "body": "- **Hub** (`src/hub/`) : salon commun à tous les jeux à plusieurs, par WebSocket `/api/v1/hub` : prénom, chat général, salles par jeu, lancement par le propriétaire, ping.\n- **Realm** : `GET /api/v1/realm` liste les serveurs (`serveur01`) et leurs jeux.\n- Premier module de jeu : **bulles** (couleurs, +1 / −5, manches de 60 s). Contrat de module décrit dans `hub.js`.\n- Classement `bulles_multi`. La CSP autorise le WebSocket du site. Dépendance `ws`.\n- **Notes de mise à jour** (`/notes/`) : zoom et dézoom en pinçant à deux doigts (ou boutons − / +, Ctrl + molette), glisser au doigt comme à la souris.\n- Détail et suite : `concept/multijoueur/architecture.md` du dépôt kassir_devops."
+    },
+    {
+     "version": "0.4.0",
+     "date": "2026-11-04",
+     "title": "Salon multijoueur",
+     "body": "- **Carte « Multijoueur »** sous le titre de la page des jeux : nombre de jeux et de joueurs en ligne, mis à jour toutes les 15 secondes. Les notes de mise à jour passent en bas de page.\n- **Page /multi/** : le salon. Parties en cours (jeu, nom de la salle, joueurs, état), « Rejoindre », « Démarrer une partie en réseau » pour chaque jeu, discussion générale, ping du serveur.\n- Le prénom est commun à tous les jeux du site."
     }
    ]
   },
@@ -64,6 +70,12 @@
      "date": "2026-11-04",
      "title": "Bulles à plusieurs et pause",
      "body": "- **Bulles à plusieurs** (bouton 👥) : on entre dans un salon avec son prénom, on discute, on crée ou rejoint une salle (2 à 6 joueurs). Chacun a une couleur.\n- Tout le monde voit les mêmes bulles. Éclater une bulle de **sa** couleur : **+1 point** ; éclater celle d'un **autre** : **−5 points**.\n- Le **contour de l'écran** prend la couleur des bulles à éclater (la sienne). Manches de 60 secondes, résultats à la fin, « Rejouer ».\n- Nouveau classement « Bulles à plusieurs ».\n- **Bouton Pause** (⏸) : seul, la partie se fige. Quitter, mettre en pause ou fermer la page enregistre le score s'il bat le record."
+    },
+    {
+     "version": "1.2.0",
+     "date": "2026-11-04",
+     "title": "Rejoindre depuis le salon",
+     "body": "- Arrivée depuis le salon multijoueur du site : `?room=<id>` rejoint la salle, `?create=1` en crée une, sans retaper le prénom.\n- Le prénom est partagé avec les autres jeux du site."
     }
    ]
   },
