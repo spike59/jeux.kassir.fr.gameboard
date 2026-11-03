@@ -20,7 +20,9 @@ const securityHeaders = (host) => (req, res, next) => {
 
 // fichiers statiques des jeux et du site : cache d'une semaine pour les ressources, revalidation pour le reste
 function gameHeaders(res, path) {
-  const longCache = /\.(css|js|svg|png|jpg|webp|mp3|ogg|woff2)$/.test(path) && !path.endsWith('sw.js');
+  // images, sons, polices : cache long. Le code (.js, .css) se revalide à chaque ouverture (304 si inchangé) : sinon une mise à jour
+  // d'un jeu reste invisible jusqu'à une semaine chez ceux qui l'ont déjà ouvert (nouvelle page + ancien script = boutons morts).
+  const longCache = /\.(svg|png|jpg|webp|mp3|ogg|woff2)$/.test(path);
   res.set('Cache-Control', longCache ? 'public, max-age=604800' : 'no-cache');
 }
 
