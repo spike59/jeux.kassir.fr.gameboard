@@ -181,7 +181,7 @@ a.board-head::after { content: "▶"; margin-left: auto; font-size: 1rem; opacit
   .views a span { font-size: 1.2rem; }
   .views a:not([aria-current]):hover { background: rgb(255 255 255 / .1); color: var(--text); }
   .panel { padding-top: 180px; padding-bottom: 80px; }
-  .hint { bottom: 18px; }
+  .hint { bottom: 64px; }
   /* la carte Multijoueur passe sous la barre des vues ; le pied de page (notes, plein écran, installer) reste en bas à droite */
   .multi-card { position: fixed; top: 128px; left: 50%; transform: translateX(-50%); margin: 0; }
   .foot { left: auto; right: 12px; top: auto; bottom: 12px; }
