@@ -43,6 +43,7 @@ if (process.env.HUB_CAR_RACE_INFO) {
 // sur leur serveur, qui les crée avec la clé partagée ; on les rejoint avec ?room=<partie> (pas de partie entre joueurs : createUrl nul)
 for (const g of [
   { id: 'space_run', title: 'Space Run', min: 1, max: 8, modes: [{ id: 'race', label: '🚀 Course' }] },
+  { id: 'space_hairness', title: 'Space Racing', min: 1, max: 8, modes: [{ id: 'circuit', label: '🏁 Course sur circuit' }] },
 ]) {
   const info = process.env[`HUB_${g.id.toUpperCase()}_INFO`];
   const host = process.env[`HUB_${g.id.toUpperCase()}_HOST`];
