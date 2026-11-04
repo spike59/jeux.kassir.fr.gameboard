@@ -39,6 +39,20 @@ if (process.env.HUB_CAR_RACE_INFO) {
       : null,
   });
 }
+// Jeux de course dont le serveur fait tourner les parties (un processus par partie, noyau devops/room-kit) : leurs salles sont lues
+// sur leur serveur, qui les crée avec la clé partagée ; on les rejoint avec ?room=<partie> (pas de partie entre joueurs : createUrl nul)
+for (const g of [
+  { id: 'space_run', title: 'Space Run', min: 1, max: 8, modes: [{ id: 'race', label: '🚀 Course' }] },
+]) {
+  const info = process.env[`HUB_${g.id.toUpperCase()}_INFO`];
+  const host = process.env[`HUB_${g.id.toUpperCase()}_HOST`];
+  if (!info) continue;
+  external.push({
+    id: g.id, title: g.title, min: g.min, max: g.max, infoUrl: info,
+    joinUrl: (room) => `/jeux/${g.id}/?room=${room}`, createUrl: null,
+    host: host && process.env.SERVER_GAME_KEY ? { url: host, key: process.env.SERVER_GAME_KEY, modes: g.modes } : null,
+  });
+}
 const hub = createHub({ external, modules: [bulles, asteroid_run], publicOrigin: `https://${PUBLIC_HOST}`, serverId: 'serveur01', serverName: 'Serveur 01' });
 const portal = createPortal({ hub, publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 

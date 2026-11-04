@@ -150,7 +150,7 @@ function renderNewGames() {
   // jeux dont le salon est dans le serveur de jeux (Bulles, Asteroid Run…) : on ouvre le jeu qui crée la salle
   $('new-hub').replaceChildren(...games.filter((g) => !g.external).map((g) =>
     el('a', { href: `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
-  $('new-games').replaceChildren(...games.filter((g) => g.external).map((g) =>
+  $('new-games').replaceChildren(...games.filter((g) => g.external && g.createUrl !== null).map((g) =>
     el('a', { href: g.createUrl ?? `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
 }
 
