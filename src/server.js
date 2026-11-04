@@ -5,6 +5,7 @@ import { parseKeys } from './app.js';
 import { createPortal } from './portal.js';
 import { createHub } from './hub/hub.js';
 import { bulles } from './hub/bulles.js';
+import { asteroid_run } from './hub/asteroid_run.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT || 3000);
@@ -26,7 +27,7 @@ const RELEASES = process.env.RELEASES || join(ROOT, 'releases.json');
 
 const keys = parseKeys(process.env.GAMEBOARD_KEYS);
 // serveur01 : le salon des jeux à plusieurs (chat, salles, parties) ; un module par jeu
-const hub = createHub({ modules: [bulles], publicOrigin: `https://${PUBLIC_HOST}`, serverId: 'serveur01', serverName: 'Serveur 01' });
+const hub = createHub({ modules: [bulles, asteroid_run], publicOrigin: `https://${PUBLIC_HOST}`, serverId: 'serveur01', serverName: 'Serveur 01' });
 const portal = createPortal({ hub, publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 
 const server = portal.listen(PORT, HOST, () => console.log(`gameboard sur http://${HOST}:${PORT} (https://${PUBLIC_HOST}) — ${keys.size} jeu(x) avec clé`));

@@ -7,7 +7,7 @@
 //   client -> serveur : hello{name,id?}  chat{text}  rooms{game}  create{game,name?}  join{room}  leave  start  again  ping{n}  + messages du jeu (ex. pop{b})
 //   serveur -> client : welcome{id,name,server,servers}  chat{from,text}  rooms{game,rooms}  room{room}  error{text}  pong{n}  + messages du jeu
 // Module de jeu : { id, title, min, max, onJoin(room,p), onStart(room,api), onMessage(room,p,msg,api), onLeave(room,p,api), reset(room) }
-//   api : { now(), rng(), every(ms,fn)->stop, after(ms,fn)->stop, broadcast(msg), send(player,msg), changed() }
+//   api : { now(), rng(), every(ms,fn)->stop, after(ms,fn)->stop, broadcast(msg), others(player,msg), send(player,msg), changed() }
 import { WebSocketServer } from 'ws';
 import { randomUUID } from 'node:crypto';
 
@@ -38,7 +38,7 @@ export function createHub({
   const send = (p, msg) => { if (p?.ws?.readyState === 1) p.ws.send(JSON.stringify(msg)); };
   const roomView = (r) => ({
     id: r.id, game: r.game, name: r.name, owner: r.owner, status: r.status, max: games.get(r.game).max, min: games.get(r.game).min,
-    players: [...r.players.values()].map((p) => ({ id: p.id, name: p.name, color: p.color, score: p.score ?? 0 })),
+    players: [...r.players.values()].map((p) => ({ id: p.id, name: p.name, color: p.color, score: p.score ?? 0, lives: p.lives, out: !!p.out })),
   });
   const roomRow = (r) => ({ id: r.id, name: r.name, status: r.status, players: r.players.size, max: games.get(r.game).max, names: [...r.players.values()].map((p) => p.name) });
   const listFor = (game) => [...rooms.values()].filter((r) => r.game === game).map(roomRow);
@@ -57,6 +57,7 @@ export function createHub({
   const apiFor = (room) => ({
     now, rng, every, after,
     broadcast: (msg) => { for (const p of room.players.values()) send(p, msg); },
+    others: (from, msg) => { for (const p of room.players.values()) if (p !== from) send(p, msg); },
     send,
     changed: () => changed(room),
   });
