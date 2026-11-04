@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T01:50:48.002Z",
+ "generatedAt": "2026-11-04T09:08:05.220Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -264,6 +264,12 @@
      "date": "2026-11-05",
      "title": "Volant tactile et maître des parties du serveur",
      "body": "- **Volant tactile** : un petit joystick rond (comme celui de Gemma Run) remplace les flèches ◀ ▶ sur le téléphone. Braquage analogique : un petit mouvement tourne peu, à fond tourne fort ; la poignée suit le doigt, et on tient le volant et les touches (turbo, objet, frein, accélérer) en même temps.\n- **Maître des parties du serveur** : le premier joueur de la salle est le maître (le suivant le devient s'il part). À chaque manche il choisit le **mode** (police ou course), le **circuit** et les **options** (tours, durée, banques, bonus), puis **lance la course** quand les joueurs sont prêts ; ceux qui ne le sont pas la regardent.\n- Fermeture d'une partie du serveur par l'API (parties de test du monitor)."
+    },
+    {
+     "version": "0.24.0",
+     "date": "2026-11-04",
+     "title": "Un processus par partie du serveur",
+     "body": "- Chaque partie hébergée par le serveur tourne dans **son propre processus** (le moteur du jeu sans affichage, jsdom) : une partie qui charge un circuit ou qui rame ne fige plus les autres parties ni le site.\n- Un processus est toujours préparé d'avance (le moteur met 10 à 30 secondes à se charger) : la création d'une partie reste instantanée ; un autre se prépare pour la suivante.\n- Processeur et mémoire de chaque partie disponibles pour le monitor (`/api/server-games/stats`) ; un processus qui ne répond plus est arrêté.\n- Tests : deux parties, deux processus, une partie jouée puis fermée."
     }
    ]
   },
@@ -326,6 +332,12 @@
      "date": "2026-11-01",
      "title": "Lisibilité UI",
      "body": "### Lisibilité UI — IDEA-001\n\n- Échelle typographique relevée sur la carte, le garage, l'aide, la manette et le HUD.\n- Descriptions de pièces et notes d'atelier longues masquées.\n- Intro de carte et manifeste supprimés pour alléger.\n- Panneaux et cellules plus aérés.\n- Version de build v0.9.0 visible sur l'écran de start."
+    },
+    {
+     "version": "0.10.0",
+     "date": "2026-11-04",
+     "title": "Course à plusieurs sur le serveur",
+     "body": "- Parties hébergées par le serveur : un processus par partie, créées depuis le salon multijoueur (jeux.kassir.fr/multi/) et rejointes avec `?room=`\n- Le premier joueur est le maître : il choisit le circuit, le nombre de tours, avec ou sans rivaux IA, puis lance la course\n- Jusqu'à 8 pilotes sur le même circuit ; le serveur fait tourner la course, le navigateur dessine et prévoit son propre vaisseau\n- Les règles de la course sur circuit (avance, glissement, boost, anneaux de boost, rivaux) sont dans `shared/racer.js`, utilisées par le jeu et par le serveur\n- Le nombre d'anneaux de boost comptés au résultat d'une course seule est désormais celui de tous les tours (il ne comptait que le dernier tour)\n- Tests : règles, courses complètes sur les 3 circuits, et une partie avec de vrais processus"
     }
    ]
   },
@@ -346,6 +358,12 @@
      "date": "2026-11-01",
      "title": "Les Villes",
      "body": "- Vaisseau généré depuis le blueprint (`gen_game_assets.py` : coque en loft du contour, cockpit et propulseur placés selon le plan)\n- Image Blender 5.2 LTS (1.3.0), historique des tâches dans `logs/tasks.json`, sortie Blender en UTF-8\n- Test E2E : une partie complète jouée par pilote automatique (`npm run test:e2e`)\n- Docs : `commands.md`, todo"
+    },
+    {
+     "version": "1.2.0",
+     "date": "2026-11-04",
+     "title": "Course à plusieurs sur le serveur",
+     "body": "- Parties hébergées par le serveur : un processus par partie, créées depuis le salon multijoueur (jeux.kassir.fr/multi/) et rejointes avec `?room=`\n- Le premier joueur est le maître : il choisit le circuit, les chasseurs de prime et les tirs entre pilotes, puis lance la course ; les autres valident « prêt »\n- Jusqu'à 8 pilotes sur le même circuit ; le serveur fait tourner la course (anneaux, obstacles, chasseurs, classement), le navigateur dessine\n- Prévision du vaisseau côté navigateur avec la même simulation que le serveur (`shared/sim.mjs`), autres vaisseaux interpolés\n- La course seule (hors ligne, avec progression et garage) est inchangée\n- Tests : simulation, courses complètes sur les 10 circuits, et une partie avec de vrais processus (`npm test` dans `api/`)"
     }
    ]
   },
@@ -354,7 +372,14 @@
    "kind": "game-server",
    "title": "Gemma Run",
    "icon": "🛸",
-   "releases": []
+   "releases": [
+    {
+     "version": "0.2.0",
+     "date": "2026-11-04",
+     "title": "Course à plusieurs sur le serveur",
+     "body": "- Parties hébergées par le serveur : un processus par partie, créées depuis le salon multijoueur (jeux.kassir.fr/multi/) et rejointes avec `?room=`\n- Deux modes : circuit (course contre les autres pilotes et 7 rivaux de l'ordinateur, facultatifs) et évasion (atteindre le dernier anneau avec 3 chasseurs de prime par pilote)\n- Le premier joueur est le maître : il choisit le mode, la carte, les tours, les rivaux ; chacun choisit son vaisseau (Dart, Bebop, Arcadia) et valide\n- Jusqu'à 8 pilotes ; le serveur fait tourner le vol, les anneaux, les rochers et les chasseurs, le navigateur dessine et prévoit son propre vaisseau\n- Le circuit (tracé, anneaux, rochers) et les règles de vol sont dans `shared/` (utilisés par le jeu et par le serveur) ; la course seule est inchangée\n- Tests : même spline que Babylon sur les 20 circuits, courses complètes sur les 10 cartes, évasion, et une partie avec de vrais processus (`npm test` dans `api/`)"
+    }
+   ]
   },
   {
    "code": "asteroid_run",
@@ -439,6 +464,12 @@
      "date": "2026-11-05",
      "title": "Test des parties du serveur",
      "body": "- **Test « Parties du serveur »** (page Tests) : lance de vraies parties de test sur le serveur de jeux (Police vs voleurs), y met des joueurs simulés qui rejoignent, valident et conduisent, par paliers de 1, 2, 3 parties ; mesure l'écart entre états (la partie tourne-t-elle à vitesse réelle ?), le débit, le processeur de la machine et du conteneur, la mémoire. Les parties de test se ferment toujours à la fin.\n- La clé de création est lue dans `infra/.env` (`SERVER_GAME_KEY`)."
+    },
+    {
+     "version": "0.5.0",
+     "date": "2026-11-04",
+     "title": "Parties du serveur : les quatre jeux, un processus par partie",
+     "body": "- Le test « Parties du serveur » existe maintenant pour **Police vs voleurs, Space Run, Space Racing et Gemma Run** : de vraies parties de test sont créées par l'API du jeu, avec des joueurs simulés qui rejoignent, valident, lancent et conduisent\n- Chaque partie du serveur est un **processus** : le test relève le **processeur** (part d'un cœur) et la **mémoire** du processus d'une partie (colonne ajoutée), en plus de l'écart entre états reçus, du processeur de la machine et du conteneur\n- Les joueurs simulés parlent le protocole propre à chaque jeu (relais de Police vs voleurs, noyau de parties pour les trois autres)"
     }
    ]
   },
