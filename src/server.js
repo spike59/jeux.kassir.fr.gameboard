@@ -44,6 +44,7 @@ if (process.env.HUB_CAR_RACE_INFO) {
 for (const g of [
   { id: 'space_run', title: 'Space Run', min: 1, max: 8, modes: [{ id: 'race', label: '🚀 Course' }] },
   { id: 'space_hairness', title: 'Space Racing', min: 1, max: 8, modes: [{ id: 'circuit', label: '🏁 Course sur circuit' }] },
+  { id: 'gemma_run', title: 'Gemma Run', min: 1, max: 8, modes: [{ id: 'circuit', label: '🏁 Circuit' }, { id: 'escape', label: '🚔 Évasion' }] },
 ]) {
   const info = process.env[`HUB_${g.id.toUpperCase()}_INFO`];
   const host = process.env[`HUB_${g.id.toUpperCase()}_HOST`];
