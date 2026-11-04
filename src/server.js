@@ -33,6 +33,10 @@ if (process.env.HUB_CAR_RACE_INFO) {
   external.push({
     id: 'car_race', title: 'Police vs voleurs', min: 2, max: 8, infoUrl: process.env.HUB_CAR_RACE_INFO,
     joinUrl: (room) => `/jeux/car_race/?mobile&room=${room}`, createUrl: '/jeux/car_race/?mobile&create=1',
+    // parties hébergées par le serveur du jeu (désactivé tant que la clé partagée n'est pas là)
+    host: process.env.HUB_CAR_RACE_HOST && process.env.SERVER_GAME_KEY
+      ? { url: process.env.HUB_CAR_RACE_HOST, key: process.env.SERVER_GAME_KEY, modes: [{ id: 'police', label: '🚓 Police vs voleurs' }, { id: 'race', label: '🏁 Course' }] }
+      : null,
   });
 }
 const hub = createHub({ external, modules: [bulles, asteroid_run], publicOrigin: `https://${PUBLIC_HOST}`, serverId: 'serveur01', serverName: 'Serveur 01' });

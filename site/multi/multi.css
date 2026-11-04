@@ -32,6 +32,13 @@ button:disabled { opacity: 0.45; cursor: default; }
 .badge { display: inline-block; padding: 0 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; border: 1px solid currentColor; }
 .badge.wait { color: #7be08f; }
 .badge.run { color: var(--accent); }
+.server-form { margin-top: 0.8rem; display: grid; gap: 0.5rem; }
+.server-form h3 { margin: 0; font-size: 1rem; }
+.server-form .row { display: flex; gap: 0.5rem; }
+.server-form select { padding: 0.6rem; border-radius: 0.8rem; border: 2px solid var(--line); background: #120c2e; color: inherit; font: inherit; flex: 1; }
+.server-form input { margin: 0; flex: 1; }
+.server-form button.primary { width: auto; margin: 0; white-space: nowrap; }
+.badge.srv { color: #7be08f; }
 .new-games { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .new-games a { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1rem; border-radius: 999px; background: var(--hero); color: #fff; text-decoration: none; font-weight: 800; }
 .new-games a:hover, .rooms a:hover { filter: brightness(1.15); }

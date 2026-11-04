@@ -9,6 +9,9 @@
 // Jeux « externes » (ex. Police vs voleurs) : leur propre serveur fait tourner les parties ; le hub lit leurs salles
 //   { id, title, min, max, infoUrl, joinUrl(roomId), createUrl } où infoUrl répond { rooms: [{ id, name, master, status, players }] }
 //   et les montre dans le salon avec un lien « Rejoindre » vers le jeu (le prénom est repris par le jeu).
+//   host (facultatif) : { url, key, modes: [{ id, label }] } — le serveur du jeu fait tourner des parties lui-même (serveur dédié) :
+//   le salon lui demande d'en créer une (POST url avec la clé) puis envoie le joueur la rejoindre. Les salles dont le relais
+//   dit « dedicated » sont celles-là ; les autres sont des parties entre joueurs (un joueur fait tourner la partie).
 // Module de jeu : { id, title, min, max, onJoin(room,p), onStart(room,api), onMessage(room,p,msg,api), onLeave(room,p,api), reset(room) }
 //   api : { now(), rng(), every(ms,fn)->stop, after(ms,fn)->stop, broadcast(msg), others(player,msg), send(player,msg), changed() }
 import { WebSocketServer } from 'ws';
@@ -68,7 +71,7 @@ export function createHub({
   const listFor = (game) => {
     const e = ext.get(game);
     if (e) {
-      return e.rooms.map((r) => ({ id: String(r.id), name: String(r.name ?? 'Partie'), status: r.status === 'waiting' ? 'waiting' : 'playing', players: Number(r.players) || 0, max: e.max, names: [String(r.master ?? '')].filter(Boolean), url: e.joinUrl(encodeURIComponent(r.id)) }));
+      return e.rooms.map((r) => ({ id: String(r.id), name: String(r.name ?? 'Partie'), status: r.status === 'waiting' ? 'waiting' : 'playing', players: Number(r.players) || 0, max: e.max, names: [String(r.master ?? '')].filter(Boolean), url: e.joinUrl(encodeURIComponent(r.id)), dedicated: !!r.dedicated }));
     }
     return [...rooms.values()].filter((r) => r.game === game).map(roomRow);
   };
@@ -81,7 +84,7 @@ export function createHub({
     rooms: rooms.size + [...ext.values()].reduce((n, e) => n + e.rooms.length, 0),
     games: [
       ...[...games.values()].map((g) => ({ id: g.id, title: g.title, min: g.min, max: g.max, rooms: listFor(g.id).length })),
-      ...[...ext.values()].map((e) => ({ id: e.id, title: e.title, min: e.min, max: e.max, rooms: e.rooms.length, external: true, online: e.ok, createUrl: e.createUrl })),
+      ...[...ext.values()].map((e) => ({ id: e.id, title: e.title, min: e.min, max: e.max, rooms: e.rooms.length, external: true, online: e.ok, createUrl: e.createUrl, serverModes: e.host?.key ? e.host.modes : [] })),
     ],
   });
 
@@ -144,6 +147,29 @@ export function createHub({
         if (room.status !== 'waiting') return send(p, { t: 'error', text: 'La partie a déjà commencé.' });
         if (room.players.size >= games.get(room.game).max) return send(p, { t: 'error', text: 'La salle est pleine.' });
         return enter(p, room);
+      }
+      case 'server-game': { // créer une partie hébergée par le serveur d'un jeu externe, puis y envoyer le joueur
+        const e = ext.get(m.game);
+        if (!e?.host?.key) return send(p, { t: 'error', text: "Ce jeu n'a pas de partie sur le serveur." });
+        const mode = String(m.mode ?? '');
+        if (!e.host.modes.some((x) => x.id === mode)) return send(p, { t: 'error', text: 'Mode inconnu.' });
+        const name = clean(m.name).slice(0, 24);
+        if (now() - (p.lastServerGame ?? -1e9) < 10_000) return send(p, { t: 'error', text: 'Un instant avant de créer une autre partie.' });
+        p.lastServerGame = now(); // pas de salles en rafale
+        fetchImpl(e.host.url, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${e.host.key}`, 'content-type': 'application/json', 'x-forwarded-proto': 'https' },
+          body: JSON.stringify({ name, master: p.name, mode }),
+          signal: AbortSignal.timeout(20_000),
+        })
+          .then(async (res) => {
+            const body = await res.json().catch(() => ({}));
+            if (!res.ok) return send(p, { t: 'error', text: body.error || 'Le serveur de parties ne répond pas.' });
+            pollExternal(); // la salle apparaît tout de suite dans la liste
+            return send(p, { t: 'server-game', game: e.id, id: String(body.id), url: e.joinUrl(encodeURIComponent(body.id)) });
+          })
+          .catch(() => send(p, { t: 'error', text: 'Le serveur de parties ne répond pas.' }));
+        return undefined;
       }
       case 'leave': return leave(p);
       case 'start': {

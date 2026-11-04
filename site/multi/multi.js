@@ -61,6 +61,7 @@ async function onMessage(m) {
       for (const line of m.history ?? []) chat(line);
       chat({ sys: true, text: 'Bienvenue dans le salon !' });
       renderNewGames();
+      renderServerForm();
       header();
       sendPing();
       pingTimer = setInterval(sendPing, 3000);
@@ -69,7 +70,8 @@ async function onMessage(m) {
     case 'pong': ping = Math.max(1, Date.now() - m.n); header(); break;
     case 'chat': chat(m); break;
     case 'rooms': rooms[m.game] = m.rooms; renderRooms(); break;
-    case 'error': $('rooms-empty').textContent = m.text; $('rooms-empty').hidden = false; break;
+    case 'server-game': location.href = m.url; break; // partie créée sur le serveur : on la rejoint
+    case 'error': { const h = $('sf-hint'); h.textContent = m.text; h.hidden = false; $('sf-submit')?.removeAttribute('disabled'); break; }
     default: break;
   }
 }
@@ -94,30 +96,61 @@ function chat({ from, text, sys }) {
 
 const gameOf = (id) => games.find((g) => g.id === id);
 
+// Deux listes qui ne se mélangent pas : les parties du serveur (hub ou serveur dédié d'un jeu) et celles entre joueurs
 function renderRooms() {
-  const rows = [];
+  const server = [];
+  const peer = [];
   for (const [game, list] of Object.entries(rooms)) {
     const g = gameOf(game);
     for (const r of list) {
       const waiting = r.status === 'waiting';
       const full = r.players >= r.max;
-      rows.push(el('li', {},
+      // une partie du serveur se rejoint à tout moment (en cours : on regarde, on joue à la course suivante)
+      const joinable = r.url ? !full : waiting && !full;
+      (r.url && !r.dedicated ? peer : server).push(el('li', {},
         el('span', { className: 'ico', textContent: icons[game] ?? '🎮', title: g?.title ?? game }),
         el('span', { className: 't' },
           el('strong', { textContent: `${r.name}` }),
           el('small', { textContent: `${g?.title ?? game} · ${r.names.join(', ')} (${r.players}/${r.max})` })),
-        waiting && !full
+        joinable
           ? el('a', { href: r.url ?? `/jeux/${game}/?room=${encodeURIComponent(r.id)}`, textContent: 'Rejoindre' })
           : el('span', { className: `badge ${waiting ? 'wait' : 'run'}`, textContent: waiting ? 'Complète' : 'En cours' })));
     }
   }
-  $('rooms').replaceChildren(...rows);
-  $('rooms-empty').hidden = rows.length > 0;
-  $('rooms-empty').textContent = 'Aucune partie pour le moment. Lance la première !';
+  $('rooms').replaceChildren(...server);
+  $('rooms-empty').hidden = server.length > 0;
+  $('rooms-peer').replaceChildren(...peer);
+  $('peer-empty').hidden = peer.length > 0;
+}
+
+// Créer une partie sur le serveur : pour les jeux qui l'offrent (serverModes), le serveur du jeu fait tourner la partie
+function renderServerForm() {
+  const hosted = games.filter((g) => g.serverModes?.length);
+  $('server-form').hidden = !hosted.length;
+  if (!hosted.length) return;
+  const gameSel = $('sf-game');
+  const modeSel = $('sf-mode');
+  gameSel.replaceChildren(...hosted.map((g) => el('option', { value: g.id, textContent: `${icons[g.id] ?? '🎮'} ${g.title}` })));
+  const paint = () => modeSel.replaceChildren(...hosted.find((g) => g.id === gameSel.value).serverModes.map((x) => el('option', { value: x.id, textContent: x.label })));
+  gameSel.onchange = paint;
+  paint();
+  const submit = $('server-form').querySelector('button[type=submit]');
+  submit.id = 'sf-submit';
+  $('server-form').onsubmit = (e) => {
+    e.preventDefault();
+    const name = $('sf-name').value.normalize('NFC').trim();
+    if (!name) { $('sf-hint').textContent = 'Donne un nom à ta partie.'; $('sf-hint').hidden = false; return; }
+    $('sf-hint').hidden = true;
+    submit.disabled = true;
+    send({ t: 'server-game', game: gameSel.value, mode: modeSel.value, name });
+  };
 }
 
 function renderNewGames() {
-  $('new-games').replaceChildren(...games.map((g) =>
+  // jeux dont le salon est dans le serveur de jeux (Bulles, Asteroid Run…) : on ouvre le jeu qui crée la salle
+  $('new-hub').replaceChildren(...games.filter((g) => !g.external).map((g) =>
+    el('a', { href: `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
+  $('new-games').replaceChildren(...games.filter((g) => g.external).map((g) =>
     el('a', { href: g.createUrl ?? `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
 }
 

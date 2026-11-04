@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T00:22:24.455Z",
+ "generatedAt": "2026-11-04T01:07:47.550Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -62,6 +62,12 @@
      "date": "2026-11-04",
      "title": "Jeux externes dans le salon",
      "body": "- Le hub lit les salles de **Police vs voleurs** (serveur du jeu dans son propre conteneur) et les montre dans le salon avec un lien vers le jeu ; leurs joueurs et salles comptent dans la carte Multijoueur.\n- Contrat « jeu externe » (`external` dans `createHub`) pour brancher les prochains jeux de course."
+    },
+    {
+     "version": "0.7.0",
+     "date": "2026-11-04",
+     "title": "Parties sur le serveur dans le salon",
+     "body": "- Le salon sépare les **parties sur le serveur** (Bulles, Asteroid Run, Police vs voleurs en serveur dédié) des **parties entre joueurs** (un joueur héberge).\n- **Créer une partie sur le serveur** (Police vs voleurs : mode et nom) : le salon la demande au serveur du jeu (clé partagée) puis ouvre la partie."
     }
    ]
   },
@@ -246,6 +252,12 @@
      "date": "2026-11-04",
      "title": "Mode réseau branché sur le salon multijoueur",
      "body": "- Les parties du mode réseau apparaissent dans le **salon multijoueur** de jeux.kassir.fr (`/multi/`) avec leurs joueurs, et un bouton « Rejoindre » ouvre directement la page du prénom de cette partie (`?mobile&room=<id>`).\n- « Démarrer une partie en réseau » depuis le salon ouvre `?mobile&create=1` (nouvelle partie).\n- Le prénom est commun à tous les jeux du site (déjà rempli)."
+    },
+    {
+     "version": "0.22.0",
+     "date": "2026-11-04",
+     "title": "Parties hébergées par le serveur",
+     "body": "- **Serveur dédié** (`server/`) : le serveur fait tourner la partie lui-même (même logique de jeu dans Node, sans affichage). Plus besoin qu'un joueur héberge : on crée une partie depuis le salon, on la démarre, d'autres la rejoignent quand ils veulent (en cours de course : on regarde, on joue dès la suivante).\n- Déroulement automatique : salon (camp et véhicule, « prêt ») → chargement → course → résultats → salon, sur un autre circuit. Fermée après 5 minutes sans joueur.\n- Le mode « un joueur héberge » (pair à pair) est inchangé.\n- Le relais signale les parties du serveur (`dedicated`)."
     }
    ]
   },
@@ -253,7 +265,7 @@
    "code": "space_hairness",
    "kind": "game-server",
    "title": "Space Racing",
-   "icon": "🚀",
+   "icon": "🏎️",
    "releases": [
     {
      "version": "0.1.0",

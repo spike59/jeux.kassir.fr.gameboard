@@ -263,9 +263,54 @@ test('jeu externe (Police vs voleurs) : ses salles apparaissent dans le salon av
   ws.send(JSON.stringify({ t: 'hello', name: 'Léa' }));
   await new Promise((r) => setTimeout(r, 80));
   const rooms = inbox.find((m) => m.t === 'rooms' && m.game === 'car_race').rooms;
-  assert.deepEqual(rooms, [{ id: '3', name: 'Les Pandas', status: 'waiting', players: 2, max: 8, names: ['Zoé'], url: '/jeux/car_race/?mobile&room=3' }]);
+  assert.deepEqual(rooms, [{ id: '3', name: 'Les Pandas', status: 'waiting', players: 2, max: 8, names: ['Zoé'], url: '/jeux/car_race/?mobile&room=3', dedicated: false }]);
   ws.send(JSON.stringify({ t: 'create', game: 'car_race' }));
   await new Promise((r) => setTimeout(r, 80));
   assert.match(inbox.findLast((m) => m.t === 'error').text, /depuis le jeu/);
+  ws.terminate();
+});
+
+test("partie hébergée par le serveur d'un jeu externe : le salon la demande avec la clé, puis envoie le joueur la rejoindre", async (t) => {
+  const calls = [];
+  const hub = createHub({
+    modules: [bulles], publicOrigin: ORIGIN,
+    external: [{
+      id: 'car_race', title: 'Police vs voleurs', min: 2, max: 8, infoUrl: 'http://relais/info', joinUrl: (r) => `/jeux/car_race/?mobile&room=${r}`, createUrl: '/x',
+      host: { url: 'http://relais/api/server-games', key: 'cle-secrete', modes: [{ id: 'police', label: 'Police' }, { id: 'race', label: 'Course' }] },
+    }],
+    fetchImpl: async (url, opts) => {
+      if (opts?.method === 'POST') {
+        calls.push({ url, auth: opts.headers.authorization, body: JSON.parse(opts.body) });
+        return { ok: true, status: 201, json: async () => ({ id: '7', name: 'Les Pandas', mode: 'police' }) };
+      }
+      return { ok: true, json: async () => ({ rooms: [{ id: '7', name: 'Les Pandas', master: 'Léa', status: 'waiting', players: 0, dedicated: true }] }) };
+    },
+    every: () => () => {},
+  });
+  const server = http.createServer();
+  hub.attach(server);
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  t.after(() => { hub.close(); server.close(); });
+  const g = hub.info().games.find((x) => x.id === 'car_race');
+  assert.deepEqual(g.serverModes.map((m) => m.id), ['police', 'race'], 'le salon propose les modes');
+  const ws = new WebSocket(`ws://127.0.0.1:${server.address().port}/api/v1/hub`, { origin: ORIGIN });
+  const inbox = [];
+  ws.on('message', (raw) => inbox.push(JSON.parse(raw)));
+  await new Promise((r) => ws.once('open', r));
+  ws.send(JSON.stringify({ t: 'hello', name: 'Léa' }));
+  await new Promise((r) => setTimeout(r, 80));
+  ws.send(JSON.stringify({ t: 'server-game', game: 'car_race', mode: 'foot', name: 'X' }));
+  await new Promise((r) => setTimeout(r, 40));
+  assert.match(inbox.findLast((m) => m.t === 'error').text, /Mode inconnu/);
+  ws.send(JSON.stringify({ t: 'server-game', game: 'car_race', mode: 'police', name: 'Les Pandas' }));
+  await new Promise((r) => setTimeout(r, 120));
+  assert.deepEqual(calls, [{ url: 'http://relais/api/server-games', auth: 'Bearer cle-secrete', body: { name: 'Les Pandas', master: 'Léa', mode: 'police' } }]);
+  const reply = inbox.find((m) => m.t === 'server-game');
+  assert.deepEqual([reply.id, reply.url], ['7', '/jeux/car_race/?mobile&room=7']);
+  // une seconde demande tout de suite est refusée (pas de salles en rafale)
+  ws.send(JSON.stringify({ t: 'server-game', game: 'car_race', mode: 'race', name: 'Encore' }));
+  await new Promise((r) => setTimeout(r, 60));
+  assert.match(inbox.findLast((m) => m.t === 'error').text, /Un instant/);
+  assert.equal(calls.length, 1);
   ws.terminate();
 });

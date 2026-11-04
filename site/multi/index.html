@@ -32,13 +32,30 @@
     <!-- 2. le salon : parties, nouvelle partie, discussion -->
     <div id="lobby" class="lobby" hidden>
       <section class="card">
-        <h2>Parties en cours</h2>
+        <h2>🖥️ Parties sur le serveur</h2>
+        <p class="hint">Le serveur fait tourner la partie : rejoins quand tu veux.</p>
         <ul id="rooms" class="rooms"></ul>
         <p class="hint" id="rooms-empty">Aucune partie pour le moment. Lance la première !</p>
+        <div id="new-hub" class="new-games"></div>
+        <form id="server-form" class="server-form" hidden>
+          <h3>Créer une partie sur le serveur</h3>
+          <div class="row">
+            <select id="sf-game" aria-label="Jeu"></select>
+            <select id="sf-mode" aria-label="Mode"></select>
+          </div>
+          <div class="row">
+            <input id="sf-name" maxlength="24" autocomplete="off" placeholder="Nom de la partie">
+            <button type="submit" class="primary">Créer et jouer</button>
+          </div>
+          <p class="hint err" id="sf-hint" hidden></p>
+        </form>
       </section>
 
       <section class="card">
-        <h2>Démarrer une partie en réseau</h2>
+        <h2>📱 Parties entre joueurs</h2>
+        <p class="hint">Un joueur fait tourner la partie sur son appareil.</p>
+        <ul id="rooms-peer" class="rooms"></ul>
+        <p class="hint" id="peer-empty">Aucune partie entre joueurs.</p>
         <div id="new-games" class="new-games"></div>
       </section>
 
