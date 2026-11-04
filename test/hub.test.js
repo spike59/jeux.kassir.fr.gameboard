@@ -235,6 +235,23 @@ test('Asteroid Run : étoiles et astéroïdes arbitrés par le serveur, vies, ti
   assert.deepEqual(end.scores.map((s) => [s.name, s.score]), [['Alice', 15], ['Bob', 0]]);
 });
 
+test('parc : état public des attractions, des trains (parties) et des prénoms de leurs joueurs', async (t) => {
+  const relay = { rooms: [{ id: '3', name: 'Les Pandas', master: 'Zoé', status: 'waiting', players: 2, names: ['Zoé', 'Julien'] }, { id: '4', name: 'Sans noms', master: 'Max', status: 'playing', players: 1 }] };
+  const hub = createHub({
+    modules: [bulles], publicOrigin: ORIGIN,
+    external: [{ id: 'space_run', title: 'Space Run', min: 1, max: 8, infoUrl: 'http://relais/info', joinUrl: (r) => `/jeux/space_run/?room=${r}`, createUrl: null }],
+    fetchImpl: async () => ({ ok: true, json: async () => relay }),
+    every: () => () => {},
+  });
+  t.after(() => hub.close());
+  await new Promise((r) => setTimeout(r, 50));
+  const parc = hub.parc();
+  assert.deepEqual(parc.rides.map((r) => [r.id, r.kind, r.online]), [['bulles', 'salon', true], ['space_run', 'server', true]]);
+  const run = parc.rides.find((r) => r.id === 'space_run');
+  assert.deepEqual(run.trains.map((x) => [x.id, x.status, x.players, x.names]), [['3', 'waiting', 2, ['Zoé', 'Julien']], ['4', 'playing', 1, ['Max']]], 'les prénoms viennent de names, à défaut du maître');
+  assert.deepEqual(parc.salon, []);
+});
+
 test('jeu externe (Police vs voleurs) : ses salles apparaissent dans le salon avec un lien vers le jeu, on ne les crée pas ici', async (t) => {
   let relay = { rooms: [{ id: '3', name: 'Les Pandas', master: 'Zoé', status: 'waiting', players: 2 }] };
   const hub = createHub({

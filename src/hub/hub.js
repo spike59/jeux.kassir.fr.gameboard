@@ -71,7 +71,7 @@ export function createHub({
   const listFor = (game) => {
     const e = ext.get(game);
     if (e) {
-      return e.rooms.map((r) => ({ id: String(r.id), name: String(r.name ?? 'Partie'), status: r.status === 'waiting' ? 'waiting' : 'playing', players: Number(r.players) || 0, max: e.max, names: [String(r.master ?? '')].filter(Boolean), url: e.joinUrl(encodeURIComponent(r.id)), dedicated: !!r.dedicated }));
+      return e.rooms.map((r) => ({ id: String(r.id), name: String(r.name ?? 'Partie'), status: r.status === 'waiting' ? 'waiting' : 'playing', players: Number(r.players) || 0, max: e.max, names: (Array.isArray(r.names) && r.names.length ? r.names : [r.master]).map((n) => String(n ?? '').slice(0, 16)).filter(Boolean), url: e.joinUrl(encodeURIComponent(r.id)), dedicated: !!r.dedicated }));
     }
     return [...rooms.values()].filter((r) => r.game === game).map(roomRow);
   };
@@ -232,8 +232,23 @@ export function createHub({
     });
   });
 
+  // État public du parc d'attractions (page /jeux/parc/) : par jeu, ses parties (les « trains ») et les prénoms de leurs joueurs, plus les visiteurs du salon
+  const parc = () => ({
+    t: now(),
+    rides: allGames().map((id) => {
+      const e = ext.get(id);
+      const g = e || games.get(id);
+      return {
+        id, title: g.title, kind: e ? 'server' : 'salon', online: e ? e.ok : true, max: g.max,
+        trains: listFor(id).map((r) => ({ id: r.id, name: r.name, status: r.status, players: r.players, max: r.max, names: r.names })),
+      };
+    }),
+    salon: [...players.values()].filter((p) => !p.room).map((p) => String(p.name ?? '').slice(0, 16)).slice(0, 30),
+  });
+
   return {
     info,
+    parc,
     // À brancher sur le serveur HTTP : n'accepte que les pages du site (Origin) sur ce chemin.
     attach(httpServer, path = '/api/v1/hub') {
       httpServer.on('upgrade', (req, socket, head) => {

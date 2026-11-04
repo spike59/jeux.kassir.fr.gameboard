@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.0
+
+- **`GET /api/parc/live`** : l'état public des parties de tous les jeux (trains, prénoms des joueurs, visiteurs du salon) pour « Le parc en direct ».
+- Les salles des jeux externes annoncent le prénom de leurs joueurs (`names`).
+
 ## 0.2.0
 
 - **Un seul dépôt pour le portail** : reprend le menu 3D (ancien dépôt `menu`, voir `menu/`), le serveur du portail et l'API des scores (anciens `app/` et `public/` de la stack).

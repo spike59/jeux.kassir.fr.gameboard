@@ -41,6 +41,8 @@ export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, ca
   site.use(httpsOnly, securityHeaders(publicHost));
   // le realm : les serveurs de jeux à plusieurs (le WebSocket est branché par server.js, voir hub/hub.js)
   if (hub) site.get('/api/v1/realm', (req, res) => res.set('Cache-Control', 'no-cache').json({ servers: [hub.info()] }));
+  // le parc d'attractions en direct (page publique /jeux/parc/) : parties ouvertes et prénoms des joueurs
+  if (hub) site.get('/api/parc/live', (req, res) => res.set('Cache-Control', 'no-cache').json(hub.parc()));
   site.use('/api', createApi({ ...apiOptions, publicOrigin: `https://${publicHost}` }));
 
   // Jeux statiques : seulement games/<id>/public/ (le Dockerfile et le serveur d'un jeu avec conteneur ne sont jamais servis)
