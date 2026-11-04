@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T01:07:47.550Z",
+ "generatedAt": "2026-11-04T01:50:48.002Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -258,6 +258,12 @@
      "date": "2026-11-04",
      "title": "Parties hébergées par le serveur",
      "body": "- **Serveur dédié** (`server/`) : le serveur fait tourner la partie lui-même (même logique de jeu dans Node, sans affichage). Plus besoin qu'un joueur héberge : on crée une partie depuis le salon, on la démarre, d'autres la rejoignent quand ils veulent (en cours de course : on regarde, on joue dès la suivante).\n- Déroulement automatique : salon (camp et véhicule, « prêt ») → chargement → course → résultats → salon, sur un autre circuit. Fermée après 5 minutes sans joueur.\n- Le mode « un joueur héberge » (pair à pair) est inchangé.\n- Le relais signale les parties du serveur (`dedicated`)."
+    },
+    {
+     "version": "0.23.0",
+     "date": "2026-11-05",
+     "title": "Volant tactile et maître des parties du serveur",
+     "body": "- **Volant tactile** : un petit joystick rond (comme celui de Gemma Run) remplace les flèches ◀ ▶ sur le téléphone. Braquage analogique : un petit mouvement tourne peu, à fond tourne fort ; la poignée suit le doigt, et on tient le volant et les touches (turbo, objet, frein, accélérer) en même temps.\n- **Maître des parties du serveur** : le premier joueur de la salle est le maître (le suivant le devient s'il part). À chaque manche il choisit le **mode** (police ou course), le **circuit** et les **options** (tours, durée, banques, bonus), puis **lance la course** quand les joueurs sont prêts ; ceux qui ne le sont pas la regardent.\n- Fermeture d'une partie du serveur par l'API (parties de test du monitor)."
     }
    ]
   },
@@ -427,6 +433,12 @@
      "date": "2026-11-01",
      "title": "Tests de performance",
      "body": "- Test de la machine (calcul, mémoire, disque), test de charge du relais avec joueurs simulés par WebSocket à travers le proxy, test de charge HTTP par paliers ; capacité estimée et rupture expliquée\n- Garde-fous : loopback seulement, plafonds, arrêt si la machine sature ; page Tests\n- Agent : exécution des tests dans un processus enfant isolé\n- API : `/api/tests`, `/api/tests/catalog`, `/api/tests/:id`"
+    },
+    {
+     "version": "0.4.0",
+     "date": "2026-11-05",
+     "title": "Test des parties du serveur",
+     "body": "- **Test « Parties du serveur »** (page Tests) : lance de vraies parties de test sur le serveur de jeux (Police vs voleurs), y met des joueurs simulés qui rejoignent, valident et conduisent, par paliers de 1, 2, 3 parties ; mesure l'écart entre états (la partie tourne-t-elle à vitesse réelle ?), le débit, le processeur de la machine et du conteneur, la mémoire. Les parties de test se ferment toujours à la fin.\n- La clé de création est lue dans `infra/.env` (`SERVER_GAME_KEY`)."
     }
    ]
   },
