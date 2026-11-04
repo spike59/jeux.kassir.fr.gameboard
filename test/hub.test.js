@@ -234,3 +234,38 @@ test('Asteroid Run : étoiles et astéroïdes arbitrés par le serveur, vies, ti
   const end = await a.next('end');
   assert.deepEqual(end.scores.map((s) => [s.name, s.score]), [['Alice', 15], ['Bob', 0]]);
 });
+
+test('jeu externe (Police vs voleurs) : ses salles apparaissent dans le salon avec un lien vers le jeu, on ne les crée pas ici', async (t) => {
+  let relay = { rooms: [{ id: '3', name: 'Les Pandas', master: 'Zoé', status: 'waiting', players: 2 }] };
+  const hub = createHub({
+    modules: [bulles], publicOrigin: ORIGIN,
+    external: [{ id: 'car_race', title: 'Police vs voleurs', min: 2, max: 8, infoUrl: 'http://relais/info', joinUrl: (r) => `/jeux/car_race/?mobile&room=${r}`, createUrl: '/jeux/car_race/?mobile&create=1' }],
+    fetchImpl: async (url, opts) => {
+      assert.equal(opts.headers['x-forwarded-proto'], 'https');
+      return { ok: true, json: async () => relay };
+    },
+    every: () => () => {},
+  });
+  const server = http.createServer();
+  hub.attach(server);
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  t.after(() => { hub.close(); server.close(); });
+  await new Promise((r) => setTimeout(r, 50)); // premier relevé
+  const info = hub.info();
+  assert.deepEqual([info.players, info.rooms], [2, 1], 'les joueurs et salles du jeu externe comptent');
+  const g = info.games.find((x) => x.id === 'car_race');
+  assert.deepEqual([g.external, g.online, g.rooms, g.createUrl], [true, true, 1, '/jeux/car_race/?mobile&create=1']);
+
+  const ws = new WebSocket(`ws://127.0.0.1:${server.address().port}/api/v1/hub`, { origin: ORIGIN });
+  const inbox = [];
+  ws.on('message', (raw) => inbox.push(JSON.parse(raw)));
+  await new Promise((r) => ws.once('open', r));
+  ws.send(JSON.stringify({ t: 'hello', name: 'Léa' }));
+  await new Promise((r) => setTimeout(r, 80));
+  const rooms = inbox.find((m) => m.t === 'rooms' && m.game === 'car_race').rooms;
+  assert.deepEqual(rooms, [{ id: '3', name: 'Les Pandas', status: 'waiting', players: 2, max: 8, names: ['Zoé'], url: '/jeux/car_race/?mobile&room=3' }]);
+  ws.send(JSON.stringify({ t: 'create', game: 'car_race' }));
+  await new Promise((r) => setTimeout(r, 80));
+  assert.match(inbox.findLast((m) => m.t === 'error').text, /depuis le jeu/);
+  ws.terminate();
+});

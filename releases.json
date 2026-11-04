@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T00:00:26.919Z",
+ "generatedAt": "2026-11-04T00:22:24.455Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -56,6 +56,12 @@
      "date": "2026-11-04",
      "title": "Salon réutilisable et Asteroid Run",
      "body": "- **lib/hub-lobby.js** : le salon multijoueur (prénom, serveur, salles, chat, salle d'attente, résultats) prêt à l'emploi pour n'importe quel jeu : `createLobby({ game, onStart, onGame, onEnd })`.\n- Module serveur **asteroid_run** (astéroïdes et étoiles arbitrés par le serveur, vies, tirs et positions relayés).\n- Classement `asteroid_run_multi`. Catalogue : Asteroid Run, et Gemma Run (« bientôt »)."
+    },
+    {
+     "version": "0.6.0",
+     "date": "2026-11-04",
+     "title": "Jeux externes dans le salon",
+     "body": "- Le hub lit les salles de **Police vs voleurs** (serveur du jeu dans son propre conteneur) et les montre dans le salon avec un lien vers le jeu ; leurs joueurs et salles comptent dans la carte Multijoueur.\n- Contrat « jeu externe » (`external` dans `createHub`) pour brancher les prochains jeux de course."
     }
    ]
   },
@@ -234,6 +240,12 @@
      "date": "2026-10-28",
      "title": "Le jeu en ligne : https://jeux.kassir.fr/jeux/car_race/",
      "body": "### Le jeu en ligne : https://jeux.kassir.fr/jeux/car_race/\n- Le jeu tourne aussi **sur Internet**, dans la stack Docker de jeux.kassir.fr (dossier `web_stack_2026`) : le relais du mode réseau tourne dans le conteneur du jeu, derrière le proxy HTTPS. Les téléphones rejoignent une partie depuis n'importe où, sans être sur le même Wi-Fi.\n- Les adresses du relais sont **relatives à la page** (`pvv-ws`, `pvv-net/info`) : le jeu marche à la racine (`npm run dev`) comme sous un sous-chemin du site. En ligne, l'écran du mode réseau affiche l'adresse du site (et pas une IP du réseau local).\n- Relais prêt pour Internet : au plus 20 parties et 200 joueurs, messages de 1 Mo maximum, noms et champs tronqués. En ligne, seules les pages du site peuvent s'y connecter.\n\n### Classement en ligne\n- À la fin d'une partie, l'appareil qui la fait tourner envoie les scores des joueurs **qui ont un prénom** (mode réseau) au tableau de bord de jeux.kassir.fr :\n  - **Police vs Voleurs** : les prises de chaque policier et les butins de chaque voleur (top 5 des meilleurs flics et des meilleurs voleurs). Les prises et les butins sont maintenant comptés **par joueur**.\n  - **Course** : le **meilleur tour** de chaque pilote (record du circuit, un par circuit et par version ; pas les cartes perso).\n- Hors du site (`npm run dev`), rien n'est envoyé."
+    },
+    {
+     "version": "0.21.0",
+     "date": "2026-11-04",
+     "title": "Mode réseau branché sur le salon multijoueur",
+     "body": "- Les parties du mode réseau apparaissent dans le **salon multijoueur** de jeux.kassir.fr (`/multi/`) avec leurs joueurs, et un bouton « Rejoindre » ouvre directement la page du prénom de cette partie (`?mobile&room=<id>`).\n- « Démarrer une partie en réseau » depuis le salon ouvre `?mobile&create=1` (nouvelle partie).\n- Le prénom est commun à tous les jeux du site (déjà rempli)."
     }
    ]
   },
@@ -327,6 +339,26 @@
    "releases": []
   },
   {
+   "code": "asteroid_run",
+   "kind": "game-static",
+   "title": "Asteroid Run",
+   "icon": "🚀",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-04",
+     "title": "Premier vol",
+     "body": "- Un vaisseau dans les étoiles : déplacement au doigt, à la souris ou au clavier.\n- Étoiles ⭐ à attraper (+10), astéroïdes à éviter, 3 vies, vitesse croissante.\n- Pause, classement « Asteroid Run » (score envoyé en quittant, en pause, à la défaite ou à la fermeture)."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-04",
+     "title": "Tir et multijoueur",
+     "body": "- **Tir** : bouton 🔫 (maintenu pour tirer en rafale) ou Espace. Les astéroïdes ont des points de vie (1 à 3 tirs), +5 points par astéroïde détruit.\n- **À plusieurs** (👥, de 2 à 6 joueurs) : le salon de jeux.kassir.fr crée les astéroïdes et les étoiles, tout le monde voit le même champ et les vaisseaux des autres (une couleur chacun). Étoile : +10 ; astéroïde détruit : +5 ; choc : −1 vie. Manche de 90 s ou dernier vaisseau en vie, résultats, « Rejouer ».\n- Classement « Asteroid Run à plusieurs ». Le score part en quittant, en pause, à la fin de manche ou à la fermeture si c'est un record.\n- Renommé : le jeu s'appelait « gemma_run » (nom pris par un autre jeu de vaisseau)."
+    }
+   ]
+  },
+  {
    "code": "secure",
    "kind": "tool",
    "title": "secure",
@@ -409,26 +441,6 @@
      "date": "2026-11-01",
      "title": "Le village",
      "body": "- **Le village** : la carte « maison » est remplacée par quatre lieux aux configurations différentes : Paul (maison simple : une box, deux téléphones, un chien), Greg et Aya (famille de 5 : prof, youtubeuse, console, télé avec contrôle parental), Xavier et Julien (colocation d'ingénieurs : objets connectés, serveur perso, VPN), la boulangerie (réseau du magasin et Wi-Fi invité). Dix animations, dont 8 nouvelles.\n- **Résolution DNS réaliste** : la question part de l'appareil vers la box (port 53, résolveur donné par le DHCP), puis la box la relaie à un relais DNS mondial qui répond avec l'adresse IP (cartes Paul et Internet).\n- Catalogue : icônes télévision, console, caméra et objet connecté (34 en tout), 5 services (contrôle parental, streaming, MQTT, Wi-Fi invité, envoi de fichiers), 3 calques types, 9 personnages (dont un chien), accessoire caméra.\n- Vue d'accueil : marge à droite pour la légende des flux."
-    }
-   ]
-  },
-  {
-   "code": "asteroid_run",
-   "kind": "game-static",
-   "title": "Asteroid Run",
-   "icon": "🚀",
-   "releases": [
-    {
-     "version": "0.1.0",
-     "date": "2026-11-04",
-     "title": "Premier vol",
-     "body": "- Un vaisseau dans les étoiles : déplacement au doigt, à la souris ou au clavier.\n- Étoiles ⭐ à attraper (+10), astéroïdes à éviter, 3 vies, vitesse croissante.\n- Pause, classement « Asteroid Run » (score envoyé en quittant, en pause, à la défaite ou à la fermeture)."
-    },
-    {
-     "version": "0.2.0",
-     "date": "2026-11-04",
-     "title": "Tir et multijoueur",
-     "body": "- **Tir** : bouton 🔫 (maintenu pour tirer en rafale) ou Espace. Les astéroïdes ont des points de vie (1 à 3 tirs), +5 points par astéroïde détruit.\n- **À plusieurs** (👥, de 2 à 6 joueurs) : le salon de jeux.kassir.fr crée les astéroïdes et les étoiles, tout le monde voit le même champ et les vaisseaux des autres (une couleur chacun). Étoile : +10 ; astéroïde détruit : +5 ; choc : −1 vie. Manche de 90 s ou dernier vaisseau en vie, résultats, « Rejouer ».\n- Classement « Asteroid Run à plusieurs ». Le score part en quittant, en pause, à la fin de manche ou à la fermeture si c'est un record.\n- Renommé : le jeu s'appelait « gemma_run » (nom pris par un autre jeu de vaisseau)."
     }
    ]
   },

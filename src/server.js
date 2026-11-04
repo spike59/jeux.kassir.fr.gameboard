@@ -27,7 +27,15 @@ const RELEASES = process.env.RELEASES || join(ROOT, 'releases.json');
 
 const keys = parseKeys(process.env.GAMEBOARD_KEYS);
 // serveur01 : le salon des jeux à plusieurs (chat, salles, parties) ; un module par jeu
-const hub = createHub({ modules: [bulles, asteroid_run], publicOrigin: `https://${PUBLIC_HOST}`, serverId: 'serveur01', serverName: 'Serveur 01' });
+// Jeux dont le serveur de parties est dans un autre conteneur : le hub lit leurs salles (adresse interne, réseau Docker)
+const external = [];
+if (process.env.HUB_CAR_RACE_INFO) {
+  external.push({
+    id: 'car_race', title: 'Police vs voleurs', min: 2, max: 8, infoUrl: process.env.HUB_CAR_RACE_INFO,
+    joinUrl: (room) => `/jeux/car_race/?mobile&room=${room}`, createUrl: '/jeux/car_race/?mobile&create=1',
+  });
+}
+const hub = createHub({ external, modules: [bulles, asteroid_run], publicOrigin: `https://${PUBLIC_HOST}`, serverId: 'serveur01', serverName: 'Serveur 01' });
 const portal = createPortal({ hub, publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 
 const server = portal.listen(PORT, HOST, () => console.log(`gameboard sur http://${HOST}:${PORT} (https://${PUBLIC_HOST}) — ${keys.size} jeu(x) avec clé`));

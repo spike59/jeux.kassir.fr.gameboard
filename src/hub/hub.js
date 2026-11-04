@@ -6,6 +6,9 @@
 // Protocole : JSON sur un WebSocket (chemin /api/v1/hub).
 //   client -> serveur : hello{name,id?}  chat{text}  rooms{game}  create{game,name?}  join{room}  leave  start  again  ping{n}  + messages du jeu (ex. pop{b})
 //   serveur -> client : welcome{id,name,server,servers}  chat{from,text}  rooms{game,rooms}  room{room}  error{text}  pong{n}  + messages du jeu
+// Jeux « externes » (ex. Police vs voleurs) : leur propre serveur fait tourner les parties ; le hub lit leurs salles
+//   { id, title, min, max, infoUrl, joinUrl(roomId), createUrl } où infoUrl répond { rooms: [{ id, name, master, status, players }] }
+//   et les montre dans le salon avec un lien « Rejoindre » vers le jeu (le prénom est repris par le jeu).
 // Module de jeu : { id, title, min, max, onJoin(room,p), onStart(room,api), onMessage(room,p,msg,api), onLeave(room,p,api), reset(room) }
 //   api : { now(), rng(), every(ms,fn)->stop, after(ms,fn)->stop, broadcast(msg), others(player,msg), send(player,msg), changed() }
 import { WebSocketServer } from 'ws';
@@ -25,6 +28,7 @@ const clean = (s) => String(s ?? '').normalize('NFC').replace(/[\u0000-\u001f\u0
 export function createHub({
   modules, publicOrigin = null, serverId = 'serveur01', serverName = 'Serveur 01',
   now = () => Date.now(), rng = Math.random,
+  external = [], fetchImpl = fetch,
   every = (ms, fn) => { const t = setInterval(fn, ms); return () => clearInterval(t); },
   after = (ms, fn) => { const t = setTimeout(fn, ms); return () => clearTimeout(t); },
 } = {}) {
@@ -32,6 +36,26 @@ export function createHub({
   const players = new Map(); // id -> { id, name, ws, room, lastChat }
   const rooms = new Map(); // id -> { id, game, name, owner, status, players: Map, state }
   const history = [];
+  const ext = new Map(external.map((e) => [e.id, { ...e, rooms: [], ok: false, sig: '' }]));
+  async function pollExternal() {
+    let any = false;
+    for (const e of ext.values()) {
+      try {
+        // X-Forwarded-Proto : le serveur du jeu n'accepte que le HTTPS (le proxy le lui dit ; ici on parle en direct sur le réseau Docker)
+        const res = await fetchImpl(e.infoUrl, { headers: { 'x-forwarded-proto': 'https' }, signal: AbortSignal.timeout(2500) });
+        const body = await res.json();
+        e.rooms = (body.rooms ?? []).slice(0, 30);
+        e.ok = res.ok;
+      } catch {
+        e.rooms = [];
+        e.ok = false;
+      }
+      const sig = JSON.stringify([e.ok, e.rooms]);
+      if (sig !== e.sig) { e.sig = sig; any = true; }
+    }
+    if (any) changed(null);
+  }
+  if (ext.size) { pollExternal(); every(3000, pollExternal); }
   let nextRoom = 1;
   const wss = new WebSocketServer({ noServer: true, maxPayload: MAX_MESSAGE });
 
@@ -41,17 +65,30 @@ export function createHub({
     players: [...r.players.values()].map((p) => ({ id: p.id, name: p.name, color: p.color, score: p.score ?? 0, lives: p.lives, out: !!p.out })),
   });
   const roomRow = (r) => ({ id: r.id, name: r.name, status: r.status, players: r.players.size, max: games.get(r.game).max, names: [...r.players.values()].map((p) => p.name) });
-  const listFor = (game) => [...rooms.values()].filter((r) => r.game === game).map(roomRow);
+  const listFor = (game) => {
+    const e = ext.get(game);
+    if (e) {
+      return e.rooms.map((r) => ({ id: String(r.id), name: String(r.name ?? 'Partie'), status: r.status === 'waiting' ? 'waiting' : 'playing', players: Number(r.players) || 0, max: e.max, names: [String(r.master ?? '')].filter(Boolean), url: e.joinUrl(encodeURIComponent(r.id)) }));
+    }
+    return [...rooms.values()].filter((r) => r.game === game).map(roomRow);
+  };
+  const allGames = () => [...games.keys(), ...ext.keys()];
 
   const info = () => ({
-    id: serverId, name: serverName, players: players.size, rooms: rooms.size,
-    games: [...games.values()].map((g) => ({ id: g.id, title: g.title, min: g.min, max: g.max, rooms: listFor(g.id).length })),
+    id: serverId, name: serverName,
+    // joueurs : ceux du salon + ceux des parties des jeux externes
+    players: players.size + [...ext.values()].reduce((n, e) => n + e.rooms.reduce((k, r) => k + (Number(r.players) || 0), 0), 0),
+    rooms: rooms.size + [...ext.values()].reduce((n, e) => n + e.rooms.length, 0),
+    games: [
+      ...[...games.values()].map((g) => ({ id: g.id, title: g.title, min: g.min, max: g.max, rooms: listFor(g.id).length })),
+      ...[...ext.values()].map((e) => ({ id: e.id, title: e.title, min: e.min, max: e.max, rooms: e.rooms.length, external: true, online: e.ok, createUrl: e.createUrl })),
+    ],
   });
 
   // les salons voient la liste des salles quand elle change ; les salles voient leur propre état
   function changed(room) {
     if (room) for (const p of room.players.values()) send(p, { t: 'room', room: roomView(room) });
-    for (const p of players.values()) if (!p.room) for (const g of games.keys()) send(p, { t: 'rooms', game: g, rooms: listFor(g) });
+    for (const p of players.values()) if (!p.room) for (const g of allGames()) send(p, { t: 'rooms', game: g, rooms: listFor(g) });
   }
 
   const apiFor = (room) => ({
@@ -89,9 +126,10 @@ export function createHub({
         for (const q of players.values()) send(q, line);
         return;
       }
-      case 'rooms': return send(p, { t: 'rooms', game: String(m.game), rooms: games.has(m.game) ? listFor(m.game) : [] });
+      case 'rooms': return send(p, { t: 'rooms', game: String(m.game), rooms: games.has(m.game) || ext.has(m.game) ? listFor(m.game) : [] });
       case 'create': {
         if (p.room) return send(p, { t: 'error', text: "Tu es déjà dans une salle." });
+        if (ext.has(m.game)) return send(p, { t: 'error', text: 'Cette partie se crée depuis le jeu.' });
         if (!games.has(m.game)) return send(p, { t: 'error', text: 'Jeu inconnu.' });
         if (rooms.size >= MAX_ROOMS) return send(p, { t: 'error', text: 'Trop de salles ouvertes, réessaie plus tard.' });
         const room = { id: String(nextRoom++), game: m.game, name: clean(m.name).slice(0, 24) || `Salle de ${p.name}`, owner: p.id, status: 'waiting', players: new Map(), state: null };
@@ -156,7 +194,7 @@ export function createHub({
         me = { id: randomUUID().slice(0, 8), name, ws, room: null, lastChat: 0 };
         players.set(me.id, me);
         send(me, { t: 'welcome', id: me.id, name, server: info(), history });
-        for (const g of games.keys()) send(me, { t: 'rooms', game: g, rooms: listFor(g) });
+        for (const g of allGames()) send(me, { t: 'rooms', game: g, rooms: listFor(g) });
         return;
       }
       handle(me, m);

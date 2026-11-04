@@ -107,7 +107,7 @@ function renderRooms() {
           el('strong', { textContent: `${r.name}` }),
           el('small', { textContent: `${g?.title ?? game} · ${r.names.join(', ')} (${r.players}/${r.max})` })),
         waiting && !full
-          ? el('a', { href: `/jeux/${game}/?room=${encodeURIComponent(r.id)}`, textContent: 'Rejoindre' })
+          ? el('a', { href: r.url ?? `/jeux/${game}/?room=${encodeURIComponent(r.id)}`, textContent: 'Rejoindre' })
           : el('span', { className: `badge ${waiting ? 'wait' : 'run'}`, textContent: waiting ? 'Complète' : 'En cours' })));
     }
   }
@@ -118,7 +118,7 @@ function renderRooms() {
 
 function renderNewGames() {
   $('new-games').replaceChildren(...games.map((g) =>
-    el('a', { href: `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
+    el('a', { href: g.createUrl ?? `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
 }
 
 $('login-form').addEventListener('submit', (e) => {
