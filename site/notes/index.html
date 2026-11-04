@@ -15,11 +15,13 @@
     <a class="back" href="/" aria-label="Retour aux jeux">‹ Les jeux</a>
     <h1>Notes de mise à jour <span aria-hidden="true">📜</span></h1>
     <div class="tools">
+      <button id="filter" class="wide" type="button" aria-haspopup="true" aria-expanded="false" title="Choisir les jeux affichés">⚙ Jeux</button>
       <button id="zout" type="button" aria-label="Dézoomer" title="Dézoomer">−</button>
       <button id="zin" type="button" aria-label="Zoomer" title="Zoomer">+</button>
       <button id="fs" type="button" aria-label="Plein écran" title="Plein écran" hidden>⛶</button>
     </div>
-    <p class="sub">Toutes les versions, de gauche (les plus anciennes) à droite (les plus récentes). Glisse pour te déplacer, pince (ou − / +) pour zoomer, touche une carte pour lire.</p>
+    <p class="sub">Le temps passe de gauche à droite, un trait par jour et un trait épais par mois. Glisse pour te déplacer, pince (ou − / +) pour zoomer, touche une carte pour lire.</p>
+    <div id="filter-menu" class="menu" hidden></div>
   </header>
   <main>
     <div id="fresco" class="fresco" tabindex="0" aria-label="Frise des mises à jour"><p class="loading">Chargement…</p></div>

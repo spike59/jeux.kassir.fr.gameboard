@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T09:08:05.220Z",
+ "generatedAt": "2026-11-04T17:56:05.584Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -68,6 +68,12 @@
      "date": "2026-11-04",
      "title": "Parties sur le serveur dans le salon",
      "body": "- Le salon sépare les **parties sur le serveur** (Bulles, Asteroid Run, Police vs voleurs en serveur dédié) des **parties entre joueurs** (un joueur héberge).\n- **Créer une partie sur le serveur** (Police vs voleurs : mode et nom) : le salon la demande au serveur du jeu (clé partagée) puis ouvre la partie."
+    },
+    {
+     "version": "0.8.0",
+     "date": "2026-11-04",
+     "title": "Notes de mise à jour : la frise du temps",
+     "body": "- La page des notes devient une **frise du temps** : plus de ligne par jeu, une colonne par jour, avec un trait fin pour chaque jour et un trait épais au premier de chaque mois.\n- Les mises à jour d'un même jour s'**empilent** dans sa colonne ; à partir de 5, elles s'entassent sur une ligne chacune (icône, version, jeu, titre).\n- Un bouton **Jeux** ouvre un filtre : on coche ou décoche chaque jeu (ou Tout / Aucun) ; le choix est retenu et la frise garde les mêmes positions.\n- Les cartes, le zoom, le glissement et la lecture des notes ne changent pas."
     }
    ]
   },

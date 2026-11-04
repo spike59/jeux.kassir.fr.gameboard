@@ -1,5 +1,6 @@
 // Page /notes/ : la frise des notes de version (releases.json, rassemblé par devops/collect-releases.mjs).
-// Une ligne par projet, une colonne par version ; la plus récente à droite. Les positions passent par element.style (la CSP interdit les attributs style).
+// Une frise du temps : une colonne par jour (la plus récente à droite), les notes d'un jour s'empilent, un filtre choisit les jeux.
+// Les positions passent par element.style (la CSP interdit les attributs style).
 const COLORS = ['#ffb454', '#5cc8ff', '#ff7a9c', '#7be08f', '#c59bff', '#ffd95c', '#ff9a5c', '#6fe0d0'];
 const fresco = document.querySelector('#fresco');
 const reader = document.querySelector('#reader');
@@ -56,59 +57,124 @@ reader.addEventListener('click', (e) => { if (e.target === reader) close(); });
 document.querySelector('.close').addEventListener('click', close);
 addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 
-function build(data) {
+// --- la frise : le temps passe de gauche à droite (une colonne par jour, un trait fin par jour, un trait épais par mois) ;
+// les mises à jour d'un jour s'empilent dans sa colonne, serrées quand il y en a beaucoup.
+const PACK_FROM = 5; // à partir de ce nombre de notes un même jour, les cartes se resserrent sur une ligne
+const MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+const WEEKDAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+const utc = (d) => { const [y, m, j] = d.split('-').map(Number); return Date.UTC(y, m - 1, j); };
+
+let data = null;
+let hidden = new Set(JSON.parse(localStorage.getItem('notes-hidden') || '[]')); // jeux décochés dans le filtre
+
+function build() {
   const projects = data.projects.filter((p) => p.releases.length);
   if (!projects.length) { fresco.replaceChildren(h('p', { className: 'loading', textContent: 'Aucune note de version pour l\'instant.' })); return; }
+  const color = new Map(projects.map((p, i) => [p.code, COLORS[i % COLORS.length]]));
 
-  // colonnes : une par date, aussi large que le plus grand nombre de versions d'un projet ce jour-là
-  const dates = [...new Set(projects.flatMap((p) => p.releases.map((r) => r.date)))].sort();
-  const start = new Map();
-  let col = 2; // la colonne 1 porte les noms des projets
-  for (const d of dates) {
-    const width = Math.max(...projects.map((p) => p.releases.filter((r) => r.date === d).length));
-    start.set(d, [col, width]);
-    col += width;
+  // l'axe du temps couvre toujours toutes les notes : filtrer ne déplace rien
+  const dates = projects.flatMap((p) => p.releases.map((r) => r.date)).sort();
+  const first = utc(dates[0]);
+  const last = utc(dates.at(-1));
+  const byDay = new Map();
+  for (const p of projects) {
+    if (hidden.has(p.code)) continue;
+    for (const rel of p.releases) {
+      if (!byDay.has(rel.date)) byDay.set(rel.date, []);
+      byDay.get(rel.date).push({ p, rel });
+    }
   }
 
   const grid = h('div', { className: 'grid' });
-  grid.style.gridTemplateColumns = `var(--lane) repeat(${col - 2}, var(--col))`;
-  const corner = h('div', { className: 'corner' });
-  corner.style.gridArea = '1 / 1';
-  grid.append(corner);
-  for (const [d, [c, w]] of start) {
-    const cell = h('div', { className: 'date', textContent: fmtDate(d) });
-    cell.style.gridArea = `1 / ${c} / 2 / ${c + w}`;
-    grid.append(cell);
-  }
+  const days = [];
+  for (let t = first; t <= last; t += 86400000) days.push(iso(t));
+  grid.style.gridTemplateColumns = days.map((d) => (byDay.has(d) ? 'var(--col)' : 'var(--gap)')).join(' ');
 
-  projects.forEach((p, i) => {
-    const row = i + 2;
-    const color = COLORS[i % COLORS.length];
-    const lane = h('div', { className: 'lane' }, h('span', { className: 'ico', textContent: p.icon }), h('span', { textContent: p.title }));
-    lane.style.gridArea = `${row} / 1`;
-    grid.append(lane);
-    const seen = new Map();
-    for (const rel of p.releases.slice().sort(byVersion)) {
-      const n = seen.get(rel.date) ?? 0;
-      seen.set(rel.date, n + 1);
-      const card = h('button', { type: 'button', className: 'card', title: rel.title },
-        h('span', { className: 'v', textContent: `v${rel.version}` }),
-        h('span', { className: 't', textContent: rel.title || 'Voir les notes' }));
-      card.style.gridArea = `${row} / ${start.get(rel.date)[0] + n}`;
-      card.style.setProperty('--c', color);
-      card.addEventListener('click', () => open(p, rel, color));
-      grid.append(card);
+  // en-têtes : le mois (collé en haut), puis le jour
+  days.forEach((d, i) => {
+    const [y, m, j] = d.split('-').map(Number);
+    const startsMonth = j === 1 || i === 0;
+    if (startsMonth) {
+      let end = i + 1;
+      while (end < days.length && !days[end].endsWith('-01')) end++;
+      const label = h('div', { className: 'month', textContent: `${MONTHS[m - 1]} ${y}` });
+      label.style.gridArea = `1 / ${i + 1} / 2 / ${end + 1}`;
+      if (j === 1) label.classList.add('first');
+      grid.append(label);
     }
+    const busy = byDay.has(d);
+    const dow = new Date(utc(d)).getUTCDay();
+    const head = h('div', { className: `day${busy ? ' busy' : ''}${dow === 0 || dow === 6 ? ' weekend' : ''}${j === 1 ? ' first' : ''}` },
+      busy ? h('small', { textContent: WEEKDAYS[dow] }) : null, String(j));
+    head.style.gridArea = `2 / ${i + 1}`;
+    grid.append(head);
+
+    // la colonne du jour : sa ligne verticale en fond, et ses cartes empilées
+    const items = (byDay.get(d) ?? []).sort((a, b) => projects.indexOf(a.p) - projects.indexOf(b.p) || a.rel.version.localeCompare(b.rel.version, undefined, { numeric: true }));
+    const column = h('div', { className: `slot${j === 1 ? ' first' : ''}${dow === 0 || dow === 6 ? ' weekend' : ''}${items.length >= PACK_FROM ? ' packed' : ''}` });
+    column.style.gridArea = `3 / ${i + 1}`;
+    for (const { p, rel } of items) {
+      const c = color.get(p.code);
+      const card = h('button', { type: 'button', className: 'card', title: `${p.title} v${rel.version}${rel.title ? ` — ${rel.title}` : ''}` },
+        h('span', { className: 'v' }, h('span', { className: 'ico', textContent: p.icon }), ` v${rel.version}`, h('span', { className: 'who', textContent: p.title })),
+        h('span', { className: 't', textContent: rel.title || 'Voir les notes' }));
+      card.style.setProperty('--c', c);
+      card.addEventListener('click', () => open(p, rel, c));
+      column.append(card);
+    }
+    grid.append(column);
   });
 
+  const keepLeft = fresco.scrollLeft;
+  const keepTop = fresco.scrollTop;
+  const fresh = !fresco.querySelector('.grid');
+  const z = fresco.querySelector('.grid')?.style.getPropertyValue('--z');
+  if (z) grid.style.setProperty('--z', z);
   fresco.replaceChildren(grid);
-  fresco.scrollLeft = fresco.scrollWidth; // on arrive sur les nouveautés
+  if (fresh) fresco.scrollLeft = fresco.scrollWidth; // on arrive sur les nouveautés
+  else { fresco.scrollLeft = keepLeft; fresco.scrollTop = keepTop; }
+  paintFilter(projects, color);
 }
+
+// --- filtre : un bouton qui ouvre la liste des jeux à cocher / décocher
+const filterBtn = document.querySelector('#filter');
+const filterMenu = document.querySelector('#filter-menu');
+
+function paintFilter(projects, color) {
+  const shown = projects.filter((p) => !hidden.has(p.code)).length;
+  filterBtn.textContent = `⚙ Jeux ${shown}/${projects.length}`;
+  filterBtn.classList.toggle('active', shown !== projects.length);
+  const count = (p) => p.releases.length;
+  const rows = projects.map((p) => {
+    const box = h('input', { type: 'checkbox', checked: !hidden.has(p.code) });
+    box.addEventListener('change', () => {
+      if (box.checked) hidden.delete(p.code); else hidden.add(p.code);
+      save();
+    });
+    const row = h('label', { className: 'opt' }, box, h('span', { className: 'ico', textContent: p.icon }), h('span', { className: 'name', textContent: p.title }), h('span', { className: 'n', textContent: String(count(p)) }));
+    row.style.setProperty('--c', color.get(p.code));
+    return row;
+  });
+  const all = h('button', { type: 'button', textContent: 'Tout' });
+  const none = h('button', { type: 'button', textContent: 'Aucun' });
+  all.addEventListener('click', () => { hidden = new Set(); save(); });
+  none.addEventListener('click', () => { hidden = new Set(projects.map((p) => p.code)); save(); });
+  filterMenu.replaceChildren(h('div', { className: 'bulk' }, all, none), ...rows);
+}
+function save() {
+  localStorage.setItem('notes-hidden', JSON.stringify([...hidden]));
+  build();
+}
+filterBtn.addEventListener('click', () => { filterMenu.hidden = !filterMenu.hidden; filterBtn.setAttribute('aria-expanded', String(!filterMenu.hidden)); });
+document.addEventListener('pointerdown', (e) => { if (!filterMenu.hidden && !filterMenu.contains(e.target) && e.target !== filterBtn) { filterMenu.hidden = true; filterBtn.setAttribute('aria-expanded', 'false'); } });
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && !filterMenu.hidden) { filterMenu.hidden = true; filterBtn.setAttribute('aria-expanded', 'false'); } });
 
 try {
   const res = await fetch('/releases.json', { cache: 'no-cache' });
   if (!res.ok) throw new Error(res.status);
-  build(await res.json());
+  data = await res.json();
+  build();
 } catch {
   fresco.replaceChildren(h('p', { className: 'loading', textContent: 'Impossible de charger les notes de version.' }));
 }
