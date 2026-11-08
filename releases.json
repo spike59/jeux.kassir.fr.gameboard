@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T18:09:13.487Z",
+ "generatedAt": "2026-11-08T20:49:23.155Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -687,6 +687,20 @@
    "title": "todos",
    "icon": "📦",
    "releases": []
+  },
+  {
+   "code": "roadmap",
+   "kind": "tool",
+   "title": "roadmap",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-08",
+     "title": "API de releases.json, fresque, publication",
+     "body": "Première version de l'application `roadmap` (port 4329, outil de développement local).\n\n- **`releases.json` calculé à la demande** (`/releases.json`, `/api/releases`) depuis les notes de version de tous les dépôts, avec un filtre `?filtre=jeux`.\n- **Fresque** (`/api/fresque` et page) : versions passées sur l'axe du temps, prochaine version et suite lues dans les `concept/roadmap.md`.\n- **Publication** : `POST /api/publish` écrit `apps/gameboard/releases.json`.\n- 8 tests, aucune dépendance."
+    }
+   ]
   },
   {
    "code": "devops_reseau",
