@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T21:28:15.602Z",
+ "generatedAt": "2026-11-08T22:15:56.412Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -86,6 +86,12 @@
      "date": "2026-11-04",
      "title": "État public du parc",
      "body": "- `GET /api/parc/live` (public, sans cache) : pour chaque jeu, ses parties (nom, état, joueurs, prénoms) et les visiteurs du salon ; sert la page « Le parc en direct »\n- Les salles des jeux hébergés par le serveur annoncent le prénom de leurs joueurs (`names`) ; à défaut, le prénom du maître\n- Le jeu « Le parc en direct » (`/jeux/parc/`) dans le catalogue"
+    },
+    {
+     "version": "0.9.1",
+     "date": "2026-11-08",
+     "title": "Notes de version : jeux publics seulement",
+     "body": "- `/releases.json` est filtré : seuls les jeux publics (prêts et avec une adresse dans `games.json`) y figurent ; les outils et dépôts internes restent hors du portail public.\n- La page `/notes/` est le même affichage que celui de l'application `roadmap` (locale, tous les projets) ; son filtre propose « Les jeux » quand les données contiennent aussi des outils."
     }
    ]
   },
@@ -699,6 +705,12 @@
      "date": "2026-11-08",
      "title": "API de releases.json, fresque, publication",
      "body": "Première version de l'application `roadmap` (port 4329, outil de développement local).\n\n- **`releases.json` calculé à la demande** (`/releases.json`, `/api/releases`) depuis les notes de version de tous les dépôts, avec un filtre `?filtre=jeux`.\n- **Fresque** (`/api/fresque` et page) : versions passées sur l'axe du temps, prochaine version et suite lues dans les `concept/roadmap.md`.\n- **Publication** : `POST /api/publish` écrit `apps/gameboard/releases.json`.\n- 8 tests, aucune dépendance."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-08",
+     "title": "La frise du portail, sur tous les projets",
+     "body": "- La page est maintenant **celle de `gameboard`** (`/notes/`, frise du temps, zoom, lecteur de notes) servie telle quelle depuis `apps/gameboard/site/notes` : un seul affichage pour les deux. L'ancienne fresque en pastilles est retirée.\n- Elle montre **tous les projets**, avec les boutons « Tout », « Aucun » et « Les jeux » dans le filtre.\n- `gameboard` ne publie plus que les jeux publics (filtre fait côté portail, version 0.9.1)."
     }
    ]
   },
@@ -713,6 +725,12 @@
      "date": "2026-11-08",
      "title": "Page des applications, état, lancement",
      "body": "Première version du lanceur léger (port 4330), à la place de l'Odysseus pour le quotidien.\n\n- **Page** : les applications du catalogue de l'Odysseus par pièce, avec leur état (point vert ou rouge) rafraîchi toutes les 5 secondes.\n- **Ouvrir / Lancer** : lien vers l'outil en marche, bouton pour démarrer un outil local arrêté.\n- `lancer.cmd` (double-clic), 5 tests, aucune dépendance."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-08",
+     "title": "Tout démarrer, tout arrêter, tout redémarrer",
+     "body": "- Trois boutons dans la page : **Tout démarrer**, **Tout arrêter**, **Tout redémarrer** (confirmation avant d'arrêter). Ils agissent sur les outils locaux du catalogue, jamais sur le lanceur lui-même ni sur les conteneurs Docker.\n- L'arrêt ferme le processus qui écoute sur le port du service (netstat + taskkill, Windows)."
     }
    ]
   },

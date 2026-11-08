@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { createPortal } from '../src/portal.js';
 import { parseKeys } from '../src/app.js';
 
-async function start(t) {
+async function start(t, { releases = false } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'gameboard-portal-'));
   const games = join(dir, 'games');
   await mkdir(join(games, 'bulles', 'public'), { recursive: true });
@@ -15,9 +15,10 @@ async function start(t) {
   await writeFile(join(games, 'bulles', 'public', 'index.html'), '<h1>bulles</h1>');
   await writeFile(join(games, 'bulles', 'game.json'), '{}');
   await writeFile(join(games, 'serveur-jeu', 'Dockerfile'), 'FROM secret');
-  await writeFile(join(dir, 'games.json'), '[]');
+  await writeFile(join(dir, 'games.json'), JSON.stringify([{ id: 'bulles', ready: true, url: '/jeux/bulles/' }, { id: 'bientot', ready: false }]));
+  if (releases) await writeFile(join(dir, 'releases.json'), JSON.stringify({ projects: ['bulles', 'bientot', 'secure', 'kassir_devops'].map((code) => ({ code, releases: [] })) }));
   const portal = createPortal({
-    publicHost: 'jeux.test', publicDir: join(dir, 'site'), gamesDir: games, catalog: join(dir, 'games.json'),
+    publicHost: 'jeux.test', publicDir: join(dir, 'site'), gamesDir: games, catalog: join(dir, 'games.json'), releases: releases ? join(dir, 'releases.json') : '',
     apiOptions: { keys: parseKeys(''), dataDir: join(dir, 'data') }, trustProxy: true,
   });
   const server = portal.listen(0, '127.0.0.1');
@@ -45,4 +46,11 @@ test('sans HTTPS : redirection vers le nom configuré ; /healthz et /games.json 
   assert.equal(plain.headers.get('location'), 'https://jeux.test/jeux/bulles/');
   assert.equal((await get('/healthz')).status, 200);
   assert.equal((await get('/games.json')).status, 200);
+});
+
+test('/releases.json ne contient que les jeux publics', async (t) => {
+  const get = await start(t, { releases: true });
+  const res = await get('/releases.json');
+  assert.equal(res.status, 200);
+  assert.deepEqual((await res.json()).projects.map((p) => p.code), ['bulles']);
 });

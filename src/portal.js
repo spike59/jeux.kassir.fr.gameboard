@@ -2,6 +2,7 @@
 // Uniquement derrière nginx-proxy, uniquement en HTTPS. Les jeux avec serveur ont leur propre conteneur.
 import express from 'express';
 import { join } from 'node:path';
+import { readFile } from 'node:fs/promises';
 import { createApi } from './app.js';
 
 const csp = (host) => `default-src 'self'; connect-src 'self' wss://${host}; img-src 'self' data:; media-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'`;
@@ -52,7 +53,16 @@ export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, ca
   };
   site.use('/jeux/:id', staticGame);
   site.get('/games.json', (req, res) => res.set('Cache-Control', 'no-cache').sendFile(catalog, { dotfiles: 'allow' }));
-  if (releases) site.get('/releases.json', (req, res) => res.set('Cache-Control', 'no-cache').sendFile(releases, { dotfiles: 'allow' }));
+  // notes de version : seulement celles des jeux publics (prêts et avec une adresse dans games.json) ; le fichier complet reste local (application roadmap)
+  if (releases) {
+    site.get('/releases.json', async (req, res) => {
+      try {
+        const data = JSON.parse(await readFile(releases, 'utf8'));
+        const publics = new Set(JSON.parse(await readFile(catalog, 'utf8')).filter((g) => g.ready && g.url).map((g) => g.id));
+        res.set('Cache-Control', 'no-cache').json({ ...data, projects: data.projects.filter((p) => publics.has(p.code)) });
+      } catch { res.status(404).type('text').send('Pas de notes de version'); }
+    });
+  }
   if (menuDir) {
     site.use(express.static(menuDir, {
       dotfiles: 'ignore',

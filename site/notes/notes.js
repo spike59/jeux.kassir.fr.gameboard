@@ -143,7 +143,10 @@ const filterMenu = document.querySelector('#filter-menu');
 
 function paintFilter(projects, color) {
   const shown = projects.filter((p) => !hidden.has(p.code)).length;
-  filterBtn.textContent = `⚙ Jeux ${shown}/${projects.length}`;
+  // le portail public ne montre que des jeux ; l'application roadmap (locale) montre aussi les outils et propose « Les jeux »
+  const GAME = (p) => !p.kind || p.kind.startsWith('game');
+  const mixed = projects.some((p) => !GAME(p));
+  filterBtn.textContent = `⚙ ${mixed ? 'Projets' : 'Jeux'} ${shown}/${projects.length}`;
   filterBtn.classList.toggle('active', shown !== projects.length);
   const count = (p) => p.releases.length;
   const rows = projects.map((p) => {
@@ -160,7 +163,9 @@ function paintFilter(projects, color) {
   const none = h('button', { type: 'button', textContent: 'Aucun' });
   all.addEventListener('click', () => { hidden = new Set(); save(); });
   none.addEventListener('click', () => { hidden = new Set(projects.map((p) => p.code)); save(); });
-  filterMenu.replaceChildren(h('div', { className: 'bulk' }, all, none), ...rows);
+  const games = h('button', { type: 'button', textContent: 'Les jeux' });
+  games.addEventListener('click', () => { hidden = new Set(projects.filter((p) => !GAME(p)).map((p) => p.code)); save(); });
+  filterMenu.replaceChildren(h('div', { className: 'bulk' }, all, none, mixed ? games : null), ...rows);
 }
 function save() {
   localStorage.setItem('notes-hidden', JSON.stringify([...hidden]));

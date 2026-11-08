@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.1
+
+- **`/releases.json` ne contient que les jeux publics** (prêts et avec une adresse dans `games.json`) ; le fichier complet reste local, servi par l'application `roadmap`.
+- Page `/notes/` : un bouton « Les jeux » dans le filtre quand les données contiennent aussi des outils (affichage partagé avec `roadmap`).
+
 ## 0.9.0
 
 - **`GET /api/parc/live`** : l'état public des parties de tous les jeux (trains, prénoms des joueurs, visiteurs du salon) pour « Le parc en direct ».
