@@ -3,6 +3,8 @@
 Instantané du 2026-11-08. Version courante : 0.9.0 (portail, menu 3D, scores, état public du parc).
 
 ## 0.10.0 (prochaine)
+- gameboard-002 : scores vérifiés par le serveur (🔴)
+- gameboard-003 : limite sur les échecs d'authentification
 - **Classements** pour `space_hairness`, `space_run` et `gemma_run` (`src/games.js`), après le choix : envoi navigateur (falsifiable) ou serveur avec clé.
 - Régler `releases.json` : fichier régénéré par `devops/collect-releases.mjs`, aujourd'hui modifié et non commité (le commiter à chaque version ou l'ignorer).
 
