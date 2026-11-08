@@ -3,15 +3,14 @@
 Instantané du 2026-11-08. Version courante : 0.9.0 (portail, menu 3D, scores, état public du parc).
 
 ## 0.10.0 (prochaine)
-- gameboard-002 : scores vérifiés par le serveur (🔴)
-- gameboard-003 : limite sur les échecs d'authentification
-- **Classements** pour `space_hairness`, `space_run` et `gemma_run` (`src/games.js`), après le choix : envoi navigateur (falsifiable) ou serveur avec clé.
-- Régler `releases.json` : fichier régénéré par `devops/collect-releases.mjs`, aujourd'hui modifié et non commité (le commiter à chaque version ou l'ignorer).
+- gameboard-002 : scores vérifiés par le serveur ; gameboard-003 : limite sur les échecs d'authentification
+- gameboard-001 (tofix) : décider du sort de `releases.json` (généré)
+- gameboard-005 : classements des jeux avec serveur (`space_hairness-023` pour Space Racing)
 
 ## next
-- **Base de l'API des joueurs principale** (la meilleure base d'après le `concept/ideas/todo-historique.md` du principal).
-- Clés d'API des jeux enfin utilisées pour les scores.
-- Page `/notes/` : reconstruire après chaque nouvelle note de version.
+- Idée `api-des-joueurs-principale` (principal) : le portail est la meilleure base
+- Idée `prenom-d-enfant-au-classement-public`
+- Page `/notes/` : reconstruire après chaque note de version (`kassir_devops-022`)
 
 ### Mis de côté
 - —
