@@ -13,3 +13,17 @@ Instantané du 2026-11-08. Version courante : 0.9.0 (portail, menu 3D, scores, �
 
 ## Plus tard / mis de côté
 - —
+
+## Déjà développé
+
+Une ligne par version publiée (détail : `concept/release/<version>.md`).
+
+- **0.9.0** (2026-11-04) : État public du parc
+- **0.8.0** (2026-11-04) : Notes de mise à jour : la frise du temps
+- **0.7.0** (2026-11-04) : Parties sur le serveur dans le salon
+- **0.6.0** (2026-11-04) : Jeux externes dans le salon
+- **0.5.0** (2026-11-04) : Salon réutilisable et Asteroid Run
+- **0.4.0** (2026-11-04) : Salon multijoueur
+- **0.3.0** (2026-11-04) : Hub des jeux à plusieurs (serveur01)
+- **0.2.0** (2026-11-01) : Un seul dépôt pour le portail
+- **0.1.0** (2026-11-01) : Premier jet
