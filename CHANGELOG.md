@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.2
+
+- Page `/notes/` : colonne « À venir » quand les données contiennent `upcoming` (utilisée par `roadmap`, absente du portail public).
+
 ## 0.9.1
 
 - **`/releases.json` ne contient que les jeux publics** (prêts et avec une adresse dans `games.json`) ; le fichier complet reste local, servi par l'application `roadmap`.

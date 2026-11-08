@@ -76,3 +76,4 @@ main { flex: 1; min-height: 0; padding: 0 0 env(safe-area-inset-bottom); }
 .tools button.active { border-color: var(--accent); color: var(--accent); }
 .tools button:hover, .tools button:focus-visible { border-color: var(--accent); outline: none; }
 .tools button[hidden] { display: none; }
+.card.soon { border-style: dashed; opacity: .9; }

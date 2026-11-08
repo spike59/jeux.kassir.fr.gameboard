@@ -1,6 +1,6 @@
 {
   "name": "gameboard",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "Portail jeux.kassir.fr : menu 3D des jeux, jeux statiques, et service des meilleurs scores (les jeux y envoient leurs scores, le menu lit les tops)",
   "private": true,
   "type": "module",

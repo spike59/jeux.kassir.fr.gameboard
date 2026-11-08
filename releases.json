@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T23:38:52.156Z",
+ "generatedAt": "2026-11-08T23:40:03.903Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -92,6 +92,12 @@
      "date": "2026-11-08",
      "title": "Notes de version : jeux publics seulement",
      "body": "- `/releases.json` est filtré : seuls les jeux publics (prêts et avec une adresse dans `games.json`) y figurent ; les outils et dépôts internes restent hors du portail public.\n- La page `/notes/` est le même affichage que celui de l'application `roadmap` (locale, tous les projets) ; son filtre propose « Les jeux » quand les données contiennent aussi des outils."
+    },
+    {
+     "version": "0.9.2",
+     "date": "2026-11-09",
+     "title": "Page des notes : colonne À venir",
+     "body": "- La page `/notes/` sait afficher une colonne **À venir** (prochaine version de chaque projet) quand les données la fournissent. Le portail public ne la reçoit pas (son `releases.json` n'a pas de versions à venir) ; l'application `roadmap`, locale, l'affiche avec le même code."
     }
    ]
   },
@@ -718,6 +724,12 @@
      "date": "2026-11-08",
      "title": "La frise du portail, sur tous les projets",
      "body": "- La page est maintenant **celle de `gameboard`** (`/notes/`, frise du temps, zoom, lecteur de notes) servie telle quelle depuis `apps/gameboard/site/notes` : un seul affichage pour les deux. L'ancienne fresque en pastilles est retirée.\n- Elle montre **tous les projets**, avec les boutons « Tout », « Aucun » et « Les jeux » dans le filtre.\n- `gameboard` ne publie plus que les jeux publics (filtre fait côté portail, version 0.9.1)."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-09",
+     "title": "Les versions à venir sur la frise",
+     "body": "- La frise montre, après le dernier jour, une colonne **À venir** : la prochaine version de chaque projet (lue dans son `concept/roadmap.md`), en carte pointillée ; un clic affiche ses points.\n- Seulement en local : le `releases.json` publié pour le portail (`POST /api/publish`) ne contient jamais les versions à venir, et le portail public ne les montre pas."
     }
    ]
   },

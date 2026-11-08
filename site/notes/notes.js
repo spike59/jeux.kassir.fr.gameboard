@@ -45,7 +45,7 @@ const fmtDate = (d) => new Date(`${d}T12:00:00`).toLocaleDateString('fr-FR', { d
 const byVersion = (a, b) => a.date.localeCompare(b.date) || a.version.localeCompare(b.version, undefined, { numeric: true });
 
 function open(project, rel, color) {
-  document.querySelector('#reader-meta').textContent = `${project.icon} ${project.title} · ${fmtDate(rel.date)}`;
+  document.querySelector('#reader-meta').textContent = `${project.icon} ${project.title} · ${rel.date ? fmtDate(rel.date) : 'prochaine version'}`;
   document.querySelector('#reader-title').textContent = `v${rel.version}${rel.title ? ` — ${rel.title}` : ''}`;
   document.querySelector('#reader-body').replaceChildren(markdown(rel.body));
   document.querySelector('.sheet').style.borderTop = `3px solid ${color}`;
@@ -125,6 +125,31 @@ function build() {
     }
     grid.append(column);
   });
+
+  // À venir : seulement si les données le fournissent (application roadmap, locale ; jamais le portail public).
+  // Une colonne après le dernier jour, une carte par projet : sa prochaine version et ses points.
+  const soon = projects.filter((p) => p.upcoming && !hidden.has(p.code));
+  if (soon.length) {
+    const n = days.length + 1;
+    grid.style.gridTemplateColumns += ' var(--col)';
+    const label = h('div', { className: 'month first', textContent: 'À venir' });
+    label.style.gridArea = `1 / ${n} / 2 / ${n + 1}`;
+    const head = h('div', { className: 'day busy first', textContent: '→' });
+    head.style.gridArea = `2 / ${n}`;
+    const column = h('div', { className: `slot first${soon.length >= PACK_FROM ? ' packed' : ''}` });
+    column.style.gridArea = `3 / ${n}`;
+    for (const p of soon) {
+      const c = color.get(p.code);
+      const next = { version: p.upcoming.version, date: '', title: p.upcoming.title, body: p.upcoming.items.map((i) => `- ${i}`).join('\n') };
+      const card = h('button', { type: 'button', className: 'card soon', title: `${p.title} v${next.version} (prochaine)${next.title ? ` — ${next.title}` : ''}` },
+        h('span', { className: 'v' }, h('span', { className: 'ico', textContent: p.icon }), ` v${next.version}`, h('span', { className: 'who', textContent: p.title })),
+        h('span', { className: 't', textContent: next.title || 'Voir les points' }));
+      card.style.setProperty('--c', c);
+      card.addEventListener('click', () => open(p, next, c));
+      column.append(card);
+    }
+    grid.append(label, head, column);
+  }
 
   const keepLeft = fresco.scrollLeft;
   const keepTop = fresco.scrollTop;

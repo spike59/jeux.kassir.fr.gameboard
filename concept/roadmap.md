@@ -1,6 +1,6 @@
 # Roadmap : gameboard
 
-Instantané du 2026-11-08. Version courante : 0.9.1 (portail, menu 3D, scores, état public du parc, notes de version des jeux publics).
+Instantané du 2026-11-08. Version courante : 0.9.2 (portail, menu 3D, scores, état public du parc, notes de version des jeux publics).
 
 ## 0.10.0 (prochaine)
 - gameboard-002 : scores vérifiés par le serveur ; gameboard-003 : limite sur les échecs d'authentification
@@ -16,6 +16,7 @@ Instantané du 2026-11-08. Version courante : 0.9.1 (portail, menu 3D, scores, �
 - —
 
 ## Versions passées
+- **0.9.2** (2026-11-09) : page des notes : colonne À venir
 - **0.9.1** (2026-11-08) : notes de version : jeux publics seulement
 
 Une ligne par version publiée (détail : `concept/releases/<version>.md`).
