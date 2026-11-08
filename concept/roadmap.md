@@ -17,7 +17,7 @@ Instantané du 2026-11-08. Version courante : 0.9.0 (portail, menu 3D, scores, �
 
 ## Versions passées
 
-Une ligne par version publiée (détail : `concept/release/<version>.md`).
+Une ligne par version publiée (détail : `concept/releases/<version>.md`).
 
 - **0.9.0** (2026-11-04) : État public du parc
 - **0.8.0** (2026-11-04) : Notes de mise à jour : la frise du temps

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-04T19:19:50.655Z",
+ "generatedAt": "2026-11-08T17:27:25.123Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -18,6 +18,12 @@
      "date": "2026-11-01",
      "title": "space_hairness et space_run sur le portail",
      "body": "- Dockerfiles, services compose et volumes de sauvegarde des deux jeux\n- `repos.json` : volumes `space_hairness_data` et `space_run_saves`\n- TODO.md : sécurité, sauvegardes reportées, jeux à améliorer"
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-04",
+     "title": "Le parc d'attractions des jeux",
+     "body": "- **Le parc en direct** (`apps/parc`, `/jeux/parc/`) : les jeux racontés comme un parc d'attractions en temps réel ; un joueur qui se connecte entre dans le parc (jeu statique généré par doc_generator, état lu sur `/api/parc/live` de gameboard)\n- **Côté admin** : page `/parc` de secure_doc (processus, mémoire et conteneurs en plus)\n- **Cartes d'exemple** dans Devops : réseaux : le parc (une journée, un grand huit, les coulisses, les types de grand huit)\n- room-kit : `/srv/info` annonce le prénom des joueurs (`names`), copié dans space_run, space_hairness et gemma_run ; car_race 0.24.1 fait de même\n- `repos.json` : `parc` (généré, sans dépôt)"
     }
    ]
   },
@@ -74,6 +80,12 @@
      "date": "2026-11-04",
      "title": "Notes de mise à jour : la frise du temps",
      "body": "- La page des notes devient une **frise du temps** : plus de ligne par jeu, une colonne par jour, avec un trait fin pour chaque jour et un trait épais au premier de chaque mois.\n- Les mises à jour d'un même jour s'**empilent** dans sa colonne ; à partir de 5, elles s'entassent sur une ligne chacune (icône, version, jeu, titre).\n- Un bouton **Jeux** ouvre un filtre : on coche ou décoche chaque jeu (ou Tout / Aucun) ; le choix est retenu et la frise garde les mêmes positions.\n- Les cartes, le zoom, le glissement et la lecture des notes ne changent pas."
+    },
+    {
+     "version": "0.9.0",
+     "date": "2026-11-04",
+     "title": "État public du parc",
+     "body": "- `GET /api/parc/live` (public, sans cache) : pour chaque jeu, ses parties (nom, état, joueurs, prénoms) et les visiteurs du salon ; sert la page « Le parc en direct »\n- Les salles des jeux hébergés par le serveur annoncent le prénom de leurs joueurs (`names`) ; à défaut, le prénom du maître\n- Le jeu « Le parc en direct » (`/jeux/parc/`) dans le catalogue"
     }
    ]
   },
@@ -276,6 +288,12 @@
      "date": "2026-11-04",
      "title": "Un processus par partie du serveur",
      "body": "- Chaque partie hébergée par le serveur tourne dans **son propre processus** (le moteur du jeu sans affichage, jsdom) : une partie qui charge un circuit ou qui rame ne fige plus les autres parties ni le site.\n- Un processus est toujours préparé d'avance (le moteur met 10 à 30 secondes à se charger) : la création d'une partie reste instantanée ; un autre se prépare pour la suivante.\n- Processeur et mémoire de chaque partie disponibles pour le monitor (`/api/server-games/stats`) ; un processus qui ne répond plus est arrêté.\n- Tests : deux parties, deux processus, une partie jouée puis fermée."
+    },
+    {
+     "version": "0.24.1",
+     "date": "2026-11-04",
+     "title": "Prénoms des joueurs dans la liste des parties",
+     "body": "- La liste des salles du relais (`/pvv-net/info`) annonce le prénom des joueurs (`names`), pour la page publique « Le parc en direct »"
     }
    ]
   },
@@ -344,6 +362,12 @@
      "date": "2026-11-04",
      "title": "Course à plusieurs sur le serveur",
      "body": "- Parties hébergées par le serveur : un processus par partie, créées depuis le salon multijoueur (jeux.kassir.fr/multi/) et rejointes avec `?room=`\n- Le premier joueur est le maître : il choisit le circuit, le nombre de tours, avec ou sans rivaux IA, puis lance la course\n- Jusqu'à 8 pilotes sur le même circuit ; le serveur fait tourner la course, le navigateur dessine et prévoit son propre vaisseau\n- Les règles de la course sur circuit (avance, glissement, boost, anneaux de boost, rivaux) sont dans `shared/racer.js`, utilisées par le jeu et par le serveur\n- Le nombre d'anneaux de boost comptés au résultat d'une course seule est désormais celui de tous les tours (il ne comptait que le dernier tour)\n- Tests : règles, courses complètes sur les 3 circuits, et une partie avec de vrais processus"
+    },
+    {
+     "version": "0.11.0",
+     "date": "2026-11-08",
+     "title": "Fusion de main et deploy",
+     "body": "Réunit les deux branches : l'ancienne `main` (services du vaisseau mère) et `deploy` (course à plusieurs sur le serveur, renommage du projet).\n\n- **Services du vaisseau mère** (venu de l'ancienne `main`, qui l'appelait v0.10.0) : badges des services disponibles sur la carte, prochain tier et secteurs restants ; API mise à jour.\n- **Course à plusieurs sur le serveur** (v0.10.0 de `deploy`) et renommage du projet en `space-racing` (`racing-api`, `racing-ui`).\n- `ui/src/styles.css` : les deux blocs de styles sont conservés.\n\n## Limites connues (non validé)\n- Aucun essai dans un navigateur de la version fusionnée (todo `space_hairness-027`).\n- Le `package-lock.json` indique encore la version 0.9.0 (tofix `space_hairness-026`).\n- Deux versions s'appelaient « 0.10.0 » (une sur chaque branche) : la 0.11.0 les réunit."
     }
    ]
   },
@@ -363,13 +387,19 @@
      "version": "1.1.0",
      "date": "2026-11-01",
      "title": "Les Villes",
-     "body": "- Vaisseau généré depuis le blueprint (`gen_game_assets.py` : coque en loft du contour, cockpit et propulseur placés selon le plan)\n- Image Blender 5.2 LTS (1.3.0), historique des tâches dans `logs/tasks.json`, sortie Blender en UTF-8\n- Test E2E : une partie complète jouée par pilote automatique (`npm run test:e2e`)\n- Docs : `commands.md`, todo"
+     "body": "## Nouveautés\n- **Villes et boutiques** : Station Alpha, Abysse de Vapeur et Plateau des Échos vendent des améliorations.\n- **Améliorations Mk II** (prérequis : Mk I) ; les composants améliorés grossissent visiblement sur le vaisseau.\n- **Variantes de biome** : chaque lieu a son relief (parois de canyon, collines, piliers), son brouillard, sa lumière, de l'eau ou un sol vitrifié.\n- **Obstacles modélisés dans Blender** pour les 5 biomes (15 modèles).\n- **Vaisseau généré depuis le blueprint** `concept/blueprints/ship_hull_blueprint.svg`.\n- **Repère de l'anneau suivant** (cadre + distance, flèche au bord de l'écran).\n- **Manette** (Gamepad API) et **musique procédurale** (touche M).\n\n## Technique\n- Bundle UI : 6 Mo → 1,8 Mo (imports Babylon ciblés).\n- Image Blender 1.3.0 sur Blender 5.2.3 LTS (stable), historique des tâches persistant, logs UTF-8.\n\n## Validation\n- `cd api && npm test` : 14 tests\n- `python blender-work/tests/test_api.py` : 6 tests\n- `cd ui && npm run test:e2e` : partie complète (course gagnée, déblocage, achat, aucune erreur navigateur)"
     },
     {
      "version": "1.2.0",
      "date": "2026-11-04",
      "title": "Course à plusieurs sur le serveur",
      "body": "- Parties hébergées par le serveur : un processus par partie, créées depuis le salon multijoueur (jeux.kassir.fr/multi/) et rejointes avec `?room=`\n- Le premier joueur est le maître : il choisit le circuit, les chasseurs de prime et les tirs entre pilotes, puis lance la course ; les autres valident « prêt »\n- Jusqu'à 8 pilotes sur le même circuit ; le serveur fait tourner la course (anneaux, obstacles, chasseurs, classement), le navigateur dessine\n- Prévision du vaisseau côté navigateur avec la même simulation que le serveur (`shared/sim.mjs`), autres vaisseaux interpolés\n- La course seule (hors ligne, avec progression et garage) est inchangée\n- Tests : simulation, courses complètes sur les 10 circuits, et une partie avec de vrais processus (`npm test` dans `api/`)"
+    },
+    {
+     "version": "1.3.0",
+     "date": "2026-11-08",
+     "title": "Fusion de main et deploy",
+     "body": "Réunit les deux branches qui avaient divergé depuis la 1.0.0.\n\n## Venu de la 1.1.0 (ancienne branche main)\n- **Villes et boutiques** : améliorations de niveau 2 vendues dans les villes, avec effet visuel sur le vaisseau.\n- **Variantes de biome** : relief propre à chaque lieu, brouillard, lumière.\n- **Obstacles modélisés dans Blender** pour les 5 biomes (15 modèles) ; vaisseau généré depuis le blueprint.\n- **Repère de l'anneau suivant** (cadre, distance, flèche au bord de l'écran), **manette** (Gamepad API), **musique procédurale**.\n- Image Blender 5.2 LTS, historique des tâches persistant ; test de bout en bout par pilote automatique.\n\n## Venu de la 1.2.0 (ancienne branche deploy)\n- **Course à plusieurs sur le serveur** : un processus par partie, jusqu'à 8 pilotes, simulation partagée (`shared/sim.mjs`), commandes tactiles.\n\n## Technique\n- Interface construite en **un seul fichier JS** (4,3 Mo) pour le proxy ; `ui/src/mp.js` passe par `ui/src/babylon.js` (imports ciblés).\n- `setupScene` reçoit la course (variante de biome) : corrigé après la fusion.\n\n## Limites connues (non validé)\n- Aucun essai dans un navigateur de la version fusionnée ; test de bout en bout non relancé.\n- La course à plusieurs n'a pas encore les nouveautés de la course seule (obstacles Blender, repère, manette, musique, effets des améliorations).\n- Validation : voir les todos `space_run-036` à `041` de la roadmap (1.3.1)."
     }
    ]
   },
@@ -438,6 +468,12 @@
      "date": "2026-11-01",
      "title": "Carte du workflow",
      "body": "- **Carte du workflow** (`/carte`) : carte illustrée, déplaçable et zoomable, avec flux colorés animés, personnages et trois scénarios (nouveau jeu, mise à jour, score). État réel via `GET /api/map`.\n- 12 icônes SVG dans `ui/icons/`."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-04",
+     "title": "Le parc en direct (administration)",
+     "body": "- Nouvelle page **Le parc en direct** (`/parc`) : le parc d'attractions des jeux en temps réel, côté administration (visiteurs avec leur prénom, trains = parties, et pour chaque partie son processus, sa mémoire et son processeur, l'état des conteneurs)\n- `GET /api/parc-admin` : l'état public de gameboard (`/api/parc/live`) plus les mesures des parties (`/api/server-games/stats`, avec la clé `SERVER_GAME_KEY` lue dans `infra/.env`, qui ne quitte jamais la machine)\n- Carte du workflow v2 (`/carte-v2`) générée par doc_generator, à côté de la v1"
     }
    ]
   },
@@ -476,6 +512,12 @@
      "date": "2026-11-04",
      "title": "Parties du serveur : les quatre jeux, un processus par partie",
      "body": "- Le test « Parties du serveur » existe maintenant pour **Police vs voleurs, Space Run, Space Racing et Gemma Run** : de vraies parties de test sont créées par l'API du jeu, avec des joueurs simulés qui rejoignent, valident, lancent et conduisent\n- Chaque partie du serveur est un **processus** : le test relève le **processeur** (part d'un cœur) et la **mémoire** du processus d'une partie (colonne ajoutée), en plus de l'écart entre états reçus, du processeur de la machine et du conteneur\n- Les joueurs simulés parlent le protocole propre à chaque jeu (relais de Police vs voleurs, noyau de parties pour les trois autres)"
+    },
+    {
+     "version": "0.6.0",
+     "date": "2026-11-05",
+     "title": "La liste des jeux ne vient plus de Secure",
+     "body": "- L'agent lit les conteneurs dans le registre de web_server_admin (`/api/registry`) et les titres / jeux statiques dans game_manager (`/api/games`), plus dans Secure\n- Outils lancés à la demande : arrêtés, l'agent garde la dernière liste connue ; sans game_manager, les titres retombent sur le nom du service\n- Même liste qu'avant (vérifié sur la stack réelle), 3 tests de plus"
     }
    ]
   },
@@ -502,8 +544,142 @@
      "date": "2026-11-01",
      "title": "Le village",
      "body": "- **Le village** : la carte « maison » est remplacée par quatre lieux aux configurations différentes : Paul (maison simple : une box, deux téléphones, un chien), Greg et Aya (famille de 5 : prof, youtubeuse, console, télé avec contrôle parental), Xavier et Julien (colocation d'ingénieurs : objets connectés, serveur perso, VPN), la boulangerie (réseau du magasin et Wi-Fi invité). Dix animations, dont 8 nouvelles.\n- **Résolution DNS réaliste** : la question part de l'appareil vers la box (port 53, résolveur donné par le DHCP), puis la box la relaie à un relais DNS mondial qui répond avec l'adresse IP (cartes Paul et Internet).\n- Catalogue : icônes télévision, console, caméra et objet connecté (34 en tout), 5 services (contrôle parental, streaming, MQTT, Wi-Fi invité, envoi de fichiers), 3 calques types, 9 personnages (dont un chien), accessoire caméra.\n- Vue d'accueil : marge à droite pour la légende des flux."
+    },
+    {
+     "version": "0.4.0",
+     "date": "2026-11-04",
+     "title": "Le parc d'attractions : nuit, files, trains, état en direct",
+     "body": "- **Jour et nuit** : action `ambiance`, lampadaires (`scene.lamps`) et halos de zones (`zone.light`) qui s'allument la nuit, `meta.ambiance.start: \"clock\"` pour suivre l'heure de l'appareil ; zones sous ou hors tension (`power`)\n- **Files d'attente** (`scene.queues`, actions `queue`) et **trains sur des rails** (flux `rail: true`, action `train`, styles dans `catalog/trains.json`) avec des passagers assis\n- **Docs qui en prolongent une autre** (`extends` dans meta.json) : décor commun, animations propres à chaque carte ; l'adaptateur `adapter.js` peut aussi venir de la doc prolongée\n- **Adaptateur en direct** : `start(d)` pilote la carte à partir d'un état lu régulièrement (étiquettes de prénom `d.nameTag`) ; une appli peut n'avoir qu'une carte (`start` dans la collection)\n- Formes de décor « sous les routes » (`under`) ; 12 icônes (grands huit, carrousel, centrale, portique, coffre-fort, camion, atelier, tour, grue, panneau « complet »)\n- Docs du parc : `parc_base` (décor), `parc_jour`, `parc_attraction`, `parc_coulisses`, `parc_types` (18 animations, dans l'appli devops_reseau), `parc_live` (public) et `parc_admin` (secure_doc)"
     }
    ]
+  },
+  {
+   "code": "web_server_admin",
+   "kind": "tool",
+   "title": "web_server_admin",
+   "icon": "📦",
+   "releases": []
+  },
+  {
+   "code": "game_manager",
+   "kind": "tool",
+   "title": "game_manager",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-05",
+     "title": "Gestion des jeux",
+     "body": "Première version : la gestion des jeux sort de `secure`.\n\n- Liste des jeux (devops/repos.json + catalogue du portail) : version, état git, retard sur le dépôt distant, notes de version à venir, état du conteneur\n- Version d'un jeu : dernière note de version, sinon package.json, sinon 0.1.0 ; bouton pour aligner package.json sur les notes\n- Vérifier (git fetch), mettre à jour (avance rapide uniquement), déployer, republier un jeu statique, revenir à la version précédente\n- Déploiement par l'API de web_server_admin (image kassir.fr/<jeu>:<version>) : game_manager ne lance jamais Docker\n- Jeux visibles ou « bientôt » sur le portail\n- Page web locale (127.0.0.1:4321), une action à la fois (file d'attente), journal en direct"
+    }
+   ]
+  },
+  {
+   "code": "game_server",
+   "kind": "tool",
+   "title": "game_server",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-05",
+     "title": "Noyau de parties rapatrié",
+     "body": "- Noyau des parties du serveur repris de `devops/room-kit` : salle, maître, un processus par partie, protocole WebSocket, client navigateur\n- `sync.mjs` copie le noyau dans Space Run, Space Racing et Gemma Run\n- 13 tests (jeu factice, vrais processus)"
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-05",
+     "title": "Image Docker instanciable",
+     "body": "- Une image par jeu (`kassir.fr/game_server_<jeu>:<version>`) : le noyau de parties plus la simulation du jeu, fournie à la construction\n- Essayée de bout en bout pour Space Run, Space Racing et Gemma Run : partie créée, joueur en WebSocket, refus sans clé, conteneur durci (lecture seule, aucune capacité)\n- `scripts/test-image.mjs` rejoue l'essai ; `compose.example.yml` décrit l'instance dans la stack (pas encore branchée)"
+    }
+   ]
+  },
+  {
+   "code": "odysseus",
+   "kind": "tool",
+   "title": "odysseus",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-05",
+     "title": "Le tableau de bord",
+     "body": "Première version : le lanceur local du serveur.\n\n- Tableau de bord (127.0.0.1:4323) : une carte par service, barre d'applications de la stack locale\n- Installer (git clone de `devops/repos.json` + `npm ci`), démarrer, arrêter les processus Node ; journaux dans `data/logs/`\n- Conteneurs observés (`docker ps`), jamais lancés : web_server_admin reste seul à exécuter `docker compose`\n- Protections : 127.0.0.1, `Host` et `Origin` contrôlés, actions en JSON, CSP stricte\n- `scripts/start.sh` et `scripts/stop.sh` ; groupe d'icônes « Odysseus » sur le bureau (`devops/raccourcis.ps1`)"
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-06",
+     "title": "Trois thèmes : admin, animation 2D, mode 3D",
+     "body": "- **Sélecteur de thème** (mémorisé, ou `?theme=` dans l'adresse) : trois vues, **mêmes actions, même API**\n- **admin** (défaut) : les cartes, comme avant\n- **animation 2D** : une coupe du vaisseau en canvas (salles, consoles par service, étoiles, moteurs, impulsions de données), panneau de détail avec les mêmes boutons\n- **mode 3D** : structure de vaisseau en Babylon.js, déplacement FPS, un écran par service avec ses boutons (visée au centre ou au pointeur), plafonniers à la couleur de la salle, Shyrka dans la salle de contrôle\n- **Shyrka** au milieu de la barre d'application, dans les trois thèmes (couleur = état général)\n- Chaque service a une **salle** (`data/services.json`) ; `/api/services` renvoie aussi le résumé en une seule passe\n- `GET /vendor/babylon.js` (copie d'une app, en attendant la brique d'assets 3D), CSP ajustée pour les textures, icône de page\n- Arrêt d'un service par `netstat` (rapide, indépendant de la langue de Windows) au lieu de PowerShell : corrige un « n'est pas lancé » à tort quand la machine était chargée\n- 9 tests"
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-06",
+     "title": "L'œil qui s'ouvre",
+     "body": "- **Écran de démarrage** : l'œil de l'Odysseus (anneau, sphère centrale, iris vert) s'ouvre **pendant le chargement réel** ; un œil par thème (admin sobre, animation 2D lumineuse, mode 3D en perspective)\n- **Intro complète** à la première visite de la session (clic pour entrer, musique, ouverture) ; **transition courte** quand on change de thème ; `?intro=0` / `?intro=1`, boutons Son et Passer\n- **Progression réelle** : lecture des services, thème, téléchargement de Babylon.js (8,8 Mo, avec `Content-Length`)\n- **Musique** : le fichier de l'utilisateur (`assets/audio/intro.*`, non versionné, joué en boucle avec fondu, passage réglable par `intro.json`), sinon une ambiance sombre originale synthétisée (Web Audio). La musique de la série n'est pas dans le dépôt\n- `GET /api/intro`, `/assets/audio/intro.<ext>` (liste fixe), CSP `media-src`\n- 9 tests\n- **Vaisseau redessiné d'après les images de référence** (`ui/vaisseau.js`) : ellipse en amande, sphère blindée à lentille verte sous huit plaques, quatre moteurs à ailerons, passerelle, acier bleu ; fond bleu nuit ; titre au style du logo\n- **Thème 3D** : le vaisseau tient en entier dans l'image et **s'approche lentement** ; quand l'œil est complètement ouvert, un clic fait **plonger dans la lentille** et arriver dans la salle de contrôle (Entrée ou Espace aussi)"
+    },
+    {
+     "version": "0.4.0",
+     "date": "2026-11-06",
+     "title": "Une base spatiale : la 2D en grand, la 3D extérieure et intérieure",
+     "body": "- **2D refaite** : le vaisseau est une **base spatiale** (environ 1 000 m) dessinée en grand dans un monde qu'on parcourt : molette, glisser, **pincer**, double-clic, boutons +/− et liste « Aller à » (vol animé vers une salle) ; le niveau de détail suit le zoom\n- **Salles autour de l'anneau** : tronçons de l'ellipse répartis entre les quatre moteurs, **salle de contrôle dans la lentille**, **salles libres** en pointillés pour en ajouter beaucoup\n- **3D refaite** : le vaisseau en 3D vu de face (anneau segmenté, sphère à lentille verte et pétales colorés, poutres, quatre moteurs, passerelle), on se promène autour dans l'espace ; noms des salles flottants\n- **Entrer dans le vaisseau** (bouton ou clic sur l'œil) : on plonge dans la lentille et on arrive dans la **salle de contrôle** : dôme de verrière sur l'espace, Shyrka suspendue (module à quatre écrans), consoles en cercle ; les autres salles en couloir\n- **Ouvrir / fermer l'œil** : les volets du dôme se baissent ; le même état pilote la lentille et ses pétales vus de l'extérieur\n- L'écran de démarrage de la 3D mène à la vue extérieure (« Cliquer pour approcher l'Odysseus »)\n- `ui/vaisseau.js` : épaisseur de trait réglable et `geometrie(R)` exportée"
+    },
+    {
+     "version": "0.5.0",
+     "date": "2026-11-07",
+     "title": "Le vaisseau du catalogue : vraies pièces, visite libre, LAN en lecture seule",
+     "body": "- **Client du catalogue 3D** : relais `/api/catalog3d` (liste fixe de routes, dont l'arbre d'une pièce), `scripts/demander.mjs`, services catalog3d (:4324) et pipeline3d (:4325) dans le lanceur\n- **Arbre du catalogue** : le GLB d'une pièce ne contient que ce qui lui est propre ; ses enfants (position, rotation, échelle) sont instanciés dans la vue 3D (`ui/themes/arbre3d.js`, identique à celui de catalog3d). Détail progressif : une sous-pièce ne s'ouvre que lorsque la caméra s'approche, boîte translucide au loin\n- **Échelle de 3 km** (×3,5) : extérieur et limites de caméra adaptés ; option « Extérieur d'origine (décor) » pour cacher l'ancien décor\n- **Neuf lieux en vraies pièces** (passe 1) : iris à 8 lamelles, salle de contrôle, salle des machines, salle des compagnons, hangar, quatre tubes de transit, plus leurs sous-pièces ; plans SVG et nomenclature\n- **Couche Prototypes** : les pièces sont chargées par arbre ; le cube « prévu » n'existe que dans l'affichage, jamais côté catalogue\n- **Visite libre** : vol dans tout le vaisseau (ZQSD, Espace/E, C/X, molette pour la vitesse, Maj ×6), liste « Aller à » qui téléporte à chaque lieu\n- **Accès LAN en lecture seule** (`ODY_LAN=<adresses IPv4>`, `api/lan.js`) : le serveur écoute le réseau mais ne répond qu'aux adresses listées, en GET seulement ; le contrôle de Host est conservé ; les actions restent réservées à la machine locale. 2 tests de plus (11 au total dans `odysseus.test.mjs`)\n- **Workers 3D distants** : page `/worker` (robot) pour mettre une machine du LAN a disposition ; demande d'acces puis clic de l'admin sur `/acces` (1 h, 24 h, 1 mois, 1 an), jeton a empreinte, revocation ; tests de vitesse et captures de validation ; **trois moteurs comparables** (Babylon.js, Three.js, Babylon Lite en WebGPU) ; `scripts/start-lan.ps1` ; `ODY_WORKERS=lan`\n- **HTTPS** (`ODY_TLS=1`, port 4443, `node scripts/make-cert.mjs`) : contexte sécurisé, indispensable à WebGPU et donc à Babylon Lite ; une autorisation par **machine et par système** (double démarrage) ; tests ciblés « chaque worker connecté » pour comparer les moteurs machine par machine ; pause, reprise et arrêt des workers depuis `/acces` ; reprise automatique de la session après rechargement ; la page worker se recharge seule quand son code change\n- **Campagnes et vignettes** : le même travail pour beaucoup de pièces, réparti sur les workers (la machine la plus puissante en fait le plus) ; vignettes multi-vues (iso, face, dessus) avec mesure de remplissage et verdict ; progression, durée restante, annulation et galerie dans `/acces` ; essai réel sur 11 pièces de l'iris en quelques secondes sur le PC, le portable et un téléphone\n- Notes de concept : classes d'accès A à G, plan d'Odysseus remote (0.6.0), worker en robot"
+    }
+   ]
+  },
+  {
+   "code": "catalog3d",
+   "kind": "tool",
+   "title": "catalog3d",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.2.0",
+     "date": "2026-11-07",
+     "title": "L'arbre des pièces",
+     "body": "- **Arbre** : `GET /api/demandes/<ref>/arbre` renvoie la racine et, pour chaque pièce, son GLB propre (URL à empreinte, cache immuable), sa boîte englobante et ses enfants (`m`, `t`) ; cycle refusé (409) ; le GLB est de la même version que l'`arbre.json`\n- **Visionneuse** : le GLB d'une pièce s'affiche par son arbre (`ui/arbre.js`, détail progressif), avec les informations de l'arbre\n- Cache de l'arbre (5 s) et des empreintes, limite de dépôt portée à 512 Mo\n- Une demande peut repasser à `demandee` (« À refaire ») ; validation automatique par défaut\n- 13 tests (API et workers)\n- **Workers distants** : registre (`/api/workers`, battement), file de tâches (`/api/taches` : test de vitesse, capture de validation), bail (une tâche d'un worker silencieux revient dans la file), routage par moteur (babylon, three, lite=WebGPU), dépôt d'image PNG\n- **Campagnes** (`/api/campagnes`) et tâches `vignette` (vues iso, face, dessus, côté ; `vignette_<vue>.png` ; verdicts ok, suspect, vide, incomplet)\n- Bibliothèques `three` et `@babylonjs/lite` pour les workers (npm)\n- À venir : registre des workers et bail des travaux (`concept/ideas/workers-distants.md`)"
+    }
+   ]
+  },
+  {
+   "code": "pipeline3d",
+   "kind": "tool",
+   "title": "pipeline3d",
+   "icon": "📦",
+   "releases": [
+    {
+     "version": "0.2.0",
+     "date": "2026-11-07",
+     "title": "Pièces propres, arbre et page d'état",
+     "body": "- **Page d'état** sur :4325 (`/`, `/api/etat`) : travaux traités, échecs, travail en cours, historique\n- **`arbre.json`** par pièce (références, instances, boîte englobante) : le GLB ne contient que la géométrie propre de la pièce\n- **Cylindres creux** (`tube`) dans l'export GLB maison\n- Une référence absente du catalogue renvoie un message clair ; une pièce sans solide propre est marquée `vide`\n- Plus de cubes côté catalogue (l'étape `planBoite` est supprimée)\n- Option `--tout` : prend aussi les demandes manuelles\n- À venir : worker navigateur et registre côté catalog3d ; étape Blender (`TODO.md` à la racine)"
+    }
+   ]
+  },
+  {
+   "code": "recalage3d",
+   "kind": "tool",
+   "title": "recalage3d",
+   "icon": "📦",
+   "releases": []
+  },
+  {
+   "code": "game_installer",
+   "kind": "tool",
+   "title": "game_installer",
+   "icon": "📦",
+   "releases": []
+  },
+  {
+   "code": "todos",
+   "kind": "tool",
+   "title": "todos",
+   "icon": "📦",
+   "releases": []
   },
   {
    "code": "devops_reseau",
@@ -516,6 +692,26 @@
      "date": "2026-11-02",
      "title": "Le village",
      "body": "- Doc animée d'un réseau de maison (DNS, box, pare-feu) : 6 lieux, 14 animations, générée par doc_generator\n- Jeu statique sans serveur, publié sur `/jeux/devops_reseau/`"
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-04",
+     "title": "Le parc d'attractions",
+     "body": "- Quatre nouvelles cartes : **le parc : une journée** (ouverture, fermeture, sauvegardes, coupure de courant), **un grand huit** (rejoindre, créer, départ, parc complet, chef de file, contrôle du billet, triche impossible, wagon fantôme), **les coulisses** (train bloqué, panne, reconstruction, mise à jour, nouveau jeu), **les types de grand huit**\n- Un serveur de jeux raconté comme un parc : le serveur est le parc, un jeu une attraction, une partie un train, le salon la file d'attente\n- Nuit et jour, lampadaires qui s'allument ; nouvelles icônes (grands huit, centrale, coffre-fort…), files d'attente et trains dans le moteur"
+    }
+   ]
+  },
+  {
+   "code": "parc",
+   "kind": "game-static",
+   "title": "Le parc en direct",
+   "icon": "🎡",
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-04",
+     "title": "Le parc en direct",
+     "body": "- Le parc d'attractions des jeux, en temps réel : chaque jeu est une attraction, chaque partie un train, la file d'attente est le salon de la partie\n- Un joueur qui se connecte entre par le portique, patiente dans la file, monte dans le train quand la partie démarre et repart quand il quitte\n- Nuit et jour selon l'heure de l'appareil, lampadaires qui s'allument la nuit\n- Jeu statique : l'état est lu toutes les 3 s sur `/api/parc/live` (gameboard)"
     }
    ]
   }
