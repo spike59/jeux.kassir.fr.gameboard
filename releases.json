@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T22:15:56.412Z",
+ "generatedAt": "2026-11-08T22:41:19.376Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -731,6 +731,12 @@
      "date": "2026-11-08",
      "title": "Tout démarrer, tout arrêter, tout redémarrer",
      "body": "- Trois boutons dans la page : **Tout démarrer**, **Tout arrêter**, **Tout redémarrer** (confirmation avant d'arrêter). Ils agissent sur les outils locaux du catalogue, jamais sur le lanceur lui-même ni sur les conteneurs Docker.\n- L'arrêt ferme le processus qui écoute sur le port du service (netstat + taskkill, Windows)."
+    },
+    {
+     "version": "0.2.1",
+     "date": "2026-11-08",
+     "title": "État des conteneurs",
+     "body": "- Les cartes des conteneurs (jeux, portail, proxy, accueil, monitor) montrent leur **état réel** lu auprès de Docker (`docker ps`, lecture seule) : point vert en marche, orange en mauvaise santé, rouge arrêté ou absent, avec le texte de Docker (« Up 5 hours (healthy) »). Avant, ils restaient sans état (point gris) parce qu'ils n'ont pas de port local."
     }
    ]
   },
