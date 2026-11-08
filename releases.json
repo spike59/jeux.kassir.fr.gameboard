@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-08T17:27:25.123Z",
+ "generatedAt": "2026-11-08T18:09:13.487Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -665,7 +665,14 @@
    "kind": "tool",
    "title": "recalage3d",
    "icon": "📦",
-   "releases": []
+   "releases": [
+    {
+     "version": "0.1.0",
+     "date": "2026-11-07",
+     "title": "Recalage d'un modèle 3D sur des images de référence",
+     "body": "Première version de la brique (port 4327, `studiograines.recalage3d`).\n\n- **Algorithme de recalage** : départs multiples, Levenberg-Marquardt, RANSAC, distorsion radiale `k1`, validé sur données synthétiques.\n- **Journal en ajout seul** : commentaires et étapes conservés ; une image sans commentaire est refusée.\n- **API et 13 tests.**\n- **Page de validation** (`http://127.0.0.1:4327/`) : commentaire obligatoire en tête, barre fixe « Valide X / N » avec moyennes forme / matériaux / détail / couleurs, grande vue avec zoom par zone et quatre curseurs de 0 à 100 %.\n- Dépôt privé `spike59/studiograines.recalage3d` créé le 2026-11-08."
+    }
+   ]
   },
   {
    "code": "game_installer",
