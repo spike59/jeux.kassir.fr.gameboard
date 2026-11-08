@@ -9,7 +9,7 @@ Instantané du 2026-11-08. Version courante : 0.9.0 (portail, menu 3D, scores, �
 - Régler `releases.json` : fichier régénéré par `devops/collect-releases.mjs`, aujourd'hui modifié et non commité (le commiter à chaque version ou l'ignorer).
 
 ## next
-- **Base de l'API des joueurs principale** (la meilleure base d'après le `TODO.md` du principal).
+- **Base de l'API des joueurs principale** (la meilleure base d'après le `concept/ideas/todo-historique.md` du principal).
 - Clés d'API des jeux enfin utilisées pour les scores.
 - Page `/notes/` : reconstruire après chaque nouvelle note de version.
 
