@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-09T02:12:51.349Z",
+ "generatedAt": "2026-11-09T02:23:34.993Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -790,6 +790,12 @@
      "date": "2026-11-09",
      "title": "Premier client de karts",
      "body": "- **Jouable à 8** contre le serveur `speedy_gonzales` : **file d'attente** avant une course, compte à rebours, 3 tours, résultats ; **jeu libre** dans un hangar d'obstacles ; **circuit** tracé dans le même hangar.\n- **Vue 3D** low poly (caméra de poursuite) ou **vue 2D** de dessus comme Micro Machines (même scène, case à cocher).\n- **Commandes** : joystick à gauche, pédales d'accélérateur et de frein à droite (en oblique), clavier, manette.\n- **Interface** : circuit complet en haut à gauche, options en haut à droite, **ping** au milieu en bas, option **debug** (boîtes de collision).\n- **Prédiction** du kart du joueur (recalage sur le serveur, erreur résorbée en glissant) ; interpolation des autres karts ; 6 tests.\n- Jeu statique (`game.json`), entrée `games.json` « bientôt » tant que le serveur n'est pas en ligne."
+    },
+    {
+     "version": "0.1.1",
+     "date": "2026-11-09",
+     "title": "Mouvement lissé",
+     "body": "- **Son propre kart** : l'affichage glisse entre l'état d'avant et d'après le dernier tick au lieu d'avancer à la cadence des ticks (30 Hz), qui paraissait saccadée sur un écran à 60 Hz ou plus.\n- **Les autres karts** : les instantanés sont datés par le numéro de tick du serveur (régulier) et non par leur heure d'arrivée (irrégulière) ; l'horloge se cale sur les arrivées les plus rapides.\n- Un instantané en retard prolonge le kart pendant 120 ms au plus (vitesse et cap connus) au lieu de le figer.\n- 3 tests de plus (9 au total)."
     }
    ]
   },
