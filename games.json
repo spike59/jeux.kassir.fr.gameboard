@@ -11,7 +11,7 @@
     "online": [{ "board": "asteroid_run", "title": "Meilleurs pilotes", "icon": "🚀" }, { "board": "asteroid_run_multi", "title": "Asteroid Run à plusieurs", "icon": "👥" }] },
   { "id": "devops_reseau", "title": "Devops : réseaux", "icon": "🌐", "color": "#3d8bff", "url": "/jeux/devops_reseau/", "ready": true, "scores": false },
   { "id": "parc", "title": "Le parc en direct", "icon": "🎡", "color": "#e5586f", "url": "/jeux/parc/", "ready": true, "scores": false },
-  { "id": "kart_demo", "title": "Kart Demo", "icon": "🏎️", "color": "#e63946", "url": "/jeux/kart_demo/", "ready": false },
+  { "id": "kart_demo", "title": "Kart Demo", "icon": "🏎️", "color": "#e63946", "url": "/jeux/kart_demo/", "ready": true, "scores": false },
   { "id": "memory", "title": "Memory", "icon": "🃏", "color": "#e6582f", "ready": false },
   { "id": "taupe", "title": "Tape-taupe", "icon": "🔨", "color": "#3aa65b", "ready": false },
   { "id": "labyrinthe", "title": "Labyrinthe", "icon": "🌀", "color": "#8a4fd6", "ready": false },
