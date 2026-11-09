@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-09T02:23:34.993Z",
+ "generatedAt": "2026-11-09T23:29:32.844Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -766,30 +766,30 @@
    ]
   },
   {
-   "code": "speedy_gonzales",
+   "code": "swordfish",
    "kind": "game-server",
-   "title": "speedy_gonzales",
+   "title": "swordfish",
    "icon": "📦",
    "releases": [
     {
      "version": "0.1.0",
      "date": "2026-11-09",
      "title": "Serveur de karts, prédiction, API de réglage",
-     "body": "- **Serveur de jeu temps réel en Node** (HTTP + WebSocket), simulation à pas fixe réglable (5 à 120 Hz).\n- **Prédiction** : le code de la physique et de la carte est partagé avec le client ; le serveur acquitte les entrées, le client se recale et rejoue. Activable ou désactivable dans les réglages.\n- **Collisions** par rectangles orientés (SAT) : kart contre décor (prédit) et kart contre kart (serveur) ; la boîte n'est jamais envoyée, elle se recalcule.\n- **Salles** : jeu libre (toujours ouvert) et courses (file d'attente, compte à rebours, tours, résultats), 8 joueurs.\n- **Le hangar** : une zone d'obstacles et un circuit à points de passage.\n- **API de réglage** locale et web (jeton) : `/api/config`, `/api/state`, `/api/rooms`, `/api/health` ; **vue serveur 2D** (`/admin`).\n- Image Docker et service `speedy_gonzales` dans la stack (pas encore déployé) ; 26 tests."
+     "body": "- **Serveur de jeu temps réel en Node** (HTTP + WebSocket), simulation à pas fixe réglable (5 à 120 Hz).\n- **Prédiction** : le code de la physique et de la carte est partagé avec le client ; le serveur acquitte les entrées, le client se recale et rejoue. Activable ou désactivable dans les réglages.\n- **Collisions** par rectangles orientés (SAT) : kart contre décor (prédit) et kart contre kart (serveur) ; la boîte n'est jamais envoyée, elle se recalcule.\n- **Salles** : jeu libre (toujours ouvert) et courses (file d'attente, compte à rebours, tours, résultats), 8 joueurs.\n- **Le hangar** : une zone d'obstacles et un circuit à points de passage.\n- **API de réglage** locale et web (jeton) : `/api/config`, `/api/state`, `/api/rooms`, `/api/health` ; **vue serveur 2D** (`/admin`).\n- Image Docker et service `swordfish` dans la stack (pas encore déployé) ; 26 tests."
     }
    ]
   },
   {
-   "code": "kart_demo",
+   "code": "lili-kart",
    "kind": "game-static",
-   "title": "Kart Demo",
+   "title": "Lili Kart",
    "icon": "🏎️",
    "releases": [
     {
      "version": "0.1.0",
      "date": "2026-11-09",
      "title": "Premier client de karts",
-     "body": "- **Jouable à 8** contre le serveur `speedy_gonzales` : **file d'attente** avant une course, compte à rebours, 3 tours, résultats ; **jeu libre** dans un hangar d'obstacles ; **circuit** tracé dans le même hangar.\n- **Vue 3D** low poly (caméra de poursuite) ou **vue 2D** de dessus comme Micro Machines (même scène, case à cocher).\n- **Commandes** : joystick à gauche, pédales d'accélérateur et de frein à droite (en oblique), clavier, manette.\n- **Interface** : circuit complet en haut à gauche, options en haut à droite, **ping** au milieu en bas, option **debug** (boîtes de collision).\n- **Prédiction** du kart du joueur (recalage sur le serveur, erreur résorbée en glissant) ; interpolation des autres karts ; 6 tests.\n- Jeu statique (`game.json`), entrée `games.json` « bientôt » tant que le serveur n'est pas en ligne."
+     "body": "- **Jouable à 8** contre le serveur `swordfish` : **file d'attente** avant une course, compte à rebours, 3 tours, résultats ; **jeu libre** dans un hangar d'obstacles ; **circuit** tracé dans le même hangar.\n- **Vue 3D** low poly (caméra de poursuite) ou **vue 2D** de dessus comme Micro Machines (même scène, case à cocher).\n- **Commandes** : joystick à gauche, pédales d'accélérateur et de frein à droite (en oblique), clavier, manette.\n- **Interface** : circuit complet en haut à gauche, options en haut à droite, **ping** au milieu en bas, option **debug** (boîtes de collision).\n- **Prédiction** du kart du joueur (recalage sur le serveur, erreur résorbée en glissant) ; interpolation des autres karts ; 6 tests.\n- Jeu statique (`game.json`), entrée `games.json` « bientôt » tant que le serveur n'est pas en ligne."
     },
     {
      "version": "0.1.1",
