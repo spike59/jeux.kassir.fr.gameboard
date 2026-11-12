@@ -3,9 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseKeys } from './app.js';
 import { createPortal } from './portal.js';
-import { createHub } from './hub/hub.js';
-import { bulles } from './hub/bulles.js';
-import { asteroid_run } from './hub/asteroid_run.js';
+import { createRemoteHub } from './remote-hub.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT || 3000);
@@ -26,37 +24,8 @@ const CATALOG = process.env.CATALOG || join(ROOT, 'games.json');
 const RELEASES = process.env.RELEASES || join(ROOT, 'releases.json');
 
 const keys = parseKeys(process.env.GAMEBOARD_KEYS);
-// serveur01 : le salon des jeux à plusieurs (chat, salles, parties) ; un module par jeu
-// Jeux dont le serveur de parties est dans un autre conteneur : le hub lit leurs salles (adresse interne, réseau Docker)
-const external = [];
-if (process.env.HUB_CAR_RACE_INFO) {
-  external.push({
-    id: 'car_race', title: 'Police vs voleurs', min: 2, max: 8, infoUrl: process.env.HUB_CAR_RACE_INFO,
-    joinUrl: (room) => `/jeux/car_race/?mobile&room=${room}`, createUrl: '/jeux/car_race/?mobile&create=1',
-    // parties hébergées par le serveur du jeu (désactivé tant que la clé partagée n'est pas là)
-    host: process.env.HUB_CAR_RACE_HOST && process.env.SERVER_GAME_KEY
-      ? { url: process.env.HUB_CAR_RACE_HOST, key: process.env.SERVER_GAME_KEY, modes: [{ id: 'police', label: '🚓 Police vs voleurs' }, { id: 'race', label: '🏁 Course' }] }
-      : null,
-  });
-}
-// Jeux de course dont le serveur fait tourner les parties (un processus par partie, noyau devops/room-kit) : leurs salles sont lues
-// sur leur serveur, qui les crée avec la clé partagée ; on les rejoint avec ?room=<partie> (pas de partie entre joueurs : createUrl nul)
-for (const g of [
-  { id: 'space_run', title: 'Space Run', min: 1, max: 8, modes: [{ id: 'race', label: '🚀 Course' }] },
-  { id: 'space_hairness', title: 'Space Racing', min: 1, max: 8, modes: [{ id: 'circuit', label: '🏁 Course sur circuit' }] },
-  { id: 'gemma_run', title: 'Gemma Run', min: 1, max: 8, modes: [{ id: 'circuit', label: '🏁 Circuit' }, { id: 'escape', label: '🚔 Évasion' }] },
-]) {
-  const info = process.env[`HUB_${g.id.toUpperCase()}_INFO`];
-  const host = process.env[`HUB_${g.id.toUpperCase()}_HOST`];
-  if (!info) continue;
-  external.push({
-    id: g.id, title: g.title, min: g.min, max: g.max, infoUrl: info,
-    joinUrl: (room) => `/jeux/${g.id}/?room=${room}`, createUrl: null,
-    host: host && process.env.SERVER_GAME_KEY ? { url: host, key: process.env.SERVER_GAME_KEY, modes: g.modes } : null,
-  });
-}
-const hub = createHub({ external, modules: [bulles, asteroid_run], publicOrigin: `https://${PUBLIC_HOST}`, serverId: 'serveur01', serverName: 'Serveur 01' });
+// Le hub (salon, salles, jeux à plusieurs) vit dans swordfish : ici seulement la lecture du realm et du parc (chantier multijoueur-normalise)
+const hub = createRemoteHub({ baseUrl: process.env.SWORDFISH_URL ?? '' });
 const portal = createPortal({ hub, publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 
 const server = portal.listen(PORT, HOST, () => console.log(`gameboard sur http://${HOST}:${PORT} (https://${PUBLIC_HOST}) — ${keys.size} jeu(x) avec clé`));
-hub.attach(server);

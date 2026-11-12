@@ -8,6 +8,9 @@ Instantané du 2026-11-08. Version courante : 0.9.2 (portail, menu 3D, scores, �
 - gameboard-005 : classements des jeux avec serveur (`space_hairness-023` pour Space Racing)
 
 ## next
+- gameboard-008 : consentement et collecte d analyse (chantier serveur-de-dev)
+- ~~gameboard-007 : retirer le hub des salons (chantier multijoueur-normalise)~~ : fait le 2026-11-10 (déployé)
+- gameboard-006 : cartes modes et serveur (chantier mise-a-jour-des-cards)
 - Idée `api-des-joueurs-principale` (principal) : le portail est la meilleure base
 - Idée `prenom-d-enfant-au-classement-public`
 - Page `/notes/` : reconstruire après chaque note de version (`kassir_devops-022`)

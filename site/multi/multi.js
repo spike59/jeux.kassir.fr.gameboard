@@ -34,7 +34,7 @@ function header() {
 }
 
 function connect(name) {
-  const url = new URL('/api/v1/hub', location.href);
+  const url = new URL('/jeux/swordfish/hub', location.href);
   url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
   ws = new WebSocket(url);
   $('server').textContent = 'Connexion au serveur…';

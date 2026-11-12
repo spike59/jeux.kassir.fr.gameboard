@@ -45,14 +45,14 @@ export const GAMES = {
     title: 'Bulles',
     boards: [
       { id: 'bulles', title: 'Meilleurs éclateurs', emoji: '🫧', order: 'desc', unit: 'points', min: 1, max: 5000, open: true },
-      { id: 'bulles_multi', title: 'Bulles à plusieurs', emoji: '👥', order: 'desc', unit: 'points', min: 1, max: 5000, open: true },
+      { id: 'bulles_multi', title: 'Bulles à plusieurs', emoji: '👥', order: 'desc', unit: 'points', min: 1, max: 5000, open: false }, // scores envoyés par swordfish avec clé (gameboard-002)
     ],
   },
   asteroid_run: {
     title: 'Asteroid Run',
     boards: [
       { id: 'asteroid_run', title: 'Meilleurs pilotes', emoji: '🚀', order: 'desc', unit: 'points', min: 1, max: 100000, open: true },
-      { id: 'asteroid_run_multi', title: 'Asteroid Run à plusieurs', emoji: '👥', order: 'desc', unit: 'points', min: 1, max: 100000, open: true },
+      { id: 'asteroid_run_multi', title: 'Asteroid Run à plusieurs', emoji: '👥', order: 'desc', unit: 'points', min: 1, max: 100000, open: false }, // scores envoyés par swordfish avec clé (gameboard-002)
     ],
   },
   // space_hairness, space_run : à ajouter quand leurs classements (missions, circuits) seront décidés

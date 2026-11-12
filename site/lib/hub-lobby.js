@@ -81,7 +81,7 @@ export function createLobby({ game, title = 'Jouer à plusieurs', onStart, onGam
 
   // --- connexion ---
   function connect(name) {
-    const url = new URL('/api/v1/hub', location.href);
+    const url = new URL('/jeux/swordfish/hub', location.href);
     url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
     say(hint, 'Connexion…');
     ws = new WebSocket(url);

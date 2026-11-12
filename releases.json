@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-09T23:29:32.844Z",
+ "generatedAt": "2026-11-10T20:57:36.434Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -798,6 +798,13 @@
      "body": "- **Son propre kart** : l'affichage glisse entre l'état d'avant et d'après le dernier tick au lieu d'avancer à la cadence des ticks (30 Hz), qui paraissait saccadée sur un écran à 60 Hz ou plus.\n- **Les autres karts** : les instantanés sont datés par le numéro de tick du serveur (régulier) et non par leur heure d'arrivée (irrégulière) ; l'horloge se cale sur les arrivées les plus rapides.\n- Un instantané en retard prolonge le kart pendant 120 ms au plus (vitesse et cap connus) au lieu de le figer.\n- 3 tests de plus (9 au total)."
     }
    ]
+  },
+  {
+   "code": "backup-system",
+   "kind": "tool",
+   "title": "backup-system",
+   "icon": "📦",
+   "releases": []
   },
   {
    "code": "devops_reseau",
