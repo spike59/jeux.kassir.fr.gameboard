@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-10T20:57:36.434Z",
+ "generatedAt": "2026-11-15T23:51:35.562Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -98,6 +98,12 @@
      "date": "2026-11-09",
      "title": "Page des notes : colonne À venir",
      "body": "- La page `/notes/` sait afficher une colonne **À venir** (prochaine version de chaque projet) quand les données la fournissent. Le portail public ne la reçoit pas (son `releases.json` n'a pas de versions à venir) ; l'application `roadmap`, locale, l'affiche avec le même code."
+    },
+    {
+     "version": "0.10.0",
+     "date": "2026-11-16",
+     "title": "Le hub des salons passe à swordfish",
+     "body": "- **Le hub des salons est retiré** de gameboard (`src/hub/` supprimé, 825 lignes) : il vit dans swordfish. `src/remote-hub.js` relaie vers lui.\n- Les jeux à plusieurs (`bulles`, `asteroid_run`) joignent désormais `/jeux/swordfish/hub` au lieu de `/api/v1/hub` (`site/lib/hub-lobby.js`, `site/multi/multi.js`).\n- Catalogue : `lili-kart` remplace `kart_demo` ; `releases.json` régénéré (jeux publics seulement).\n- `src/games.js` : classements ajustés.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 16 (le test du hub est retiré avec le hub, `remote-hub.test.js` ajouté).\n\nTests : 16 tests passent."
     }
    ]
   },
@@ -124,6 +130,12 @@
      "date": "2026-11-04",
      "title": "Rejoindre depuis le salon",
      "body": "- Arrivée depuis le salon multijoueur du site : `?room=<id>` rejoint la salle, `?create=1` en crée une, sans retaper le prénom.\n- Le prénom est partagé avec les autres jeux du site."
+    },
+    {
+     "version": "1.2.1",
+     "date": "2026-11-16",
+     "title": "Le jeu à plusieurs passe par swordfish",
+     "body": "- Le salon à plusieurs joint `/jeux/swordfish/hub` au lieu de `/api/v1/hub` de gameboard.\n- À plusieurs, le score n'est plus envoyé par le navigateur (`flushScore` retiré de `multi.js`) : c'est le serveur (swordfish) qui l'envoie avec sa clé.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n\nTests : ce dépôt n'a pas de tests automatiques."
     }
    ]
   },
@@ -306,6 +318,12 @@
      "date": "2026-11-04",
      "title": "Prénoms des joueurs dans la liste des parties",
      "body": "- La liste des salles du relais (`/pvv-net/info`) annonce le prénom des joueurs (`names`), pour la page publique « Le parc en direct »"
+    },
+    {
+     "version": "0.24.2",
+     "date": "2026-11-16",
+     "title": "Modes et serveur classés pour le portail",
+     "body": "- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos pour formaliser et étiqueter les modes p2p et lan-host, et pour passer sur swordfish.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Aucun changement de code du jeu.\n\nTests : ce dépôt n'a pas de tests automatiques lancés ici."
     }
    ]
   },
@@ -380,6 +398,12 @@
      "date": "2026-11-08",
      "title": "Fusion de main et deploy",
      "body": "Réunit les deux branches : l'ancienne `main` (services du vaisseau mère) et `deploy` (course à plusieurs sur le serveur, renommage du projet).\n\n- **Services du vaisseau mère** (venu de l'ancienne `main`, qui l'appelait v0.10.0) : badges des services disponibles sur la carte, prochain tier et secteurs restants ; API mise à jour.\n- **Course à plusieurs sur le serveur** (v0.10.0 de `deploy`) et renommage du projet en `space-racing` (`racing-api`, `racing-ui`).\n- `ui/src/styles.css` : les deux blocs de styles sont conservés.\n\n## Limites connues (non validé)\n- Aucun essai dans un navigateur de la version fusionnée (todo `space_hairness-027`).\n- Le `package-lock.json` indique encore la version 0.9.0 (tofix `space_hairness-026`).\n- Deux versions s'appelaient « 0.10.0 » (une sur chaque branche) : la 0.11.0 les réunit."
+    },
+    {
+     "version": "0.11.1",
+     "date": "2026-11-16",
+     "title": "En-têtes de sécurité et CORS fermé",
+     "body": "- CORS : en ligne (`PUBLIC_HOST` défini), seule l'origine du site est acceptée (`Vary: Origin`) ; en local, l'origine reçue est renvoyée.\n- En-têtes : `X-Content-Type-Options: nosniff`, et `Strict-Transport-Security` en ligne. La CSP reste à faire (todo `space_hairness-025`).\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 26.\n\nTests : 26 tests passent."
     }
    ]
   },
@@ -412,6 +436,12 @@
      "date": "2026-11-08",
      "title": "Fusion de main et deploy",
      "body": "Réunit les deux branches qui avaient divergé depuis la 1.0.0.\n\n## Venu de la 1.1.0 (ancienne branche main)\n- **Villes et boutiques** : améliorations de niveau 2 vendues dans les villes, avec effet visuel sur le vaisseau.\n- **Variantes de biome** : relief propre à chaque lieu, brouillard, lumière.\n- **Obstacles modélisés dans Blender** pour les 5 biomes (15 modèles) ; vaisseau généré depuis le blueprint.\n- **Repère de l'anneau suivant** (cadre, distance, flèche au bord de l'écran), **manette** (Gamepad API), **musique procédurale**.\n- Image Blender 5.2 LTS, historique des tâches persistant ; test de bout en bout par pilote automatique.\n\n## Venu de la 1.2.0 (ancienne branche deploy)\n- **Course à plusieurs sur le serveur** : un processus par partie, jusqu'à 8 pilotes, simulation partagée (`shared/sim.mjs`), commandes tactiles.\n\n## Technique\n- Interface construite en **un seul fichier JS** (4,3 Mo) pour le proxy ; `ui/src/mp.js` passe par `ui/src/babylon.js` (imports ciblés).\n- `setupScene` reçoit la course (variante de biome) : corrigé après la fusion.\n\n## Limites connues (non validé)\n- Aucun essai dans un navigateur de la version fusionnée ; test de bout en bout non relancé.\n- La course à plusieurs n'a pas encore les nouveautés de la course seule (obstacles Blender, repère, manette, musique, effets des améliorations).\n- Validation : voir les todos `space_run-036` à `041` de la roadmap (1.3.1)."
+    },
+    {
+     "version": "1.3.1",
+     "date": "2026-11-16",
+     "title": "CORS fermé, en-têtes de sécurité, taille du corps limitée",
+     "body": "- CORS : `ALLOWED_ORIGINS` (liste séparée par des virgules), sinon l'origine du site si `PUBLIC_HOST` est défini ; en développement local, tout est permis (`api/src/app.js`).\n- En-têtes : `X-Content-Type-Options`, `Referrer-Policy: same-origin`, et `Strict-Transport-Security` en ligne. La CSP reste à faire (todo `space_run-004`).\n- Corps JSON limité à 256 ko (todo `space_run-005`) ; test ajouté dans `api/test/app.test.js`.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 23.\n\nTests : 23 tests passent."
     }
    ]
   },
@@ -426,6 +456,12 @@
      "date": "2026-11-04",
      "title": "Course à plusieurs sur le serveur",
      "body": "- Parties hébergées par le serveur : un processus par partie, créées depuis le salon multijoueur (jeux.kassir.fr/multi/) et rejointes avec `?room=`\n- Deux modes : circuit (course contre les autres pilotes et 7 rivaux de l'ordinateur, facultatifs) et évasion (atteindre le dernier anneau avec 3 chasseurs de prime par pilote)\n- Le premier joueur est le maître : il choisit le mode, la carte, les tours, les rivaux ; chacun choisit son vaisseau (Dart, Bebop, Arcadia) et valide\n- Jusqu'à 8 pilotes ; le serveur fait tourner le vol, les anneaux, les rochers et les chasseurs, le navigateur dessine et prévoit son propre vaisseau\n- Le circuit (tracé, anneaux, rochers) et les règles de vol sont dans `shared/` (utilisés par le jeu et par le serveur) ; la course seule est inchangée\n- Tests : même spline que Babylon sur les 20 circuits, courses complètes sur les 10 cartes, évasion, et une partie avec de vrais processus (`npm test` dans `api/`)"
+    },
+    {
+     "version": "0.2.1",
+     "date": "2026-11-16",
+     "title": "Modes et serveur classés pour le portail",
+     "body": "- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos pour classer les modes et passer sur swordfish.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Aucun changement de code du jeu.\n\nTests : 10 tests passent (11 au total, 1 ignoré)."
     }
    ]
   },
@@ -446,6 +482,12 @@
      "date": "2026-11-04",
      "title": "Tir et multijoueur",
      "body": "- **Tir** : bouton 🔫 (maintenu pour tirer en rafale) ou Espace. Les astéroïdes ont des points de vie (1 à 3 tirs), +5 points par astéroïde détruit.\n- **À plusieurs** (👥, de 2 à 6 joueurs) : le salon de jeux.kassir.fr crée les astéroïdes et les étoiles, tout le monde voit le même champ et les vaisseaux des autres (une couleur chacun). Étoile : +10 ; astéroïde détruit : +5 ; choc : −1 vie. Manche de 90 s ou dernier vaisseau en vie, résultats, « Rejouer ».\n- Classement « Asteroid Run à plusieurs ». Le score part en quittant, en pause, à la fin de manche ou à la fermeture si c'est un record.\n- Renommé : le jeu s'appelait « gemma_run » (nom pris par un autre jeu de vaisseau)."
+    },
+    {
+     "version": "0.2.1",
+     "date": "2026-11-16",
+     "title": "Scores à plusieurs envoyés par le serveur",
+     "body": "- À plusieurs, le score n'est plus envoyé par le navigateur (`asteroid_run.js`) : c'est le serveur (swordfish) qui l'envoie avec sa clé.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n\nTests : ce dépôt n'a pas de tests automatiques."
     }
    ]
   },
@@ -776,6 +818,12 @@
      "date": "2026-11-09",
      "title": "Serveur de karts, prédiction, API de réglage",
      "body": "- **Serveur de jeu temps réel en Node** (HTTP + WebSocket), simulation à pas fixe réglable (5 à 120 Hz).\n- **Prédiction** : le code de la physique et de la carte est partagé avec le client ; le serveur acquitte les entrées, le client se recale et rejoue. Activable ou désactivable dans les réglages.\n- **Collisions** par rectangles orientés (SAT) : kart contre décor (prédit) et kart contre kart (serveur) ; la boîte n'est jamais envoyée, elle se recalcule.\n- **Salles** : jeu libre (toujours ouvert) et courses (file d'attente, compte à rebours, tours, résultats), 8 joueurs.\n- **Le hangar** : une zone d'obstacles et un circuit à points de passage.\n- **API de réglage** locale et web (jeton) : `/api/config`, `/api/state`, `/api/rooms`, `/api/health` ; **vue serveur 2D** (`/admin`).\n- Image Docker et service `swordfish` dans la stack (pas encore déployé) ; 26 tests."
+    },
+    {
+     "version": "0.2.0",
+     "date": "2026-11-16",
+     "title": "Plateforme multi : hub, jeux hébergés, scores par le serveur",
+     "body": "- Le hub complet de gameboard (salon, salles, chat, modules `bulles` et `asteroid_run`, jeux externes lus dans `HUB_*`) vit maintenant dans swordfish ; contrat de module de jeu dans `concept/tech/contrat-de-module.md`.\n- `GET /api/version` (étiquette `swordfish:x.y.z`, protocole 1) ; limites par adresse relevables (`MAX_PER_IP`, `MAX_CLIENTS`).\n- Moteurs de parties hébergés : `space_run`, `gemma_run` et `space_hairness` tournent dans swordfish (`games/`, un processus par partie), copiés par `scripts/sync-games.mjs` (option `--check` pour détecter une dérive).\n- Scores envoyés par le serveur avec une clé vers gameboard (`api/hub/scores.js`).\n- Politique d'entrées du serveur corrigée (une étape par entrée reçue, jusqu'à 3 par tick) : la dérive par rapport à la prédiction passe de 20 m à 0 après 30 s de gigue.\n- Renommage de `speedy_gonzales` en `swordfish`, premier déploiement réel (2026-11-10).\n- Tests : 48 (tests du hub, des jeux hébergés et du serveur ajoutés).\n\nTests : 48 tests passent."
     }
    ]
   },
@@ -796,6 +844,12 @@
      "date": "2026-11-09",
      "title": "Mouvement lissé",
      "body": "- **Son propre kart** : l'affichage glisse entre l'état d'avant et d'après le dernier tick au lieu d'avancer à la cadence des ticks (30 Hz), qui paraissait saccadée sur un écran à 60 Hz ou plus.\n- **Les autres karts** : les instantanés sont datés par le numéro de tick du serveur (régulier) et non par leur heure d'arrivée (irrégulière) ; l'horloge se cale sur les arrivées les plus rapides.\n- Un instantané en retard prolonge le kart pendant 120 ms au plus (vitesse et cap connus) au lieu de le figer.\n- 3 tests de plus (9 au total)."
+    },
+    {
+     "version": "0.1.2",
+     "date": "2026-11-16",
+     "title": "Renommage en Lili Kart, client vers swordfish",
+     "body": "- Renommage de `kart_demo` en `lili-kart` (Liliputian Karting League) : nom du paquet, titre, adresse `/jeux/lili-kart/`.\n- Le client joint le serveur `swordfish` (`/jeux/swordfish`) au lieu de `speedy_gonzales` ; `scripts/start.mjs` lance le dépôt voisin `swordfish`.\n- Nouveau test de simulation du réseau (`test/netsim.test.js` : délai, gigue, retard) ; mesures dans `concept/mesures/reseau-2026-11-10.md`.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Tests : 11 (9 avant, 2 ajoutés).\n\nTests : 11 tests passent."
     }
    ]
   },

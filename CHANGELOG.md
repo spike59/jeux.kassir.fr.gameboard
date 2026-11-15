@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.10.0
+
+- **Le hub des salons est retiré** de gameboard (`src/hub/` supprimé, 825 lignes) : il vit dans swordfish. `src/remote-hub.js` relaie vers lui.
+- Les jeux à plusieurs (`bulles`, `asteroid_run`) joignent désormais `/jeux/swordfish/hub` au lieu de `/api/v1/hub` (`site/lib/hub-lobby.js`, `site/multi/multi.js`).
+- Catalogue : `lili-kart` remplace `kart_demo` ; `releases.json` régénéré (jeux publics seulement).
+- `src/games.js` : classements ajustés.
+- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.
+
 ## 0.9.2
 
 - Page `/notes/` : colonne « À venir » quand les données contiennent `upcoming` (utilisée par `roadmap`, absente du portail public).
