@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { parseKeys } from './app.js';
 import { createPortal } from './portal.js';
 import { createRemoteHub } from './remote-hub.js';
+import { createFeeds, createMultiBus } from './multi.js';
+import { readFileSync, statSync } from 'node:fs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT || 3000);
@@ -26,6 +28,14 @@ const RELEASES = process.env.RELEASES || join(ROOT, 'releases.json');
 const keys = parseKeys(process.env.GAMEBOARD_KEYS);
 // Le hub (salon, salles, jeux à plusieurs) vit dans swordfish : ici seulement la lecture du realm et du parc (chantier multijoueur-normalise)
 const hub = createRemoteHub({ baseUrl: process.env.SWORDFISH_URL ?? '' });
-const portal = createPortal({ hub, publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
+// L'état du multijoueur arrive en événements : un abonnement au flux de chaque instance swordfish (une par jeu : SWORDFISH_URLS, séparées par des virgules ;
+// à défaut SWORDFISH_URL, une instance pour tous les jeux). Fusionné avec le catalogue, il est poussé tout de suite aux menus des jeux.
+let catalogCache = { mtime: 0, list: [] };
+const getCatalog = () => { try { const m = statSync(CATALOG).mtimeMs; if (m !== catalogCache.mtime) catalogCache = { mtime: m, list: JSON.parse(readFileSync(CATALOG, 'utf8')) }; } catch { /* on garde le dernier catalogue lu */ } return catalogCache.list; };
+const urls = (process.env.SWORDFISH_URLS || process.env.SWORDFISH_URL || '').split(',').map((u) => u.trim()).filter(Boolean);
+let feeds;
+const bus = createMultiBus({ getCatalog, instances: () => feeds.instances() });
+feeds = createFeeds({ urls, onChange: () => bus.touch() });
+const portal = createPortal({ hub, multi: { bus }, publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 
 const server = portal.listen(PORT, HOST, () => console.log(`gameboard sur http://${HOST}:${PORT} (https://${PUBLIC_HOST}) — ${keys.size} jeu(x) avec clé`));

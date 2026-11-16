@@ -1,6 +1,6 @@
 # salon plus clair
 
-**Statut** : à faire · créé le 2026-11-16 · chantier `interface-multijoueur` (`concept/tomove/jeux/chantiers/interface-multijoueur/plan.md` du principal)
+**Statut** : fait le 2026-11-16 (gameboard 1.1.0) · créé le 2026-11-16 · chantier `interface-multijoueur` (`concept/tomove/jeux/chantiers/interface-multijoueur/plan.md` du principal)
 
 **En une phrase** : Reprendre la page `/multi/` en trois étapes lisibles (prénom, jeu, partie), l'accès restant sur gameboard.
 

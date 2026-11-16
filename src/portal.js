@@ -1,6 +1,6 @@
 // Portail jeux.kassir.fr : menu 3D, fichiers du site (catalogue, jeux statiques), API des scores sur /api.
 // Uniquement derrière nginx-proxy, uniquement en HTTPS. Les jeux avec serveur ont leur propre conteneur.
-import { multiState } from './multi.js';
+import { sse } from './multi.js';
 import express from 'express';
 import { join } from 'node:path';
 import { readFile } from 'node:fs/promises';
@@ -28,9 +28,11 @@ function gameHeaders(res, path) {
   res.set('Cache-Control', longCache ? 'public, max-age=604800' : 'no-cache');
 }
 
+const MAX_MULTI_SUBSCRIBERS = 500; // abonnés au flux des menus (un onglet de jeu = un abonné)
+
 // menuDir : menu 3D construit ; publicDir : icône, scores.js ; gamesDir : un dossier par jeu, /jeux/<id>/ sert son sous-dossier public/ (jeux statiques) ;
 // catalog : games.json ; releases : releases.json (notes de version, voir devops/collect-releases.mjs) ; apiOptions : voir createApi
-export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, catalog, releases = '', hub = null, apiOptions, trustProxy = 'uniquelocal' }) {
+export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, catalog, releases = '', hub = null, multi = null, apiOptions, trustProxy = 'uniquelocal' }) {
   // Toute requête qui n'est pas arrivée en HTTPS au proxy est renvoyée vers HTTPS.
   // La cible est le nom configuré, jamais le Host reçu (pas de redirection ouverte).
   const httpsOnly = (req, res, next) => (req.path === '/healthz' || req.secure ? next() : res.redirect(301, `https://${publicHost}${req.originalUrl}`));
@@ -45,11 +47,23 @@ export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, ca
   if (hub) site.get('/api/v1/realm', (req, res) => res.set('Cache-Control', 'no-cache').json({ servers: [hub.info()] }));
   // le parc d'attractions en direct (page publique /jeux/parc/) : parties ouvertes et prénoms des joueurs
   if (hub) site.get('/api/parc/live', (req, res) => res.set('Cache-Control', 'no-cache').json(hub.parc()));
-  // l'état du multijoueur pour les menus des jeux et le salon : catalogue + ce que swordfish annonce (comptes seulement)
-  if (hub) site.get('/api/v1/multi', async (req, res) => {
-    try { res.set('Cache-Control', 'no-cache').json(multiState(JSON.parse(await readFile(catalog, 'utf8')), hub.info(), hub.parc())); }
-    catch { res.status(500).json({ error: 'catalogue illisible' }); }
-  });
+  // l'état du multijoueur, en direct : gameboard agrège les flux d'événements des instances swordfish (src/multi.js) ; les menus des jeux
+  // et le salon s'abonnent ici. Comptes seulement. Aucune interrogation : un changement est poussé tout de suite.
+  if (multi) {
+    site.get('/api/v1/multi', (req, res) => { const { server, games } = multi.bus.snapshot(); res.set('Cache-Control', 'no-cache').json({ server, games }); });
+    site.get('/api/v1/multi/stream', (req, res) => {
+      if (multi.bus.subscribers >= MAX_MULTI_SUBSCRIBERS) return res.status(503).json({ error: "trop d'abonnés" });
+      res.set({ 'Content-Type': 'text/event-stream; charset=utf-8', 'Cache-Control': 'no-store', Connection: 'keep-alive', 'X-Accel-Buffering': 'no' }).status(200);
+      res.write('retry: 1000\n\n');
+      res.write(sse(multi.bus.snapshot()));
+      const off = multi.bus.subscribe((ev) => res.write(sse(ev)));
+      const beat = setInterval(() => res.write(': ♥\n\n'), 15000);
+      beat.unref?.();
+      const done = () => { off(); clearInterval(beat); };
+      req.on('close', done); res.on('error', done);
+      return undefined;
+    });
+  }
   site.use('/api', createApi({ ...apiOptions, publicOrigin: `https://${publicHost}` }));
 
   // Jeux statiques : seulement games/<id>/public/ (le Dockerfile et le serveur d'un jeu avec conteneur ne sont jamais servis)

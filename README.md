@@ -36,10 +36,14 @@ La seconde est moins fiable (le score vient du client) : elle est réservée aux
 
 Lecture publique : `GET /api/v1/boards` (tous les jeux) et `GET /api/v1/boards/:game`.
 
-### Multijoueur
+### Multijoueur (en direct)
 
-- `GET /api/v1/multi` : pour chaque jeu marqué `"multi": true` dans `games.json`, l'état annoncé par swordfish (serveur en ligne, parties, joueurs, parties à rejoindre, adresse du salon `/multi/?game=<id>`). Comptes seulement.
-- `/lib/multi-entry.js` : le bouton « Multijoueur » que chaque jeu met dans son menu (`mountMultiEntry(conteneur, { game })`), qui affiche cet état.
+- Variables : `SWORDFISH_URLS` (les instances swordfish, une par jeu, séparées par des virgules) ou `SWORDFISH_URL` (une instance pour tous les jeux).
+- gameboard s'abonne au flux `/api/events` de chaque instance et garde l'état de tous les jeux (reconnexion automatique). Aucune interrogation.
+- `GET /api/v1/multi` : l'état complet, pour chaque jeu marqué `"multi": true` dans `games.json` (statut `online`, `offline` ou `draining`, parties, joueurs, parties à rejoindre, version du serveur, adresse du salon `/multi/?game=<id>`). Comptes seulement.
+- `GET /api/v1/multi/stream` : le même état en événements (`snapshot`, puis `game` et `server` à chaque changement).
+- `/lib/multi-entry.js` : le bouton « Multijoueur » que chaque jeu met dans son menu (`mountMultiEntry(conteneur, { game })`), abonné à ce flux.
+- `node scripts/check-multi.mjs [--games=<dossier des dépôts>]` : contrôle l'interface multijoueur de chaque jeu en réseau.
 - Le salon (`/multi/`) reste sur gameboard ; avec `?game=<id>` le jeu d'origine passe en premier.
 
 ### Ajouter un jeu
@@ -52,7 +56,7 @@ Lecture publique : `GET /api/v1/boards` (tous les jeux) et `GET /api/v1/boards/:
 
 ```bash
 npm install
-npm test                      # API et portail : 21 tests
+npm test                      # API, portail et multijoueur : 32 tests
 npm run build:menu            # construit menu/dist
 GAMEBOARD_KEYS=jeu:clé… MENU_DIR=menu/dist TRUST_PROXY=loopback npm start   # http://127.0.0.1:3000
 cd menu && npm run dev        # menu seul, relaie /api et /jeux vers le site en ligne

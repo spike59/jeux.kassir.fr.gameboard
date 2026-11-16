@@ -7,8 +7,8 @@
   <meta name="robots" content="noindex">
   <title>Multijoueur</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="multi.css?v=2">
-  <script type="module" src="multi.js?v=2"></script>
+  <link rel="stylesheet" href="multi.css?v=3">
+  <script type="module" src="multi.js?v=4"></script>
 </head>
 <body>
   <header class="top">
@@ -31,8 +31,14 @@
 
     <!-- 2. le salon : parties, nouvelle partie, discussion -->
     <div id="lobby" class="lobby" hidden>
+      <section class="card" id="games-card">
+        <h2>1 · Choisis ton jeu</h2>
+        <p class="hint">L'état de chaque jeu est mis à jour en direct.</p>
+        <div id="games-strip" class="strip"></div>
+      </section>
+
       <section class="card">
-        <h2>🖥️ Parties sur le serveur</h2>
+        <h2>2 · 🖥️ Parties sur le serveur</h2>
         <p class="hint">Le serveur fait tourner la partie : rejoins quand tu veux.</p>
         <ul id="rooms" class="rooms"></ul>
         <p class="hint" id="rooms-empty">Aucune partie pour le moment. Lance la première !</p>
@@ -52,7 +58,7 @@
       </section>
 
       <section class="card">
-        <h2>📱 Parties entre joueurs</h2>
+        <h2>2 · 📱 Parties entre joueurs</h2>
         <p class="hint">Un joueur fait tourner la partie sur son appareil.</p>
         <ul id="rooms-peer" class="rooms"></ul>
         <p class="hint" id="peer-empty">Aucune partie entre joueurs.</p>

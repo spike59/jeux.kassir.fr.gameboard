@@ -5,8 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createPortal } from '../src/portal.js';
 import { parseKeys } from '../src/app.js';
+import { createMultiBus } from '../src/multi.js';
 
-async function start(t, { releases = false, hub = null, multi = false } = {}) {
+async function start(t, { releases = false, hub = null, multi = null } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'gameboard-portal-'));
   const games = join(dir, 'games');
   await mkdir(join(games, 'bulles', 'public'), { recursive: true });
@@ -15,10 +16,10 @@ async function start(t, { releases = false, hub = null, multi = false } = {}) {
   await writeFile(join(games, 'bulles', 'public', 'index.html'), '<h1>bulles</h1>');
   await writeFile(join(games, 'bulles', 'game.json'), '{}');
   await writeFile(join(games, 'serveur-jeu', 'Dockerfile'), 'FROM secret');
-  await writeFile(join(dir, 'games.json'), JSON.stringify([{ id: 'bulles', ready: true, url: '/jeux/bulles/', multi }, { id: 'bientot', ready: false }]));
+  await writeFile(join(dir, 'games.json'), JSON.stringify([{ id: 'bulles', ready: true, url: '/jeux/bulles/' }, { id: 'bientot', ready: false }]));
   if (releases) await writeFile(join(dir, 'releases.json'), JSON.stringify({ projects: ['bulles', 'bientot', 'secure', 'kassir_devops'].map((code) => ({ code, releases: [] })) }));
   const portal = createPortal({
-    publicHost: 'jeux.test', publicDir: join(dir, 'site'), gamesDir: games, catalog: join(dir, 'games.json'), releases: releases ? join(dir, 'releases.json') : '', hub,
+    publicHost: 'jeux.test', publicDir: join(dir, 'site'), gamesDir: games, catalog: join(dir, 'games.json'), releases: releases ? join(dir, 'releases.json') : '', hub, multi,
     apiOptions: { keys: parseKeys(''), dataDir: join(dir, 'data') }, trustProxy: true,
   });
   const server = portal.listen(0, '127.0.0.1');
@@ -55,12 +56,34 @@ test('/releases.json ne contient que les jeux publics', async (t) => {
   assert.deepEqual((await res.json()).projects.map((p) => p.code), ['bulles']);
 });
 
-test("/api/v1/multi : jeux multi du catalogue avec l'état annoncé par swordfish", async (t) => {
-  const hub = { info: () => ({ online: true, players: 2, rooms: 1 }), parc: () => ({ rides: [{ id: 'bulles', online: true, max: 6, trains: [{ id: '1', status: 'waiting', players: 2, max: 6, names: ['Léa', 'Tom'] }] }] }) };
-  const get = await start(t, { hub, multi: true });
-  const res = await get('/api/v1/multi');
-  assert.equal(res.status, 200);
-  const body = await res.json();
-  assert.deepEqual(body.games.map((g) => [g.id, g.online, g.rooms, g.players, g.joinable, g.lobby]), [['bulles', true, 1, 2, 1, '/multi/?game=bulles']]);
+
+test("/api/v1/multi et son flux : l'état des jeux multi, poussé en direct, sans prénom", async (t) => {
+  const room = (players, extra = {}) => ({ id: '1', players, max: 6, joinable: true, ...extra });
+  const insts = [{ online: true, server: { status: 'online', version: '0.3.0' }, games: new Map([['bulles', { id: 'bulles', online: true, rooms: [room(2, { names: ['Léa'] })] }]]) }];
+  const catalog = [{ id: 'bulles', title: 'Bulles', ready: true, url: '/jeux/bulles/', multi: true }];
+  const bus = createMultiBus({ getCatalog: () => catalog, instances: () => insts, coalesceMs: 5 });
+  const get = await start(t, { multi: { bus } });
+  const body = await (await get('/api/v1/multi')).json();
+  assert.deepEqual(body.games.map((g) => [g.id, g.status, g.rooms, g.players, g.joinable, g.lobby]), [['bulles', 'online', 1, 2, 1, '/multi/?game=bulles']]);
   assert.ok(!JSON.stringify(body).includes('Léa'), 'aucun prénom');
+  // le flux : snapshot à l'abonnement, puis l'événement du changement
+  const res = await get('/api/v1/multi/stream');
+  assert.match(res.headers.get('content-type'), /text\/event-stream/);
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
+  const next = async (pred) => {
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) throw new Error('flux fermé');
+      buf += dec.decode(value);
+      const blocks = buf.split('\n\n'); buf = blocks.pop();
+      for (const b of blocks) { const d = b.split('\n').find((l) => l.startsWith('data: ')); if (d && pred(JSON.parse(d.slice(6)))) return JSON.parse(d.slice(6)); }
+    }
+  };
+  const snap = await next((e) => e.type === 'snapshot');
+  assert.equal(snap.games[0].players, 2);
+  insts[0].games.set('bulles', { id: 'bulles', online: true, rooms: [room(5)] });
+  bus.touch();
+  const ev = await next((e) => e.type === 'game');
+  assert.equal(ev.game.players, 5); assert.ok(ev.seq > snap.seq);
+  await reader.cancel(); bus.close();
 });

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-16T00:12:12.571Z",
+ "generatedAt": "2026-11-16T01:07:11.695Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -104,6 +104,12 @@
      "date": "2026-11-16",
      "title": "Le hub des salons passe à swordfish",
      "body": "- **Le hub des salons est retiré** de gameboard (`src/hub/` supprimé, 825 lignes) : il vit dans swordfish. `src/remote-hub.js` relaie vers lui.\n- Les jeux à plusieurs (`bulles`, `asteroid_run`) joignent désormais `/jeux/swordfish/hub` au lieu de `/api/v1/hub` (`site/lib/hub-lobby.js`, `site/multi/multi.js`).\n- Catalogue : `lili-kart` remplace `kart_demo` ; `releases.json` régénéré (jeux publics seulement).\n- `src/games.js` : classements ajustés.\n- **`GET /api/v1/multi`** : l'état du multijoueur pour les menus et le salon. Le catalogue (`games.json`, jeux marqués `\"multi\": true`) fusionné avec ce que swordfish annonce : par jeu, serveur en ligne ou non, parties, joueurs, parties à rejoindre, adresse du salon. Comptes seulement, jamais de prénom (`src/multi.js`).\n- **`site/lib/multi-entry.js`** : le bouton « 👥 Multijoueur » commun à tous les menus des jeux, avec l'état en direct (`mountMultiEntry`). Il mène au salon, toujours sur gameboard.\n- **Salon `/multi/?game=<jeu>`** : le jeu d'où l'on vient passe en premier (ses parties, sa création de partie) et est entouré.\n- `games.json` : les 7 jeux en réseau portent `\"multi\": true`.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 21 (état du multijoueur, bouton du menu, route `/api/v1/multi`, catalogue).\n\nTests : 21 tests passent."
+    },
+    {
+     "version": "1.1.0",
+     "date": "2026-11-16",
+     "title": "Le multijoueur en direct, salon plus clair",
+     "body": "- **L'état du multijoueur arrive en événements** (gameboard-012) : gameboard s'abonne au flux `GET /api/events` de chaque instance swordfish (`SWORDFISH_URLS`, une par jeu ; à défaut `SWORDFISH_URL`), avec reconnexion automatique, détection des trous de `seq` et des flux muets (`src/multi.js`). Plus d'interrogation.\n- `GET /api/v1/multi` (état complet) et **`GET /api/v1/multi/stream`** (événements `snapshot`, `game`, `server`) : les menus des jeux et le salon reçoivent chaque changement tout de suite. Un jeu dont l'instance s'arrête passe « hors ligne », en maintenance « maintenance ». Comptes seulement.\n- `site/lib/multi-entry.js` : le bouton « Multijoueur » des menus s'abonne au flux (plus d'interrogation toutes les 5 s).\n- **Salon plus clair** (gameboard-011) : la page `/multi/` commence par « 1 · Choisis ton jeu », une bande qui montre l'état de chaque jeu en direct ; le nombre de joueurs en ligne est poussé aussi (plus de lecture toutes les 8 s).\n- **Contrôle des interfaces** (gameboard-010) : `node scripts/check-multi.mjs` vérifie que chaque jeu en réseau déclare ses modes et son serveur et monte l'entrée « Multijoueur » de son menu.\n- Le relais de lecture du parc (prénoms de la page publique du parc) ne travaille plus que tant que quelqu'un le lit.\n\nTests : 32 tests passent (4 ajoutés au flux, 3 au contrôle des interfaces)."
     }
    ]
   },
@@ -824,6 +830,12 @@
      "date": "2026-11-16",
      "title": "Plateforme multi : hub, jeux hébergés, scores par le serveur",
      "body": "- Le hub complet de gameboard (salon, salles, chat, modules `bulles` et `asteroid_run`, jeux externes lus dans `HUB_*`) vit maintenant dans swordfish ; contrat de module de jeu dans `concept/tech/contrat-de-module.md`.\n- `GET /api/version` (étiquette `swordfish:x.y.z`, protocole 1) ; limites par adresse relevables (`MAX_PER_IP`, `MAX_CLIENTS`).\n- Moteurs de parties hébergés : `space_run`, `gemma_run` et `space_hairness` tournent dans swordfish (`games/`, un processus par partie), copiés par `scripts/sync-games.mjs` (option `--check` pour détecter une dérive).\n- Scores envoyés par le serveur avec une clé vers gameboard (`api/hub/scores.js`).\n- Politique d'entrées du serveur corrigée (une étape par entrée reçue, jusqu'à 3 par tick) : la dérive par rapport à la prédiction passe de 20 m à 0 après 30 s de gigue.\n- Renommage de `speedy_gonzales` en `swordfish`, premier déploiement réel (2026-11-10).\n- Tests : 48 (tests du hub, des jeux hébergés et du serveur ajoutés).\n\nTests : 48 tests passent."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-16",
+     "title": "État unique, flux d'événements, arrêt en douceur",
+     "body": "- **État unique** (swordfish-007) : kart, salons du hub et parties hébergées exposent la même forme (`api/state.js`) ; le kart est visible comme jeu `lili-kart` (l'identifiant `kart` de `/api/version` devient `lili-kart`).\n- **Flux d'événements** (swordfish-009) : `GET /api/events` pousse l'état complet puis chaque changement, regroupé sur 40 ms ; comptes seulement. Plus d'interrogation côté consommateur.\n- **Contrôle de version** (swordfish-010) : `hello` à la connexion, `proto` dans `join`, refus « mise à jour nécessaire » sous `minClient`.\n- **Arrêt en douceur** (swordfish-011) : `POST /api/drain` : plus de nouvelle entrée ni de nouvelle partie hébergée, joueurs prévenus, `ready` quand plus personne ; `DELETE` rouvre.\n- **Réglages enregistrés** (swordfish-012) : `DATA_DIR/config.json`, écriture atomique, relu au démarrage ; fichier illisible ou invalide ignoré.\n- **Mesures** (swordfish-013) : `GET /api/metrics` (administrateur) : tick (moyenne, p95, pire cas), boucle d'événements, mémoire.\n- **Une instance par jeu** (swordfish-008) : `GAMES` choisit les jeux servis, même image. Le compose de saqiya reste à adapter (saqiya-020).\n\nLimite connue : les parties hébergées (space_run, gemma_run, space_hairness) sont lues par le hub toutes les 3 s, à l'intérieur du conteneur ; elles remontent donc dans le flux avec ce délai. Un rappel d'événement dans leur moteur de parties les rendrait immédiates.\n\nTests : 56 tests passent (8 ajoutés)."
     }
    ]
   },

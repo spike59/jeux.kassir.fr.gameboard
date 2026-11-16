@@ -3,6 +3,7 @@
 // (…/jeux/<jeu>/?room=<id> ou ?create=1). Ici on ne fait que regarder, discuter et choisir.
 const NAME = /^[\p{L}\p{N}][\p{L}\p{N} '_-]{0,15}$/u; // mêmes règles que les classements
 const NAME_KEY = 'kassir.player'; // commun à tous les jeux du site (même origine)
+import { applyEvent, label } from '/lib/multi-entry.js';
 const $ = (id) => document.getElementById(id);
 // jeu d'où l'on vient (…/multi/?game=bulles, lien du menu d'un jeu) : ses parties et sa création passent en premier
 const FOCUS = new URLSearchParams(location.search).get('game') || '';
@@ -80,15 +81,32 @@ async function onMessage(m) {
 }
 const sendPing = () => send({ t: 'ping', n: Date.now() });
 
-// nombre de joueurs en ligne : le serveur le donne dans l'annuaire (realm), on le rafraîchit
-setInterval(async () => {
-  if (!serverInfo) return;
-  try {
-    const { servers } = await (await fetch('/api/v1/realm', { cache: 'no-store' })).json();
-    serverInfo = servers.find((s) => s.id === serverInfo.id) ?? serverInfo;
-    header();
-  } catch { /* on garde le dernier chiffre */ }
-}, 8000);
+// l'état des jeux et le nombre de joueurs : poussés par le portail à chaque changement (aucune interrogation), voir src/multi.js de gameboard
+{
+  let state = null;
+  const paintStrip = () => {
+    if (!state) return;
+    $('games-strip').replaceChildren(...[...state.games.values()].map((g) => {
+      const l = label(state, g.id);
+      return el('a', { href: `/multi/?game=${encodeURIComponent(g.id)}`, className: `chip${g.id === FOCUS ? ' focus' : ''}`, dataset: { status: l.status } },
+        `${g.icon ?? '🎮'} ${g.title}`, el('small', { textContent: l.text.replace('👥 Multijoueur · ', '').replace('👥 Multijoueur', 'état inconnu') }));
+    }));
+  };
+  const open = () => {
+    const es = new EventSource('/api/v1/multi/stream');
+    for (const type of ['snapshot', 'game', 'server']) {
+      es.addEventListener(type, (e) => {
+        let ev; try { ev = JSON.parse(e.data); } catch { return; }
+        const next = applyEvent(type === 'snapshot' ? null : state, ev);
+        if (!next) { es.close(); open(); return; } // un trou : on repart d'un état complet
+        state = next;
+        paintStrip();
+        if (serverInfo && state.server) { serverInfo = { ...serverInfo, players: state.server.players }; header(); }
+      });
+    }
+  };
+  if (typeof EventSource !== 'undefined') open();
+}
 
 function chat({ from, text, sys }) {
   const log = $('chat');

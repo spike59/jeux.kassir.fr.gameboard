@@ -52,3 +52,11 @@ button:disabled { opacity: 0.45; cursor: default; }
 
 /* le jeu d'où l'on vient (?game=) */
 .rooms li.focus, .new-games a.focus { outline: 2px solid #ffd34d; outline-offset: 2px; }
+
+/* bande des jeux (état poussé par le portail) */
+.strip { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip { display: inline-flex; flex-direction: column; gap: 0.1rem; padding: 0.55rem 0.9rem; border-radius: 0.8rem; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.04); color: var(--text); text-decoration: none; font-weight: 800; }
+.chip small { color: var(--muted); font-weight: 600; }
+.chip.focus { outline: 2px solid #ffd34d; outline-offset: 2px; }
+.chip[data-status='à rejoindre'] small { color: #7ee787; }
+.chip[data-status='hors ligne'], .chip[data-status='maintenance'] { opacity: 0.6; }

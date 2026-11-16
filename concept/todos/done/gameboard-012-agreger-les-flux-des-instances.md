@@ -1,6 +1,6 @@
 # agréger les flux des instances
 
-**Statut** : à faire · créé le 2026-11-16 · chantier `interface-multijoueur` (`concept/tomove/jeux/chantiers/interface-multijoueur/plan.md` du principal)
+**Statut** : fait le 2026-11-16 (gameboard 1.1.0) · créé le 2026-11-16 · chantier `interface-multijoueur` (`concept/tomove/jeux/chantiers/interface-multijoueur/plan.md` du principal)
 
 **En une phrase** : gameboard s'abonne au flux d'événements de chaque instance swordfish (un jeu = une instance), garde l'état de tous les jeux et le renvoie en direct aux menus des jeux et au salon (fin de la lecture toutes les 2 s dans `remote-hub.js` et toutes les 5 s dans le bouton du menu).
 
