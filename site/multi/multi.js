@@ -4,6 +4,9 @@
 const NAME = /^[\p{L}\p{N}][\p{L}\p{N} '_-]{0,15}$/u; // mêmes règles que les classements
 const NAME_KEY = 'kassir.player'; // commun à tous les jeux du site (même origine)
 const $ = (id) => document.getElementById(id);
+// jeu d'où l'on vient (…/multi/?game=bulles, lien du menu d'un jeu) : ses parties et sa création passent en premier
+const FOCUS = new URLSearchParams(location.search).get('game') || '';
+const firstFocus = (a, b) => (b.dataset.game === FOCUS) - (a.dataset.game === FOCUS);
 
 const readName = () => {
   try { return localStorage.getItem(NAME_KEY) || localStorage.getItem('bulles.player') || ''; } catch { return ''; }
@@ -107,7 +110,7 @@ function renderRooms() {
       const full = r.players >= r.max;
       // une partie du serveur se rejoint à tout moment (en cours : on regarde, on joue à la course suivante)
       const joinable = r.url ? !full : waiting && !full;
-      (r.url && !r.dedicated ? peer : server).push(el('li', {},
+      (r.url && !r.dedicated ? peer : server).push(el('li', { dataset: { game }, className: game === FOCUS ? 'focus' : '' },
         el('span', { className: 'ico', textContent: icons[game] ?? '🎮', title: g?.title ?? game }),
         el('span', { className: 't' },
           el('strong', { textContent: `${r.name}` }),
@@ -117,6 +120,7 @@ function renderRooms() {
           : el('span', { className: `badge ${waiting ? 'wait' : 'run'}`, textContent: waiting ? 'Complète' : 'En cours' })));
     }
   }
+  server.sort(firstFocus); peer.sort(firstFocus);
   $('rooms').replaceChildren(...server);
   $('rooms-empty').hidden = server.length > 0;
   $('rooms-peer').replaceChildren(...peer);
@@ -132,6 +136,7 @@ function renderServerForm() {
   const modeSel = $('sf-mode');
   gameSel.replaceChildren(...hosted.map((g) => el('option', { value: g.id, textContent: `${icons[g.id] ?? '🎮'} ${g.title}` })));
   const paint = () => modeSel.replaceChildren(...hosted.find((g) => g.id === gameSel.value).serverModes.map((x) => el('option', { value: x.id, textContent: x.label })));
+  if (hosted.some((g) => g.id === FOCUS)) gameSel.value = FOCUS;
   gameSel.onchange = paint;
   paint();
   const submit = $('server-form').querySelector('button[type=submit]');
@@ -149,9 +154,10 @@ function renderServerForm() {
 function renderNewGames() {
   // jeux dont le salon est dans le serveur de jeux (Bulles, Asteroid Run…) : on ouvre le jeu qui crée la salle
   $('new-hub').replaceChildren(...games.filter((g) => !g.external).map((g) =>
-    el('a', { href: `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
+    el('a', { href: `/jeux/${g.id}/?create=1`, dataset: { game: g.id }, className: g.id === FOCUS ? 'focus' : '' }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
+  [...$('new-hub').children].sort(firstFocus).forEach((n) => $('new-hub').append(n));
   $('new-games').replaceChildren(...games.filter((g) => g.external && g.createUrl !== null).map((g) =>
-    el('a', { href: g.createUrl ?? `/jeux/${g.id}/?create=1` }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
+    el('a', { href: g.createUrl ?? `/jeux/${g.id}/?create=1`, dataset: { game: g.id }, className: g.id === FOCUS ? 'focus' : '' }, el('span', { textContent: icons[g.id] ?? '🎮' }), `${g.title} (${g.min} à ${g.max} joueurs)`)));
 }
 
 $('login-form').addEventListener('submit', (e) => {

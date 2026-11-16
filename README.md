@@ -36,6 +36,12 @@ La seconde est moins fiable (le score vient du client) : elle est réservée aux
 
 Lecture publique : `GET /api/v1/boards` (tous les jeux) et `GET /api/v1/boards/:game`.
 
+### Multijoueur
+
+- `GET /api/v1/multi` : pour chaque jeu marqué `"multi": true` dans `games.json`, l'état annoncé par swordfish (serveur en ligne, parties, joueurs, parties à rejoindre, adresse du salon `/multi/?game=<id>`). Comptes seulement.
+- `/lib/multi-entry.js` : le bouton « Multijoueur » que chaque jeu met dans son menu (`mountMultiEntry(conteneur, { game })`), qui affiche cet état.
+- Le salon (`/multi/`) reste sur gameboard ; avec `?game=<id>` le jeu d'origine passe en premier.
+
 ### Ajouter un jeu
 
 1. Un classement dans `src/games.js` (et `open: true` seulement s'il n'a pas de serveur).
@@ -46,7 +52,7 @@ Lecture publique : `GET /api/v1/boards` (tous les jeux) et `GET /api/v1/boards/:
 
 ```bash
 npm install
-npm test                      # API et portail : 14 tests
+npm test                      # API et portail : 21 tests
 npm run build:menu            # construit menu/dist
 GAMEBOARD_KEYS=jeu:clé… MENU_DIR=menu/dist TRUST_PROXY=loopback npm start   # http://127.0.0.1:3000
 cd menu && npm run dev        # menu seul, relaie /api et /jeux vers le site en ligne

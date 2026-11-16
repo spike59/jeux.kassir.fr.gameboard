@@ -49,3 +49,6 @@ button:disabled { opacity: 0.45; cursor: default; }
 .chat .sys { color: var(--muted); font-style: italic; }
 .chat-form { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
 .chat-form input { margin: 0; }
+
+/* le jeu d'où l'on vient (?game=) */
+.rooms li.focus, .new-games a.focus { outline: 2px solid #ffd34d; outline-offset: 2px; }

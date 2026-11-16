@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { createPortal } from '../src/portal.js';
 import { parseKeys } from '../src/app.js';
 
-async function start(t, { releases = false } = {}) {
+async function start(t, { releases = false, hub = null, multi = false } = {}) {
   const dir = await mkdtemp(join(tmpdir(), 'gameboard-portal-'));
   const games = join(dir, 'games');
   await mkdir(join(games, 'bulles', 'public'), { recursive: true });
@@ -15,10 +15,10 @@ async function start(t, { releases = false } = {}) {
   await writeFile(join(games, 'bulles', 'public', 'index.html'), '<h1>bulles</h1>');
   await writeFile(join(games, 'bulles', 'game.json'), '{}');
   await writeFile(join(games, 'serveur-jeu', 'Dockerfile'), 'FROM secret');
-  await writeFile(join(dir, 'games.json'), JSON.stringify([{ id: 'bulles', ready: true, url: '/jeux/bulles/' }, { id: 'bientot', ready: false }]));
+  await writeFile(join(dir, 'games.json'), JSON.stringify([{ id: 'bulles', ready: true, url: '/jeux/bulles/', multi }, { id: 'bientot', ready: false }]));
   if (releases) await writeFile(join(dir, 'releases.json'), JSON.stringify({ projects: ['bulles', 'bientot', 'secure', 'kassir_devops'].map((code) => ({ code, releases: [] })) }));
   const portal = createPortal({
-    publicHost: 'jeux.test', publicDir: join(dir, 'site'), gamesDir: games, catalog: join(dir, 'games.json'), releases: releases ? join(dir, 'releases.json') : '',
+    publicHost: 'jeux.test', publicDir: join(dir, 'site'), gamesDir: games, catalog: join(dir, 'games.json'), releases: releases ? join(dir, 'releases.json') : '', hub,
     apiOptions: { keys: parseKeys(''), dataDir: join(dir, 'data') }, trustProxy: true,
   });
   const server = portal.listen(0, '127.0.0.1');
@@ -53,4 +53,14 @@ test('/releases.json ne contient que les jeux publics', async (t) => {
   const res = await get('/releases.json');
   assert.equal(res.status, 200);
   assert.deepEqual((await res.json()).projects.map((p) => p.code), ['bulles']);
+});
+
+test("/api/v1/multi : jeux multi du catalogue avec l'état annoncé par swordfish", async (t) => {
+  const hub = { info: () => ({ online: true, players: 2, rooms: 1 }), parc: () => ({ rides: [{ id: 'bulles', online: true, max: 6, trains: [{ id: '1', status: 'waiting', players: 2, max: 6, names: ['Léa', 'Tom'] }] }] }) };
+  const get = await start(t, { hub, multi: true });
+  const res = await get('/api/v1/multi');
+  assert.equal(res.status, 200);
+  const body = await res.json();
+  assert.deepEqual(body.games.map((g) => [g.id, g.online, g.rooms, g.players, g.joinable, g.lobby]), [['bulles', true, 1, 2, 1, '/multi/?game=bulles']]);
+  assert.ok(!JSON.stringify(body).includes('Léa'), 'aucun prénom');
 });

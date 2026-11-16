@@ -1,5 +1,6 @@
 // Portail jeux.kassir.fr : menu 3D, fichiers du site (catalogue, jeux statiques), API des scores sur /api.
 // Uniquement derrière nginx-proxy, uniquement en HTTPS. Les jeux avec serveur ont leur propre conteneur.
+import { multiState } from './multi.js';
 import express from 'express';
 import { join } from 'node:path';
 import { readFile } from 'node:fs/promises';
@@ -44,6 +45,11 @@ export function createPortal({ publicHost, menuDir = '', publicDir, gamesDir, ca
   if (hub) site.get('/api/v1/realm', (req, res) => res.set('Cache-Control', 'no-cache').json({ servers: [hub.info()] }));
   // le parc d'attractions en direct (page publique /jeux/parc/) : parties ouvertes et prénoms des joueurs
   if (hub) site.get('/api/parc/live', (req, res) => res.set('Cache-Control', 'no-cache').json(hub.parc()));
+  // l'état du multijoueur pour les menus des jeux et le salon : catalogue + ce que swordfish annonce (comptes seulement)
+  if (hub) site.get('/api/v1/multi', async (req, res) => {
+    try { res.set('Cache-Control', 'no-cache').json(multiState(JSON.parse(await readFile(catalog, 'utf8')), hub.info(), hub.parc())); }
+    catch { res.status(500).json({ error: 'catalogue illisible' }); }
+  });
   site.use('/api', createApi({ ...apiOptions, publicOrigin: `https://${publicHost}` }));
 
   // Jeux statiques : seulement games/<id>/public/ (le Dockerfile et le serveur d'un jeu avec conteneur ne sont jamais servis)
