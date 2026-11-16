@@ -1,8 +1,8 @@
 # Roadmap : gameboard
 
-Instantané du 2026-11-16. Version courante : 0.10.0 (portail, menu 3D, scores, état public du parc, notes de version des jeux publics).
+Instantané du 2026-11-16. Version courante : 1.0.0 (portail, menu 3D, scores, état public du parc, notes de version des jeux publics).
 
-## 0.10.0 (prochaine)
+## 1.1.0 (prochaine)
 - gameboard-002 : scores vérifiés par le serveur ; gameboard-003 : limite sur les échecs d'authentification
 - gameboard-001 (tofix) : décider du sort de `releases.json` (généré)
 - gameboard-005 : classements des jeux avec serveur (`space_hairness-023` pour Space Racing)
@@ -19,7 +19,7 @@ Instantané du 2026-11-16. Version courante : 0.10.0 (portail, menu 3D, scores, 
 - —
 
 ## Versions passées
-- **0.10.0** (2026-11-16) : le hub des salons passe à swordfish
+- **1.0.0** (2026-11-16) : le hub des salons passe à swordfish
 - **0.9.2** (2026-11-09) : page des notes : colonne À venir
 - **0.9.1** (2026-11-08) : notes de version : jeux publics seulement
 

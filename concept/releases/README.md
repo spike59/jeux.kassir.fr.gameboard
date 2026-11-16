@@ -1,6 +1,6 @@
 # Notes de version
 
-Un fichier par version : `<version>.md` (ex. `1.2.0.md`).
+Un fichier par version : `<projet>.<version>.md` (ex. `gameboard.1.2.0.md`, règle 28 de saqiya).
 
 ```
 ---

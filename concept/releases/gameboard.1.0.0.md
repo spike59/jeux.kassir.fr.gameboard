@@ -1,10 +1,10 @@
 ---
-version: 0.10.0
+version: 1.0.0
 date: 2026-11-16
 title: "Le hub des salons passe à swordfish"
 ---
 
-**Importance : mineure (le hub des salons est retiré : voir swordfish).**
+**Importance : majeure (le hub des salons `/api/v1/hub` est retiré : les jeux à plusieurs passent par swordfish).**
 
 - **Le hub des salons est retiré** de gameboard (`src/hub/` supprimé, 825 lignes) : il vit dans swordfish. `src/remote-hub.js` relaie vers lui.
 - Les jeux à plusieurs (`bulles`, `asteroid_run`) joignent désormais `/jeux/swordfish/hub` au lieu de `/api/v1/hub` (`site/lib/hub-lobby.js`, `site/multi/multi.js`).
