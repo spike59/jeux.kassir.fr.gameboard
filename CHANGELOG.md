@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- `scripts/check-multi.mjs` signale un jeu statique dont un script en ligne monte l'entrée « Multijoueur » : la politique de sécurité du portail (`default-src 'self'`) l'interdit, il faut un fichier à part.
+
 ## 1.1.0
 
 - **L'état du multijoueur arrive en événements** (gameboard-012) : gameboard s'abonne au flux `GET /api/events` de chaque instance swordfish (`SWORDFISH_URLS`, une par jeu ; à défaut `SWORDFISH_URL`), avec reconnexion automatique, détection des trous de `seq` et des flux muets (`src/multi.js`). Plus d'interrogation.

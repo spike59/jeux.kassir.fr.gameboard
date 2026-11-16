@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-16T01:42:58.650Z",
+ "generatedAt": "2026-11-16T02:41:48.639Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -110,6 +110,12 @@
      "date": "2026-11-16",
      "title": "Le multijoueur en direct, salon plus clair",
      "body": "- **L'état du multijoueur arrive en événements** (gameboard-012) : gameboard s'abonne au flux `GET /api/events` de chaque instance swordfish (`SWORDFISH_URLS`, une par jeu ; à défaut `SWORDFISH_URL`), avec reconnexion automatique, détection des trous de `seq` et des flux muets (`src/multi.js`). Plus d'interrogation.\n- `GET /api/v1/multi` (état complet) et **`GET /api/v1/multi/stream`** (événements `snapshot`, `game`, `server`) : les menus des jeux et le salon reçoivent chaque changement tout de suite. Un jeu dont l'instance s'arrête passe « hors ligne », en maintenance « maintenance ». Comptes seulement.\n- `site/lib/multi-entry.js` : le bouton « Multijoueur » des menus s'abonne au flux (plus d'interrogation toutes les 5 s).\n- **Salon plus clair** (gameboard-011) : la page `/multi/` commence par « 1 · Choisis ton jeu », une bande qui montre l'état de chaque jeu en direct ; le nombre de joueurs en ligne est poussé aussi (plus de lecture toutes les 8 s).\n- **Contrôle des interfaces** (gameboard-010) : `node scripts/check-multi.mjs` vérifie que chaque jeu en réseau déclare ses modes et son serveur et monte l'entrée « Multijoueur » de son menu.\n- Le relais de lecture du parc (prénoms de la page publique du parc) ne travaille plus que tant que quelqu'un le lit.\n\nTests : 32 tests passent (4 ajoutés au flux, 3 au contrôle des interfaces)."
+    },
+    {
+     "version": "1.1.1",
+     "date": "2026-11-16",
+     "title": "Le contrôle des interfaces signale les scripts en ligne",
+     "body": "- `scripts/check-multi.mjs` signale un jeu statique dont un script en ligne monte l'entrée « Multijoueur » : la politique de sécurité du portail (`default-src 'self'`) l'interdit, il faut un fichier à part.\n\nTests : 36 tests passent (1 ajouté)."
     }
    ]
   },
@@ -148,6 +154,12 @@
      "date": "2026-11-16",
      "title": "Entrée Multijoueur en direct",
      "body": "- **Entrée « Multijoueur »** dans le menu (pastille sur le bouton 👥) : le salon du portail `/multi/?game=bulles` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n- Le salon à plusieurs de la fenêtre du jeu (`createLobby`) reste inchangé.\n\nTests : ce dépôt n'a pas de tests automatiques."
+    },
+    {
+     "version": "2.1.1",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur : script dans un fichier à part",
+     "body": "- **Correctif** : l'entrée « Multijoueur » du menu était montée par un script en ligne, que la politique de sécurité du portail (`default-src 'self'`) bloque sur le vrai serveur ; elle est maintenant dans un fichier à part (`multi-menu.js`, copié par le build). Trouvé en essayant dev dans un navigateur.\n\nTests : ce dépôt n'a pas de tests automatiques."
     }
    ]
   },
@@ -530,6 +542,12 @@
      "date": "2026-11-16",
      "title": "Entrée Multijoueur en direct",
      "body": "- **Entrée « Multijoueur »** dans le menu (pastille sur « Jouer à plusieurs ») : le salon du portail `/multi/?game=asteroid_run` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n- Le salon à plusieurs de la fenêtre du jeu reste inchangé.\n\nTests : ce dépôt n'a pas de tests automatiques."
+    },
+    {
+     "version": "1.1.1",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur : script dans un fichier à part",
+     "body": "- **Correctif** : l'entrée « Multijoueur » du menu était montée par un script en ligne, que la politique de sécurité du portail (`default-src 'self'`) bloque sur le vrai serveur ; elle est maintenant dans un fichier à part (`multi-menu.js`, copié par le build). Trouvé en essayant dev dans un navigateur.\n\nTests : ce dépôt n'a pas de tests automatiques."
     }
    ]
   },
@@ -904,6 +922,12 @@
      "date": "2026-11-16",
      "title": "Contrôle de version avec le serveur, entrée Multijoueur",
      "body": "- **Contrôle de version** (swordfish-010) : le client annonce son protocole (`proto` dans `join`), lit le `hello` du serveur et affiche « le jeu a été mis à jour : recharge la page » si le serveur exige un client plus récent (`ui/protocol.js`).\n- **Maintenance** : le refus « maintenance » du serveur donne une phrase claire, et un message du serveur (maintenance annoncée) s'affiche quelques secondes en jeu.\n- **Entrée « Multijoueur »** dans le menu (lili-kart-003) : l'état des parties en direct (flux du portail) et un lien vers le salon `/multi/?game=lili-kart`. Absente en local : le jeu marche sans.\n- `game.json` : `server` aligné sur `swordfish:0.3.0`.\n\nTests : 13 tests passent (2 ajoutés)."
+    },
+    {
+     "version": "1.2.0",
+     "date": "2026-11-16",
+     "title": "Une instance de swordfish dédiée à lili-kart",
+     "body": "- **Serveur dédié** : sur le site, le client joint l'instance de swordfish de CE jeu, `/jeux/lili-kart/srv` (un swordfish par jeu), au lieu du serveur commun `/jeux/swordfish`. `?server=<adresse>` choisit un autre serveur pour les essais ; en local rien ne change.\n- L'entrée « Multijoueur » du menu ne dépend plus du chargement du jeu : son script est placé avant celui du jeu (elle s'affichait avec retard).\n- Essayé sur dev (niveau dev de saqiya) : entrée dans le jeu libre, HUD, instance vue par gameboard.\n\nTests : 13 tests passent."
     }
    ]
   },

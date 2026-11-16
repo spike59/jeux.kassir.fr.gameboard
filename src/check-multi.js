@@ -44,6 +44,13 @@ function menuSources(dir) {
   return out.join('\n');
 }
 
+// Les scripts EN LIGNE de la page d'accueil (sans `src`) : le portail sert les jeux statiques avec `default-src 'self'`, qui les interdit.
+function scriptsEnLigne(dir) {
+  const page = PAGES.map((p) => join(dir, p)).find((p) => existsSync(p));
+  const html = page ? read(page) ?? '' : '';
+  return [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map((m) => m[1]).filter((t) => t.trim());
+}
+
 export function checkGame(id, dir) {
   const problems = [];
   const manifest = read(join(dir, 'game.json'));
@@ -55,6 +62,8 @@ export function checkGame(id, dir) {
       if (!Array.isArray(g.modes) || !g.modes.length) problems.push('game.json : « modes » manquant (chantier mise-a-jour-des-cards)');
       else if (!g.modes.some((m) => /^online|^p2p|^lan/.test(m))) problems.push('game.json : aucun mode en réseau dans « modes »');
       if (!g.server) problems.push('game.json : « server » manquant');
+      // un jeu statique est servi tel quel : un script en ligne est bloqué par la politique de sécurité du portail (un jeu construit avec Vite les regroupe, lui, dans son code)
+      if (g.type === 'static' && scriptsEnLigne(dir).some((t) => /multi-entry|mountMultiEntry/.test(t))) problems.push("un script en ligne monte l'entrée « Multijoueur » : la politique de sécurité du portail l'interdit, il faut un fichier à part");
     }
   }
   const code = menuSources(dir);
