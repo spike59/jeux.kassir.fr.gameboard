@@ -11,7 +11,22 @@ const SCRIPT_DIRS = ['', 'ui', 'src', 'public', 'js'];
 
 const read = (p) => { try { return readFileSync(p, 'utf8'); } catch { return null; } };
 
-// Tout le code que la page de menu charge : la page elle-même et ses scripts locaux (un niveau suffit pour retrouver l'appel).
+// Les fichiers locaux qu'un script importe (`import … from './x.js'`, `import('./x.js')`), suivis sur trois niveaux.
+function followImports(file, text, out, seen, depth) {
+  if (depth > 3) return;
+  for (const m of text.matchAll(/(?:from\s*|import\s*\(\s*|import\s+)['"](\.{1,2}\/[^'"]+)['"]/g)) {
+    const target = join(file, '..', m[1]);
+    for (const cand of [target, `${target}.js`, join(target, 'index.js')]) {
+      if (seen.has(cand) || !existsSync(cand)) continue;
+      const t = read(cand);
+      if (t == null) continue;
+      seen.add(cand); out.push(t); followImports(cand, t, out, seen, depth + 1);
+      break;
+    }
+  }
+}
+
+// Tout le code que la page de menu charge : la page, ses scripts locaux et ce qu'ils importent.
 function menuSources(dir) {
   const pageFile = PAGES.map((p) => join(dir, p)).find((p) => existsSync(p));
   if (!pageFile) return null;
@@ -23,7 +38,7 @@ function menuSources(dir) {
     const rel = src.replace(/^\/+/, '');
     for (const base of [join(pageFile, '..'), dir, ...SCRIPT_DIRS.map((d) => join(dir, d))]) {
       const t = read(join(base, rel));
-      if (t != null) { out.push(t); break; }
+      if (t != null) { out.push(t); followImports(join(base, rel), t, out, new Set(), 1); break; }
     }
   }
   return out.join('\n');

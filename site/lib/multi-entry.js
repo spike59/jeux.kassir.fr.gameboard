@@ -3,6 +3,7 @@
 //   import { mountMultiEntry } from '/lib/multi-entry.js';
 //   mountMultiEntry(document.getElementById('menu'), { game: 'bulles' });          // ajoute le bouton
 //   mountMultiEntry(unBoutonExistant, { game: 'bulles', existing: true });          // enrichit un bouton déjà dans le menu
+//   mountMultiEntry(unBouton, { game, existing: true, badge: true });               // garde le texte du bouton : seulement une pastille d'état et un titre
 //   mountMultiEntry(el, { game, onState: (g, state) => … });                        // le jeu veut aussi l'état (parties, joueurs)
 
 // Applique un événement du portail à l'état local { server, games: Map }. Rend le nouvel état ; un trou de `seq` demande un nouvel abonnement.
@@ -25,11 +26,26 @@ export function label(state, game) {
   return { text: `👥 Multijoueur · ${p(g.rooms, 'partie', 'parties')}, ${p(g.players, 'joueur', 'joueurs')}`, status: g.joinable ? 'à rejoindre' : 'en cours' };
 }
 
-export function mountMultiEntry(where, { game, existing = false, onState = null, EventSourceImpl = globalThis.EventSource } = {}) {
+// Pastille d'état (vert : des parties à rejoindre, orange : en cours, grisé : arrêté ou en maintenance), ajoutée une seule fois à la page.
+const BADGE_CSS = `[data-multi-game][data-status="à rejoindre"]::after, [data-multi-game][data-status="en cours"]::after { content: ""; display: inline-block; width: 0.6em; height: 0.6em; margin-left: 0.4em; border-radius: 50%; vertical-align: middle; background: #3ddc84; }
+[data-multi-game][data-status="en cours"]::after { background: #ffb454; }
+[data-multi-game][data-status="hors ligne"], [data-multi-game][data-status="maintenance"] { opacity: 0.6; }`;
+function addBadgeStyle() {
+  if (typeof document === 'undefined' || !document.head || document.querySelector?.('style[data-multi-entry]')) return;
+  const s = document.createElement('style'); s.dataset.multiEntry = ''; s.textContent = BADGE_CSS; document.head.append(s);
+}
+
+export function mountMultiEntry(where, { game, existing = false, badge = false, onState = null, EventSourceImpl = globalThis.EventSource } = {}) {
   const a = existing ? where : Object.assign(document.createElement('a'), { className: 'multi-entry' });
   a.href = `/multi/?game=${encodeURIComponent(game)}`;
   a.dataset.multiGame = game;
-  const paint = (state) => { const l = label(state, game); a.textContent = l.text; a.dataset.status = l.status; onState?.(state?.games?.get?.(game) ?? null, state); };
+  if (badge) addBadgeStyle();
+  const paint = (state) => {
+    const l = label(state, game);
+    if (badge) a.title = l.text; else a.textContent = l.text; // pastille : le bouton garde son texte
+    a.dataset.status = l.status;
+    onState?.(state?.games?.get?.(game) ?? null, state, l);
+  };
   paint(null);
   if (!existing) where.append(a);
   if (!EventSourceImpl) return { element: a, stop() {} };

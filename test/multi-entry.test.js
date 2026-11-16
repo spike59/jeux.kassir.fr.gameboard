@@ -46,3 +46,16 @@ test('mountMultiEntry : un seul abonnement, le bouton suit les événements pous
   assert.equal(made.length, 2); assert.equal(made[0].closed, true);
   m.stop();
 });
+
+test('mountMultiEntry en mode pastille : le texte du bouton ne change pas, le titre et le statut oui', () => {
+  const made = [];
+  class FakeES { constructor() { this.l = {}; made.push(this); } addEventListener(t, f) { this.l[t] = f; } close() {} emit(t, ev) { this.l[t]({ data: JSON.stringify(ev) }); } }
+  const btn = { dataset: {}, textContent: '👥' };
+  const seen = [];
+  mountMultiEntry(btn, { game: 'b', existing: true, badge: true, EventSourceImpl: FakeES, onState: (game, state, l) => seen.push(l.text) });
+  made[0].emit('snapshot', snap);
+  assert.equal(btn.textContent, '👥', 'texte conservé');
+  assert.equal(btn.title, '👥 Multijoueur · 2 parties, 3 joueurs');
+  assert.equal(btn.dataset.status, 'à rejoindre');
+  assert.ok(seen.at(-1).includes('2 parties'));
+});

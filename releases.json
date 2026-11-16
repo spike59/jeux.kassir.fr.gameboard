@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-16T01:07:11.695Z",
+ "generatedAt": "2026-11-16T01:15:11.234Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -142,6 +142,12 @@
      "date": "2026-11-16",
      "title": "Le jeu à plusieurs passe par swordfish",
      "body": "- Le salon à plusieurs joint `/jeux/swordfish/hub` au lieu de `/api/v1/hub` de gameboard.\n- À plusieurs, le score n'est plus envoyé par le navigateur (`flushScore` retiré de `multi.js`) : c'est le serveur (swordfish) qui l'envoie avec sa clé.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n\nTests : ce dépôt n'a pas de tests automatiques."
+    },
+    {
+     "version": "2.1.0",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur en direct",
+     "body": "- **Entrée « Multijoueur »** dans le menu (pastille sur le bouton 👥) : le salon du portail `/multi/?game=bulles` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n- Le salon à plusieurs de la fenêtre du jeu (`createLobby`) reste inchangé.\n\nTests : ce dépôt n'a pas de tests automatiques."
     }
    ]
   },
@@ -330,6 +336,12 @@
      "date": "2026-11-16",
      "title": "Modes et serveur classés pour le portail",
      "body": "- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos pour formaliser et étiqueter les modes p2p et lan-host, et pour passer sur swordfish.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Aucun changement de code du jeu.\n\n- **Tests** : script `npm test` ajouté (`node --test`) ; nouveaux tests des utilitaires (`test/util.test.mjs`), des envois de scores (`test/scores.test.mjs`) et des données des circuits (`test/circuits.test.mjs`), avec les 6 tests du serveur de parties.\n\nTests : 18 tests passent."
+    },
+    {
+     "version": "0.25.0",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur en direct",
+     "body": "- **Entrée « Multijoueur »** dans le menu (ligne du menu principal, utilisable à la manette, `src/multiMenu.js`) : le salon du portail `/multi/?game=car_race` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n- Les modes pair à pair et lan-host restent séparés ; seul le salon du portail est ajouté.\n\nTests : 19 tests passent (1 ajouté)."
     }
    ]
   },
@@ -410,6 +422,12 @@
      "date": "2026-11-16",
      "title": "En-têtes de sécurité et CORS fermé",
      "body": "- CORS : en ligne (`PUBLIC_HOST` défini), seule l'origine du site est acceptée (`Vary: Origin`) ; en local, l'origine reçue est renvoyée.\n- En-têtes : `X-Content-Type-Options: nosniff`, et `Strict-Transport-Security` en ligne. La CSP reste à faire (todo `space_hairness-025`).\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 26.\n\nTests : 26 tests passent."
+    },
+    {
+     "version": "0.12.0",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur en direct",
+     "body": "- **Entrée « Multijoueur »** dans le menu (bouton 👥 de la barre du haut) : le salon du portail `/multi/?game=space_hairness` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n\nTests : 26 tests passent."
     }
    ]
   },
@@ -448,6 +466,12 @@
      "date": "2026-11-16",
      "title": "CORS fermé, en-têtes de sécurité, taille du corps limitée",
      "body": "- CORS : `ALLOWED_ORIGINS` (liste séparée par des virgules), sinon l'origine du site si `PUBLIC_HOST` est défini ; en développement local, tout est permis (`api/src/app.js`).\n- En-têtes : `X-Content-Type-Options`, `Referrer-Policy: same-origin`, et `Strict-Transport-Security` en ligne. La CSP reste à faire (todo `space_run-004`).\n- Corps JSON limité à 256 ko (todo `space_run-005`) ; test ajouté dans `api/test/app.test.js`.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 23.\n\nTests : 23 tests passent."
+    },
+    {
+     "version": "1.4.0",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur en direct",
+     "body": "- **Entrée « Multijoueur »** dans le menu (bouton du menu, `ui/src/multi-menu.js`) : le salon du portail `/multi/?game=space_run` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n\nTests : 23 tests passent."
     }
    ]
   },
@@ -468,6 +492,12 @@
      "date": "2026-11-16",
      "title": "Modes et serveur classés pour le portail",
      "body": "- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos pour classer les modes et passer sur swordfish.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Aucun changement de code du jeu.\n\nTests : 10 tests passent (11 au total, 1 ignoré)."
+    },
+    {
+     "version": "0.3.0",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur en direct",
+     "body": "- **Entrée « Multijoueur »** dans le menu (bouton du menu principal) : le salon du portail `/multi/?game=gemma_run` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n\nTests : 10 tests passent (11 au total, 1 ignoré)."
     }
    ]
   },
@@ -494,6 +524,12 @@
      "date": "2026-11-16",
      "title": "Scores à plusieurs envoyés par le serveur",
      "body": "- À plusieurs, le score n'est plus envoyé par le navigateur (`asteroid_run.js`) : c'est le serveur (swordfish) qui l'envoie avec sa clé.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n\nTests : ce dépôt n'a pas de tests automatiques."
+    },
+    {
+     "version": "1.1.0",
+     "date": "2026-11-16",
+     "title": "Entrée Multijoueur en direct",
+     "body": "- **Entrée « Multijoueur »** dans le menu (pastille sur « Jouer à plusieurs ») : le salon du portail `/multi/?game=asteroid_run` et l'état des parties en direct, poussé par le portail (flux d'événements, pas d'interrogation). Absente hors du site : le jeu marche sans. Vérifiée par `scripts/check-multi.mjs` de gameboard.\n- Le salon à plusieurs de la fenêtre du jeu reste inchangé.\n\nTests : ce dépôt n'a pas de tests automatiques."
     }
    ]
   },
@@ -862,6 +898,12 @@
      "date": "2026-11-16",
      "title": "Renommage en Lili Kart, client vers swordfish",
      "body": "- Renommage de `kart_demo` en `lili-kart` (Liliputian Karting League) : nom du paquet, titre, adresse `/jeux/lili-kart/`.\n- Le client joint le serveur `swordfish` (`/jeux/swordfish`) au lieu de `speedy_gonzales` ; `scripts/start.mjs` lance le dépôt voisin `swordfish`.\n- Nouveau test de simulation du réseau (`test/netsim.test.js` : délai, gigue, retard) ; mesures dans `concept/mesures/reseau-2026-11-10.md`.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- `game.json` : `server` aligné sur la version de swordfish en service (`swordfish:0.2.0`).\n- Tests : 11 (9 avant, 2 ajoutés).\n\nTests : 11 tests passent."
+    },
+    {
+     "version": "1.1.0",
+     "date": "2026-11-16",
+     "title": "Contrôle de version avec le serveur, entrée Multijoueur",
+     "body": "- **Contrôle de version** (swordfish-010) : le client annonce son protocole (`proto` dans `join`), lit le `hello` du serveur et affiche « le jeu a été mis à jour : recharge la page » si le serveur exige un client plus récent (`ui/protocol.js`).\n- **Maintenance** : le refus « maintenance » du serveur donne une phrase claire, et un message du serveur (maintenance annoncée) s'affiche quelques secondes en jeu.\n- **Entrée « Multijoueur »** dans le menu (lili-kart-003) : l'état des parties en direct (flux du portail) et un lien vers le salon `/multi/?game=lili-kart`. Absente en local : le jeu marche sans.\n- `game.json` : `server` aligné sur `swordfish:0.3.0`.\n\nTests : 13 tests passent (2 ajoutés)."
     }
    ]
   },

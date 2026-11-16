@@ -2,7 +2,7 @@
 
 Instantané du 2026-11-16. Version courante : 1.1.0 (portail, menu 3D, scores, état public du parc, notes de version des jeux publics).
 
-## 1.1.0 (prochaine)
+## 1.2.0 (prochaine)
 - gameboard-002 : scores vérifiés par le serveur ; gameboard-003 : limite sur les échecs d'authentification
 - gameboard-001 (tofix) : décider du sort de `releases.json` (généré)
 - gameboard-005 : classements des jeux avec serveur (`space_hairness-023` pour Space Racing)
