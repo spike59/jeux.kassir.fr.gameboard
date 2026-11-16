@@ -100,7 +100,7 @@
      "body": "- La page `/notes/` sait afficher une colonne **À venir** (prochaine version de chaque projet) quand les données la fournissent. Le portail public ne la reçoit pas (son `releases.json` n'a pas de versions à venir) ; l'application `roadmap`, locale, l'affiche avec le même code."
     },
     {
-     "version": "0.10.0",
+     "version": "1.0.0",
      "date": "2026-11-16",
      "title": "Le hub des salons passe à swordfish",
      "body": "- **Le hub des salons est retiré** de gameboard (`src/hub/` supprimé, 825 lignes) : il vit dans swordfish. `src/remote-hub.js` relaie vers lui.\n- Les jeux à plusieurs (`bulles`, `asteroid_run`) joignent désormais `/jeux/swordfish/hub` au lieu de `/api/v1/hub` (`site/lib/hub-lobby.js`, `site/multi/multi.js`).\n- Catalogue : `lili-kart` remplace `kart_demo` ; `releases.json` régénéré (jeux publics seulement).\n- `src/games.js` : classements ajustés.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 16 (le test du hub est retiré avec le hub, `remote-hub.test.js` ajouté).\n\nTests : 16 tests passent."
@@ -132,7 +132,7 @@
      "body": "- Arrivée depuis le salon multijoueur du site : `?room=<id>` rejoint la salle, `?create=1` en crée une, sans retaper le prénom.\n- Le prénom est partagé avec les autres jeux du site."
     },
     {
-     "version": "1.2.1",
+     "version": "2.0.0",
      "date": "2026-11-16",
      "title": "Le jeu à plusieurs passe par swordfish",
      "body": "- Le salon à plusieurs joint `/jeux/swordfish/hub` au lieu de `/api/v1/hub` de gameboard.\n- À plusieurs, le score n'est plus envoyé par le navigateur (`flushScore` retiré de `multi.js`) : c'est le serveur (swordfish) qui l'envoie avec sa clé.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n\nTests : ce dépôt n'a pas de tests automatiques."
@@ -484,7 +484,7 @@
      "body": "- **Tir** : bouton 🔫 (maintenu pour tirer en rafale) ou Espace. Les astéroïdes ont des points de vie (1 à 3 tirs), +5 points par astéroïde détruit.\n- **À plusieurs** (👥, de 2 à 6 joueurs) : le salon de jeux.kassir.fr crée les astéroïdes et les étoiles, tout le monde voit le même champ et les vaisseaux des autres (une couleur chacun). Étoile : +10 ; astéroïde détruit : +5 ; choc : −1 vie. Manche de 90 s ou dernier vaisseau en vie, résultats, « Rejouer ».\n- Classement « Asteroid Run à plusieurs ». Le score part en quittant, en pause, à la fin de manche ou à la fermeture si c'est un record.\n- Renommé : le jeu s'appelait « gemma_run » (nom pris par un autre jeu de vaisseau)."
     },
     {
-     "version": "0.2.1",
+     "version": "1.0.0",
      "date": "2026-11-16",
      "title": "Scores à plusieurs envoyés par le serveur",
      "body": "- À plusieurs, le score n'est plus envoyé par le navigateur (`asteroid_run.js`) : c'est le serveur (swordfish) qui l'envoie avec sa clé.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n\nTests : ce dépôt n'a pas de tests automatiques."
@@ -846,7 +846,7 @@
      "body": "- **Son propre kart** : l'affichage glisse entre l'état d'avant et d'après le dernier tick au lieu d'avancer à la cadence des ticks (30 Hz), qui paraissait saccadée sur un écran à 60 Hz ou plus.\n- **Les autres karts** : les instantanés sont datés par le numéro de tick du serveur (régulier) et non par leur heure d'arrivée (irrégulière) ; l'horloge se cale sur les arrivées les plus rapides.\n- Un instantané en retard prolonge le kart pendant 120 ms au plus (vitesse et cap connus) au lieu de le figer.\n- 3 tests de plus (9 au total)."
     },
     {
-     "version": "0.1.2",
+     "version": "1.0.0",
      "date": "2026-11-16",
      "title": "Renommage en Lili Kart, client vers swordfish",
      "body": "- Renommage de `kart_demo` en `lili-kart` (Liliputian Karting League) : nom du paquet, titre, adresse `/jeux/lili-kart/`.\n- Le client joint le serveur `swordfish` (`/jeux/swordfish`) au lieu de `speedy_gonzales` ; `scripts/start.mjs` lance le dépôt voisin `swordfish`.\n- Nouveau test de simulation du réseau (`test/netsim.test.js` : délai, gigue, retard) ; mesures dans `concept/mesures/reseau-2026-11-10.md`.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Tests : 11 (9 avant, 2 ajoutés).\n\nTests : 11 tests passent."
