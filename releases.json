@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-15T23:51:35.562Z",
+ "generatedAt": "2026-11-16T00:12:12.571Z",
  "projects": [
   {
    "code": "kassir_devops",
@@ -103,7 +103,7 @@
      "version": "1.0.0",
      "date": "2026-11-16",
      "title": "Le hub des salons passe à swordfish",
-     "body": "- **Le hub des salons est retiré** de gameboard (`src/hub/` supprimé, 825 lignes) : il vit dans swordfish. `src/remote-hub.js` relaie vers lui.\n- Les jeux à plusieurs (`bulles`, `asteroid_run`) joignent désormais `/jeux/swordfish/hub` au lieu de `/api/v1/hub` (`site/lib/hub-lobby.js`, `site/multi/multi.js`).\n- Catalogue : `lili-kart` remplace `kart_demo` ; `releases.json` régénéré (jeux publics seulement).\n- `src/games.js` : classements ajustés.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 16 (le test du hub est retiré avec le hub, `remote-hub.test.js` ajouté).\n\nTests : 16 tests passent."
+     "body": "- **Le hub des salons est retiré** de gameboard (`src/hub/` supprimé, 825 lignes) : il vit dans swordfish. `src/remote-hub.js` relaie vers lui.\n- Les jeux à plusieurs (`bulles`, `asteroid_run`) joignent désormais `/jeux/swordfish/hub` au lieu de `/api/v1/hub` (`site/lib/hub-lobby.js`, `site/multi/multi.js`).\n- Catalogue : `lili-kart` remplace `kart_demo` ; `releases.json` régénéré (jeux publics seulement).\n- `src/games.js` : classements ajustés.\n- **`GET /api/v1/multi`** : l'état du multijoueur pour les menus et le salon. Le catalogue (`games.json`, jeux marqués `\"multi\": true`) fusionné avec ce que swordfish annonce : par jeu, serveur en ligne ou non, parties, joueurs, parties à rejoindre, adresse du salon. Comptes seulement, jamais de prénom (`src/multi.js`).\n- **`site/lib/multi-entry.js`** : le bouton « 👥 Multijoueur » commun à tous les menus des jeux, avec l'état en direct (`mountMultiEntry`). Il mène au salon, toujours sur gameboard.\n- **Salon `/multi/?game=<jeu>`** : le jeu d'où l'on vient passe en premier (ses parties, sa création de partie) et est entouré.\n- `games.json` : les 7 jeux en réseau portent `\"multi\": true`.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Tests : 21 (état du multijoueur, bouton du menu, route `/api/v1/multi`, catalogue).\n\nTests : 21 tests passent."
     }
    ]
   },
@@ -323,7 +323,7 @@
      "version": "0.24.2",
      "date": "2026-11-16",
      "title": "Modes et serveur classés pour le portail",
-     "body": "- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos pour formaliser et étiqueter les modes p2p et lan-host, et pour passer sur swordfish.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Aucun changement de code du jeu.\n\nTests : ce dépôt n'a pas de tests automatiques lancés ici."
+     "body": "- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Todos pour formaliser et étiqueter les modes p2p et lan-host, et pour passer sur swordfish.\n- Todos, roadmap et chantiers `serveur-de-dev` et `multijoueur-normalise` mis à jour.\n- Aucun changement de code du jeu.\n\n- **Tests** : script `npm test` ajouté (`node --test`) ; nouveaux tests des utilitaires (`test/util.test.mjs`), des envois de scores (`test/scores.test.mjs`) et des données des circuits (`test/circuits.test.mjs`), avec les 6 tests du serveur de parties.\n\nTests : 18 tests passent."
     }
    ]
   },
@@ -849,7 +849,7 @@
      "version": "1.0.0",
      "date": "2026-11-16",
      "title": "Renommage en Lili Kart, client vers swordfish",
-     "body": "- Renommage de `kart_demo` en `lili-kart` (Liliputian Karting League) : nom du paquet, titre, adresse `/jeux/lili-kart/`.\n- Le client joint le serveur `swordfish` (`/jeux/swordfish`) au lieu de `speedy_gonzales` ; `scripts/start.mjs` lance le dépôt voisin `swordfish`.\n- Nouveau test de simulation du réseau (`test/netsim.test.js` : délai, gigue, retard) ; mesures dans `concept/mesures/reseau-2026-11-10.md`.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- Tests : 11 (9 avant, 2 ajoutés).\n\nTests : 11 tests passent."
+     "body": "- Renommage de `kart_demo` en `lili-kart` (Liliputian Karting League) : nom du paquet, titre, adresse `/jeux/lili-kart/`.\n- Le client joint le serveur `swordfish` (`/jeux/swordfish`) au lieu de `speedy_gonzales` ; `scripts/start.mjs` lance le dépôt voisin `swordfish`.\n- Nouveau test de simulation du réseau (`test/netsim.test.js` : délai, gigue, retard) ; mesures dans `concept/mesures/reseau-2026-11-10.md`.\n- `game.json` : bloc de classement des modes et du serveur (`modes`, `players`, `controllers`, `modeTags`, `server`, `analysedOn`), pour les cartes du portail (chantier `mise-a-jour-des-cards`).\n- `game.json` : `server` aligné sur la version de swordfish en service (`swordfish:0.2.0`).\n- Tests : 11 (9 avant, 2 ajoutés).\n\nTests : 11 tests passent."
     }
    ]
   },
