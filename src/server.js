@@ -33,9 +33,9 @@ const hub = createRemoteHub({ baseUrl: process.env.SWORDFISH_URL ?? '' });
 let catalogCache = { mtime: 0, list: [] };
 const getCatalog = () => { try { const m = statSync(CATALOG).mtimeMs; if (m !== catalogCache.mtime) catalogCache = { mtime: m, list: JSON.parse(readFileSync(CATALOG, 'utf8')) }; } catch { /* on garde le dernier catalogue lu */ } return catalogCache.list; };
 const urls = (process.env.SWORDFISH_URLS || process.env.SWORDFISH_URL || '').split(',').map((u) => u.trim()).filter(Boolean);
-let feeds;
-const bus = createMultiBus({ getCatalog, instances: () => feeds.instances() });
-feeds = createFeeds({ urls, onChange: () => bus.touch() });
+let bus = null;
+const feeds = createFeeds({ urls, onChange: () => bus?.touch() });
+bus = createMultiBus({ getCatalog, instances: () => feeds.instances() });
 const portal = createPortal({ hub, multi: { bus }, publicHost: PUBLIC_HOST, menuDir: MENU_DIR, publicDir: PUBLIC_DIR, gamesDir: GAMES_DIR, catalog: CATALOG, releases: RELEASES, trustProxy: TRUST_PROXY, apiOptions: { keys, dataDir: DATA_DIR } });
 
 const server = portal.listen(PORT, HOST, () => console.log(`gameboard sur http://${HOST}:${PORT} (https://${PUBLIC_HOST}) — ${keys.size} jeu(x) avec clé`));
