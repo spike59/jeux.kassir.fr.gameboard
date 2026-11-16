@@ -7,8 +7,8 @@
   <meta name="robots" content="noindex">
   <title>Multijoueur</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="multi.css?v=3">
-  <script type="module" src="multi.js?v=4"></script>
+  <link rel="stylesheet" href="multi.css?v=4">
+  <script type="module" src="multi.js?v=5"></script>
 </head>
 <body>
   <header class="top">
@@ -33,20 +33,21 @@
     <div id="lobby" class="lobby" hidden>
       <section class="card" id="games-card">
         <h2>1 · Choisis ton jeu</h2>
-        <p class="hint">L'état de chaque jeu est mis à jour en direct.</p>
+        <p class="hint" id="pick-hint">Touche un jeu : tu verras ses parties et tu pourras jouer. L'état est mis à jour en direct.</p>
         <div id="games-strip" class="strip"></div>
       </section>
 
-      <section class="card">
-        <h2>2 · 🖥️ Parties sur le serveur</h2>
-        <p class="hint">Le serveur fait tourner la partie : rejoins quand tu veux.</p>
-        <ul id="rooms" class="rooms"></ul>
-        <p class="hint" id="rooms-empty">Aucune partie pour le moment. Lance la première !</p>
-        <div id="new-hub" class="new-games"></div>
+      <!-- le jeu choisi : jouer, créer une partie, ses parties -->
+      <section class="card" id="game-card" hidden>
+        <h2 id="game-title"></h2>
+        <p class="hint" id="game-state"></p>
+        <div id="game-actions" class="new-games"></div>
+        <ul id="game-rooms" class="rooms"></ul>
+        <p class="hint" id="game-empty"></p>
         <form id="server-form" class="server-form" hidden>
           <h3>Créer une partie sur le serveur</h3>
           <div class="row">
-            <select id="sf-game" aria-label="Jeu"></select>
+            <select id="sf-game" aria-label="Jeu" hidden></select>
             <select id="sf-mode" aria-label="Mode"></select>
           </div>
           <div class="row">
@@ -57,14 +58,6 @@
         </form>
       </section>
 
-      <section class="card">
-        <h2>2 · 📱 Parties entre joueurs</h2>
-        <p class="hint">Un joueur fait tourner la partie sur son appareil.</p>
-        <ul id="rooms-peer" class="rooms"></ul>
-        <p class="hint" id="peer-empty">Aucune partie entre joueurs.</p>
-        <div id="new-games" class="new-games"></div>
-      </section>
-
       <section class="card chat-card">
         <h2>Discussion <small id="me"></small></h2>
         <div id="chat" class="chat" aria-live="polite"></div>
@@ -73,6 +66,22 @@
           <button type="submit">Envoyer</button>
         </form>
       </section>
+
+      <!-- anciens affichages réseau : toutes les parties de tous les jeux ; visibles seulement avec ?debug=true -->
+      <div id="legacy" hidden>
+        <section class="card">
+          <h2>🖥️ Parties sur le serveur (tous les jeux)</h2>
+          <ul id="rooms" class="rooms"></ul>
+          <p class="hint" id="rooms-empty">Aucune partie pour le moment.</p>
+          <div id="new-hub" class="new-games"></div>
+        </section>
+        <section class="card">
+          <h2>📱 Parties entre joueurs</h2>
+          <ul id="rooms-peer" class="rooms"></ul>
+          <p class="hint" id="peer-empty">Aucune partie entre joueurs.</p>
+          <div id="new-games" class="new-games"></div>
+        </section>
+      </div>
     </div>
   </main>
 </body>

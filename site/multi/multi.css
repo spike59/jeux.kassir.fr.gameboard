@@ -60,3 +60,9 @@ button:disabled { opacity: 0.45; cursor: default; }
 .chip.focus { outline: 2px solid #ffd34d; outline-offset: 2px; }
 .chip[data-status='à rejoindre'] small { color: #7ee787; }
 .chip[data-status='hors ligne'], .chip[data-status='maintenance'] { opacity: 0.6; }
+
+/* pastilles de jeu : des boutons (le choix se fait sans recharger) */
+button.chip { font: inherit; cursor: pointer; text-align: left; }
+button.chip:hover { filter: brightness(1.15); }
+#game-actions a.primary { background: var(--hero); color: #fff; }
+#game-actions { margin-bottom: 0.6rem; }
