@@ -8,6 +8,7 @@ Instantan√© du 2026-11-16. Version courante : 1.1.1 (portail, menu 3D, scores, √
 - gameboard-005 : classements des jeux avec serveur (`space_hairness-023` pour Space Racing)
 
 ## next
+- gameboard-013-salon-commun-agrege (chantier interface-multijoueur)
 - ~~gameboard-012-agreger-les-flux-des-instances~~ : fait le 2026-11-16 (chantier interface-multijoueur)
 - ~~gameboard-011-salon-plus-clair~~ : fait le 2026-11-16 (chantier interface-multijoueur)
 - ~~gameboard-010-controle-des-interfaces-multi~~ : fait le 2026-11-16 (chantier interface-multijoueur)
