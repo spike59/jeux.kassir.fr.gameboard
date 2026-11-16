@@ -27,6 +27,12 @@ test('multiState : seulement les jeux multi prêts ; comptes, parties à rejoind
   assert.deepEqual([s.server.online, s.server.players, s.server.rooms, s.server.instances], [true, 8, 2, 1]);
 });
 
+test('multiState : une salle libre permanente et vide ne compte pas comme une partie, mais reste à rejoindre', () => {
+  const s = multiState(catalog, [instance([entry('lili-kart', [room('libre', 0, 8)], { kind: 'kart' })])]);
+  const k = s.games.find((g) => g.id === 'lili-kart');
+  assert.deepEqual([k.rooms, k.players, k.joinable, k.status], [0, 0, 1, 'online']);
+});
+
 test('multiState : instance arrêtée, en maintenance ou injoignable', () => {
   const draining = multiState(catalog, [instance([entry('bulles', [room('1', 2)])], { status: 'draining' })]);
   assert.equal(draining.games[0].status, 'draining'); assert.equal(draining.games[0].joinable, 0);

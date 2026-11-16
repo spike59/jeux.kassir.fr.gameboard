@@ -15,7 +15,9 @@ const readName = () => {
 const writeName = (n) => { try { localStorage.setItem(NAME_KEY, n); localStorage.setItem('bulles.player', n); } catch { /* navigation privée */ } };
 
 function el(tag, props = {}, ...kids) {
-  const node = Object.assign(document.createElement(tag), props);
+  const { dataset, ...rest } = props; // `dataset` est en lecture seule : on remplit l'objet
+  const node = Object.assign(document.createElement(tag), rest);
+  if (dataset) Object.assign(node.dataset, dataset);
   node.append(...kids.filter((k) => k != null));
   return node;
 }

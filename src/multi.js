@@ -89,15 +89,16 @@ export function multiState(catalog, instances) {
   for (const inst of online) for (const [id, g] of inst.games) byGame.set(id, { game: g, server: inst.server });
   const games = catalog.filter((g) => g.multi && g.ready).map((g) => {
     const found = byGame.get(g.id);
-    const rooms = found?.game.rooms ?? [];
+    const rooms = (found?.game.rooms ?? []).filter((r) => (r.players ?? 0) > 0); // les parties où l'on joue ; une salle libre permanente, vide, n'en est pas une
+    const joinable = (found?.game.rooms ?? []).filter((r) => r.joinable).length; // mais on peut la rejoindre
     const status = !found || !found.game.online ? 'offline' : found.server?.status === 'draining' ? 'draining' : 'online';
     return {
       id: g.id, title: g.title, icon: g.icon, color: g.color ?? null, url: g.url ?? null,
       status, online: status === 'online',
       rooms: rooms.length,
       players: rooms.reduce((n, r) => n + (r.players ?? 0), 0),
-      joinable: status === 'online' ? rooms.filter((r) => r.joinable).length : 0,
-      max: rooms.find((r) => r.max)?.max ?? null,
+      joinable: status === 'online' ? joinable : 0,
+      max: (found?.game.rooms ?? []).find((r) => r.max)?.max ?? null,
       version: found?.server?.version ?? null,
       lobby: `/multi/?game=${encodeURIComponent(g.id)}`,
     };

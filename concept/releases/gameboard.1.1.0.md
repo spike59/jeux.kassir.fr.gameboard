@@ -13,4 +13,6 @@ title: "Le multijoueur en direct, salon plus clair"
 - **Contrôle des interfaces** (gameboard-010) : `node scripts/check-multi.mjs` vérifie que chaque jeu en réseau déclare ses modes et son serveur et monte l'entrée « Multijoueur » de son menu.
 - Le relais de lecture du parc (prénoms de la page publique du parc) ne travaille plus que tant que quelqu'un le lit.
 
-Tests : 35 tests passent (flux, contrôle des interfaces, démarrage réel du serveur).
+- **Correctif du salon** : l'ouverture de `/multi/?game=<jeu>` (livrée en 1.0.0) levait une exception (`dataset` est en lecture seule) ; une salle libre permanente et vide n'est plus comptée comme une partie.
+
+Tests : 36 tests passent (flux, contrôle des interfaces, démarrage réel du serveur).
