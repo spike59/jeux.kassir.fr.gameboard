@@ -179,7 +179,7 @@ function renderGameCard() {
   if (hub && !hub.external) actions.push(el('a', { className: 'primary', href: `/jeux/${FOCUS}/?create=1`, textContent: `➕ Créer une partie (${hub.min} à ${hub.max} joueurs)` }));
   else if (hub?.external && hub.createUrl !== null) actions.push(el('a', { className: 'primary', href: hub.createUrl ?? `/jeux/${FOCUS}/?create=1`, textContent: '➕ Créer une partie' }));
   else if (!hub) actions.push(el('a', { className: 'primary', href: url, textContent: '▶ Jouer (la file d\'attente et le jeu libre sont dans le jeu)' }));
-  actions.push(el('a', { href: url, textContent: hub ? 'Ouvrir le jeu' : 'Ouvrir le menu du jeu' }));
+  if (hub) actions.push(el('a', { href: url, textContent: 'Ouvrir le jeu' }));
   $('game-actions').replaceChildren(...actions);
   // ses parties : celles du hub, sinon ce que le portail annonce (comptes seulement)
   const mine = (rooms[FOCUS] ?? []).map((r) => roomRow(FOCUS, r));
